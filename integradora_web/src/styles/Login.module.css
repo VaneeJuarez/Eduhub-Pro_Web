@@ -1,0 +1,333 @@
+
+
+/* all: unset; -> Reinicia los estilos quitando bootstrap*/
+
+.loginBody {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #604274;
+}
+
+/* body {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh !important;
+    background: #D5DCF9;
+} */
+
+.owncontainer {
+    position: relative;
+    width: 70vw;
+    height: 80vh;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px 0 rgb(0, 0, 0, 0.3), 0 6px 20px 0 rgb(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.owncontainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(-45deg, #AA39AD, #A02EA3);
+    z-index: 6;
+    transform: translateX(100%);
+    transition: 1s ease-in-out;
+}
+
+.signin_signup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 5;
+}
+
+form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 40%;
+    min-width: 238px;
+    padding: 0 10px;
+}
+
+form.sign_in_form {
+    opacity: 1;
+    transition: 0.5s ease-in-out;
+    transition-delay: 1s;
+}
+
+form.sign_up_form {
+    opacity: 0;
+    transition: 0.5s ease-in-out;
+    transition-delay: 1s;
+}
+
+.title {
+    font-size: 35px;
+    color: #604274;
+    margin-bottom: 10px;
+}
+
+.input_field {
+    width: 100%;
+    height: 50px;
+    background: #f0f0f0;
+    margin: 10px 0;
+    border: 2px solid #604274;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.input_field i {
+    flex: 1;
+    text-align: center;
+    color: #604274;
+    font-size: 18px;
+}
+
+.input_field input,
+.input_field select.role_select {
+    flex: 5;
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 600;
+    color: #84828f;
+    appearance: none;
+    width: calc(100% - 20px);
+}
+
+.input_field select.role_select {
+    cursor: pointer;
+}
+
+.input_field select option {
+    background: #f0f0f0 !important;
+    color: #444 !important;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+}
+
+.botonpro {
+    width: 150px;
+    height: 50px;
+    border: none;
+    border-radius: 50px;
+    background: #604274;
+    color: #fff;
+    font-weight: 600;
+    margin: 10px 0;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.botonpro:hover {
+    background: #65739F;
+}
+
+.social_text {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.social_media {
+    display: flex;
+    justify-content: center;
+}
+
+.social_icon {
+    height: 45px;
+    width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6d6b76;
+    border: 1px solid #84828f;
+    border-radius: 50px;
+    margin: 0 5px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.social_icon:hover {
+    color: #604274;
+    border-color: #604274;
+}
+
+.panels_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    width: 35%;
+    min-width: 238px;
+    padding: 0 10px;
+    text-align: center;
+    z-index: 6;
+}
+
+.left_panel {
+    pointer-events: none;
+}
+
+.content_panel {
+    color: #fff;
+    transition: 1.1s ease-in-out;
+    transition-delay: 0.5s;
+}
+
+.panel h3 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.panel p {
+    font-size: 15px;
+    padding: 10px 0;
+}
+
+.image {
+    width: 100%;
+    transition: 1.1s ease-in-out;
+    transition-delay: 0.4s;
+}
+
+.left_panel .image,
+.left_panel .content_panel {
+    transform: translateX(-200%);
+}
+
+.right_panel .image,
+.right_panel .content_panel {
+    transform: translateX(0);
+}
+
+.account_text {
+    display: none;
+}
+
+/* Animation */
+
+.owncontainer.sign_up_mode::before {
+    transform: translateX(0);
+}
+
+.owncontainer.sign_up_mode .right_panel .image,
+.owncontainer.sign_up_mode .right_panel .content_panel {
+    transform: translateX(200%);
+}
+
+.owncontainer.sign_up_mode .left_panel .image,
+.owncontainer.sign_up_mode .left_panel .content_panel {
+    transform: translateX(0);
+}
+
+.owncontainer.sign_up_mode form.sign_in_form {
+    opacity: 0;
+}
+
+.owncontainer.sign_up_mode form.sign_up_form {
+    opacity: 1;
+}
+
+.owncontainer.sign_up_mode .right_panel {
+    pointer-events: none;
+}
+
+.owncontainer.sign_up_mode .left_panel {
+    pointer-events: all;
+}
+
+/* Responsive */
+@media (max-width:779px) {
+    .owncontainer {
+        width: 100vh;
+        height: 100vh;
+    }
+}
+
+@media (max-width:635px) {
+    .owncontainer::before {
+        display: none;
+    }
+
+    form {
+        width: 80%;
+    }
+
+    form.sign_up_form {
+        display: none;
+    }
+
+    .owncontainer.sign_up_mode2 form.sign_up_form {
+        display: flex;
+        opacity: 1;
+    }
+
+    .owncontainer.sign_up_mode2 form.sign_in_form {
+        display: none;
+    }
+
+    .panels_container {
+        display: none;
+    }
+
+    .account_text {
+        display: initial;
+        margin-top: 30px;
+    }
+}
+
+@media (max-width:320px) {
+    form {
+        width: 90%;
+    }
+}
+
+/* Transición de aparición */
+.fade_in {
+    opacity: 0;
+    animation: aparecer 1s ease-out forwards;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

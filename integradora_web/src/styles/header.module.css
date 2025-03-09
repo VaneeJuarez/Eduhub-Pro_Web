@@ -1,0 +1,268 @@
+
+.headerArea {
+    position: fixed;
+    top: 30px;
+    left: 0px;
+    right: 0px;
+    z-index: 100;
+    height: 100px;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+  }
+  
+  .headerArea .mainNav {
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+    border-radius: 40px;
+    min-height: 80px;
+    background: #ffffff;
+  }
+  
+  .headerArea .mainNav .logo {
+    float: left;
+    margin-top: 37px;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+    margin-left: 30px; /**/
+  }
+  
+  .headerArea .mainNav .logo img {
+    width: 80px; /**/
+    height: 30px; /**/
+    margin-top: -25px; /**/
+    object-fit: contain;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+  }
+  
+  .headerArea .mainNav .nav {
+    float: right;
+    margin-top: 27px;
+    margin-left: 0px;
+    margin-right: 30px;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+    position: relative;
+    z-index: 999;
+  }
+  
+  .headerArea .mainNav .nav li {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .headerArea .mainNav .nav li:last-child {
+    padding-right: 5px;
+  }
+  
+  .headerArea .mainNav .nav li a {
+    display: block;
+    font-weight: 500;
+    font-size: 13px;
+    color: #fff;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+    height: 40px;
+    line-height: 40px;
+    border: transparent;
+    letter-spacing: 1px;
+    padding: 0px 5px;
+  }
+  
+  .headerArea .mainNav .nav li a:hover {
+    color: #604274;
+  }
+  
+  .headerArea .mainNav .menuTrigger {
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 23px;
+    width: 32px;
+    height: 40px;
+    text-indent: -9999em;
+    z-index: 99;
+    right: 40px;
+    display: none;
+  }
+   /* Menu al reducirse el nav
+  .headerArea .mainNav .menuTrigger span,
+  .headerArea .mainNav .menuTrigger span:before,
+  .headerArea .mainNav .menuTrigger span:after {
+    -moz-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    -webkit-transition: all 0.4s;
+    transition: all 0.4s;
+    background-color: #604274;
+    display: block;
+    position: absolute;
+    width: 30px;
+    height: 2px;
+    left: 0;
+  }
+  
+  .headerArea .mainNav .menuTrigger span:before,
+  .headerArea .mainNav .menuTrigger span:after {
+    -moz-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    -webkit-transition: all 0.4s;
+    transition: all 0.4s;
+    background-color: #869AD7;
+    display: block;
+    position: absolute;
+    width: 30px;
+    height: 2px;
+    left: 0;
+    width: 75%;
+  }
+  
+  .headerArea .mainNav .menuTrigger span:before,
+  .headerArea .mainNav .menuTrigger span:after {
+    content: "";
+  }
+  
+  .headerArea .mainNav .menuTrigger span {
+    top: 18px;
+  }
+  
+  .headerArea .mainNav .menuTrigger span:before {
+    -moz-transform-origin: 33% 100%;
+    -ms-transform-origin: 33% 100%;
+    -webkit-transform-origin: 33% 100%;
+    transform-origin: 33% 100%;
+    top: -10px;
+    z-index: 10;
+  }
+  
+  .headerArea .mainNav .menuTrigger span:after {
+    -moz-transform-origin: 33% 0;
+    -ms-transform-origin: 33% 0;
+    -webkit-transform-origin: 33% 0;
+    transform-origin: 33% 0;
+    top: 10px;
+  }
+  
+  .headerArea .mainNav .menuTrigger.active span,
+  .headerArea .mainNav .menuTrigger.active span:before,
+  .headerArea .mainNav .menuTrigger.active span:after {
+    background-color: transparent;
+    width: 100%;
+  }
+  
+  .headerArea .mainNav .menuTrigger.active span:before {
+    -moz-transform: translateY(6px) translateX(1px) rotate(45deg);
+    -ms-transform: translateY(6px) translateX(1px) rotate(45deg);
+    -webkit-transform: translateY(6px) translateX(1px) rotate(45deg);
+    transform: translateY(6px) translateX(1px) rotate(45deg);
+    background-color: #3B566E;
+  }
+  
+  .headerArea .mainNav .menuTrigger.active span:after {
+    -moz-transform: translateY(-6px) translateX(1px) rotate(-45deg);
+    -ms-transform: translateY(-6px) translateX(1px) rotate(-45deg);
+    -webkit-transform: translateY(-6px) translateX(1px) rotate(-45deg);
+    transform: translateY(-6px) translateX(1px) rotate(-45deg);
+    background-color: #3B566E;
+  } */
+  
+  
+  
+  .headerArea.headerSticky {
+    min-height: 80px;
+  }
+  
+  .headerArea.headerSticky .logo {
+    margin-top: 25px;
+  }
+  
+  .headerArea.headerSticky .nav {
+    margin-top: 20px !important;
+  }
+  
+  .headerArea.headerSticky .nav li a {
+    cursor: pointer;
+    color: #1e1e1e;
+  }
+  
+  .headerArea.headerSticky .nav li a.active {
+    color: #AA39AD;
+  }
+  
+  @media (max-width: 1200px) {
+    .headerArea .mainNav .nav li {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    .headerArea .mainNav:before {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 991px) {
+    .headerArea {
+      padding: 0px 15px;
+      height: 80px;
+      box-shadow: none;
+      text-align: center;
+    }
+    .headerArea .container {
+      padding: 0px;
+    }
+    .headerArea .logo {
+      margin-top: 27px !important;
+      margin-left: 30px;
+    }
+    .headerArea .menuTrigger {
+      display: block !important;
+    }
+    .headerArea .mainNav {
+      overflow: hidden;
+    }
+    .headerArea .mainNav .nav {
+      float: none;
+      width: 100%;
+      margin-top: 80px !important;
+      display: none;
+      -webkit-transition: all 0s ease 0s;
+      -moz-transition: all 0s ease 0s;
+      -o-transition: all 0s ease 0s;
+      transition: all 0s ease 0s;
+      margin-left: 0px;
+    }
+    .headerArea .mainNav .nav li:first-child {
+      border-top: 1px solid #eee;
+    }
+    .headerArea .mainNav .nav li {
+      width: 100%;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding-left: 0px !important;
+      padding-right: 0px !important;
+    }
+    .headerArea .mainNav .nav li a {
+      height: 50px !important;
+      line-height: 50px !important;
+      padding: 0px !important;
+      border: none !important;
+      background: #fff !important;
+      color: #3B566E !important;
+    }
+    .headerArea .mainNav .nav li a:hover {
+      background: #eee !important;
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .headerArea .mainNav .nav {
+      display: flex !important;
+    }
+  }

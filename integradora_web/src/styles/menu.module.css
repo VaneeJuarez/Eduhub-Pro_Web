@@ -1,0 +1,135 @@
+
+.mini {
+    min-height: 260px;
+    overflow: hidden;
+    position: relative;
+    padding-top: 150px; /**/
+    padding-bottom: 250px; /**/
+  }
+  
+  .mini:before {
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    opacity: .95;
+    background-repeat: no-repeat;
+    background-color: #fff; /* Fondo sección menú*/
+    background-size: cover;
+    background-position: center center;
+    z-index: 2;
+    top: -10%;
+    left: -20%;
+  }
+  
+  .mini .miniContent {
+    position: relative;
+    z-index: 3;
+  }
+  
+  .mini .miniContent .info {
+    text-align: center;
+    color: #fff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  
+  .mini .miniContent .info h1 {
+    color: #604274;
+    font-weight: 501;
+    font-size: 30px;
+    letter-spacing: 0.25px;
+    margin-bottom: 50px;
+  }
+  
+  .mini .miniContent .info p {
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    color: #fff;
+    letter-spacing: 0.25px;
+    line-height: 26px;
+    font-weight: 400;
+    font-size: 15px;
+  }
+  
+  .mini .miniContent .info p span {
+    text-decoration: underline;
+  }
+  
+  .mini .miniContent .miniBox {
+    display: block;
+    background: #fefefe;
+    padding: 35px 0px;
+    border-radius: 28px;
+    box-shadow: 2px 2px 8px rgba(153, 153, 153, 0.5);
+    margin-bottom: 50px;
+    position: relative;
+    -webkit-transition: all 0.3s ease 0s;
+    -moz-transition: all 0.3s ease 0s;
+    -o-transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
+    text-align: center;
+    width: 235px;
+    height: 250px;
+  }
+  
+  .mini .miniContent .miniBox:hover {
+    margin-top: -10px;
+  }
+  
+  .mini .miniContent .miniBox:before { /* Sombra de las cards de menú */
+    content: '';
+    position: absolute;
+    z-index: -1;
+    background: #dddddd;
+    width: 100%;
+    opacity: .60;
+    height: 100%;
+    bottom: -12px;
+    left: 0px;
+    right: -22px;
+    margin: auto;
+    border-radius: 28px;
+    box-shadow: 0px 0px 10px rgba(153, 153, 153, 0.5);
+  }
+  
+  .mini .miniContent .miniBox i {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .mini .miniContent .miniBox span {
+    display: block;
+    font-weight: 400;
+    font-size: 14px;
+    color: #777;
+    letter-spacing: .75px;
+  }
+  
+  .mini .miniContent .miniBox strong {
+    display: block;
+    font-weight: 600;
+    font-size: 20px;
+    color: #1e1e1e;
+    letter-spacing: 0.25px;
+    margin-bottom: 30px;
+    margin-top: 20px;
+  }
+  
+  button.btnOutlineSecondary {
+    width: 140px;
+    height: 40px;
+    border: none;
+    border-radius: 50px;
+    background: #65739F;
+    color: #eee;
+    font-weight: 600;
+    margin: 2px 14px;
+    cursor: pointer;
+  }
+  
+  .btnOutlineSecondary:hover {
+    background: #8592c0;
+  }
+  
