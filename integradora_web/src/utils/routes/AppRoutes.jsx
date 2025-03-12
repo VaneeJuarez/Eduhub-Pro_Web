@@ -13,6 +13,7 @@ import '../../styles/bootstrap/bootstrap.min.css'
 // Pages
 import Login from '../../pages/Login';
 import DashboardAdmin from '../../pages/DashboardAdmin';
+import Users from '../../pages/Users';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -22,6 +23,7 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute isAllowed={true /* !!user && user.role.includes('ADMIN') */} redirectTo="/login" />} >
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/users" element={<Users />} />
       </Route>
 
       <Route path="/login" element={<Login />} />

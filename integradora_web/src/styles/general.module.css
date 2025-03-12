@@ -1,0 +1,52 @@
+/* General styles */
+.content {
+  min-height: 260px;
+  overflow: hidden;
+  position: relative;
+  padding-top: 120px; /**/
+  padding-bottom: 250px; /**/
+}
+
+.content:before {
+  content: "";
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  opacity: 0.95;
+  background-repeat: no-repeat;
+  background-color: #fff; /* Fondo sección menú*/
+  background-size: cover;
+  background-position: center center;
+  z-index: 2;
+  top: -10%;
+  left: -20%;
+}
+
+h5 {
+  z-index: 90;
+  margin-left: 20px;
+  color: rgb(131, 131, 131);
+}
+
+/* Estilos generales de las cards */
+.cards {
+  z-index: 90;
+}
+
+.registerCard {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(128, 128, 128, 0.221);
+}
+
+.registerCard img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}

@@ -1,0 +1,97 @@
+
+.button,
+.searchContainer,
+.filtro,
+.searchIcon {
+  z-index: 90;
+}
+
+.buttonAdd {
+  background-color: #65739F;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  margin-left: -140px;  
+  border-color: #65739F;
+}
+
+
+.buttonAdd:hover {
+  background-color: #65739F;
+}
+
+/* Buscador */
+.searchContainer {
+  flex-grow: 1;
+  max-width: 490px;
+  margin: 0 auto;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px; /* Asegura que todo el input tenga bordes redondeados */
+  overflow: hidden; /* Evita que los elementos internos afecten el borde */
+  background-color: #fff;
+}
+
+.iconContainer {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  outline: none;
+  
+}
+
+.search:focus {
+  border-color: none;
+  box-shadow: none;
+}
+
+.searchIcon {
+  color: #604274;
+  font-size: 16px;
+  padding-left: 10px;
+}
+
+/* Botones de selección */
+.btnToggleGroup {
+  display: flex;
+  margin-right: -130px;
+}
+
+.btnToggleGroup .toggle {
+  min-width: 120px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: 0.3s;
+  border-color: #65739F;
+  color: #65739F;
+  
+}
+
+.btnToggleGroup .toggle.active {
+  background-color: #65739F !important;
+  color: white;
+  border-color: #65739F !important;
+}
+
+.btnToggleGroup .toggle:hover {
+  background-color: #65739F;
+  color: white;
+  border-color: #65739F;
+}
+
+
+

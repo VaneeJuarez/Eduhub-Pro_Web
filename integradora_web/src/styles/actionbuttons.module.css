@@ -1,0 +1,38 @@
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: #604274;
+}
+
+.actions button:hover {
+  color: #a02ea3;
+}
+
+.actions {
+  margin-top: -20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end; /* Alinea los botones a la derecha */
+  padding-top: 10px;
+}
+
+.actions .voucher {
+  background-color: #65739f;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  margin-top: -5px;
+}
+
+.actions .voucher:hover {
+  color: #fff;
+  background-color: #4f5b81;
+}
