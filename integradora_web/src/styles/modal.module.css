@@ -193,7 +193,7 @@
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-form{
+.formModal{
   display: block;
   width: 100%;
 }

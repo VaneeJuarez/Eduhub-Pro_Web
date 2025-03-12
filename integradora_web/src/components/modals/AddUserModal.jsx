@@ -29,7 +29,7 @@ const AddUserModal = () => {
             ></button>
           </div>
           <div className={styles.modalBody}>
-            <form>
+            <form className={styles.formModal}>
               <div className="mb-3">
                 <label className={`form-label ${styles.formLabel}`}>Nombre Completo</label>
                 <input type="text" className={styles.formControl} placeholder="Ej: Juan Pérez" />
