@@ -2302,6 +2302,7 @@
   }
   .btn-primary {
     color: #fff;
+    background-color: #005cbf;
    
   }
   .btn-primary:hover {
@@ -5268,6 +5269,9 @@
     -webkit-transform: translate(0, -50px);
     transform: translate(0, -50px);
   }
+
+
+  
   @media (prefers-reduced-motion: reduce) {
     .modal.fade .modal-dialog {
       transition: none;

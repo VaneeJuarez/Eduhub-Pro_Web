@@ -8,7 +8,11 @@ const ControlPanel = ({ showAddButton, showSearch, showToggle, searchTerm, setSe
     <div className="row align-items-center">
       {showAddButton && (
         <div className={`col-12 col-md-auto mb-2 ${styles.button}`}>
-          <button className={`btn btn-primary ${styles.buttonAdd}`}>
+          <button className={`btn btn-primary ${styles.buttonAdd}`}
+          data-bs-toggle="modal" /* Activar modal */
+          data-bs-target="#addUserModal"
+          onClick={() => console.log("Se ha dado clic en el botón de agregar usuario")}
+          >
             <i className="fas fa-plus"></i> Agregar
           </button>
         </div>

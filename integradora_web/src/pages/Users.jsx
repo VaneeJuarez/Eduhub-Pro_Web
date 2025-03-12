@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import styles from "../styles/general.module.css";
 
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // Components
 import ControlPanel from "../components/ControlPanel";
@@ -12,6 +13,9 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import Card from "../components/Card";
 import { ActionButtons } from "../components/card/ActionButtons";
+
+// Modals
+import AddUserModal from "../components/modals/AddUserModal";
 
 import img from "../assets/img/unknow.jpeg";
 
@@ -72,7 +76,7 @@ const Users = () => {
           </div>
         </div>
       </section>
-
+      <AddUserModal />      
       <Footer />
     </>
   );

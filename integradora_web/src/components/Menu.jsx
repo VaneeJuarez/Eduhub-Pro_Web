@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"
 
 // Styles
 import styles from "../styles/menu.module.css";
@@ -10,8 +11,10 @@ import img3 from "../assets/img/credito.png";
 import img4 from "../assets/img/tarjeta-de-credito.png";
 
 const Menu = () => {
+  const navigate = useNavigate(); // Hook para navegación
+
   const menuItems = [
-    { img: img1, title: "Usuarios" },
+    { img: img1, title: "Usuarios", route: "/admin/users" },
     { img: img2, title: "Cursos" },
     { img: img3, title: "Finanzas" },
     { img: img4, title: "Cuentas bancarias" },
@@ -36,7 +39,11 @@ const Menu = () => {
                     <img src={item.img} style={{ height: "60px", width: "60px" }} alt="" />
                   </i>
                   <strong>{item.title}</strong>
-                  <button type="button" className={styles.btnOutlineSecondary}>Gestionar</button>
+                  <button 
+                  type="button" 
+                  className={styles.btnOutlineSecondary}
+                  onClick={() => navigate(item.route)}
+                  >Gestionar</button>
                 </a>
               </div>
             ))}
