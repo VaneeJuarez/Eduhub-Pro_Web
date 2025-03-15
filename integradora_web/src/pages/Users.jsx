@@ -60,6 +60,10 @@ const Users = () => {
     fetchAllUsers();
   }, []);
 
+  const handleDelete = () => {
+    console.log("Elemento eliminado"); // Aquí puedes agregar la lógica de eliminación
+  };
+
   return (
     <>
       <Sidebar />
@@ -87,30 +91,32 @@ const Users = () => {
 
           {/* Cards */}
 
-          {users.length === 0 ? (
-            <h5>No hay registros</h5>
-          ) : (
-            users.map((user, index) => (
-              <div className={`col-md-3 mb-3 ${styles.cards}`} key={index}>
-                <div className={styles.registerCard}>
-                  <Card
-                    // Puedes usar la propiedad user.profilePhotoPath si está disponible
-                    image={user.profilePhotoPath ? user.profilePhotoPath : img}
-                    title={user.name}
-                    description={user.email}
-                  />
-                  <ActionButtons
-                    showDelete={true}
-                    showEdit={true}
-                    showMoreOptions={true}
-                  />
+          {
+            users.length === 0 ? (
+              <h5>No hay registros</h5>
+            ) : (
+              users.map((user, index) => (
+                <div className={`col-md-3 mb-3 ${styles.cards}`} key={index}>
+                  <div className={styles.registerCard}>
+                    <Card
+                      // Puedes usar la propiedad user.profilePhotoPath si está disponible
+                      image={user.profilePhotoPath ? user.profilePhotoPath : img}
+                      title={user.name}
+                      description={user.email}
+                    />
+                    <ActionButtons
+                      showDelete={true}
+                      showEdit={true}
+                      showMoreOptions={true}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )
+          }
 
-        </div>
-      </section>
+        </div >
+      </section >
       <AddUserModal />
       <Footer />
     </>
