@@ -32,6 +32,10 @@ const Users = () => {
   const [selectedFilter, setSelectedFilter] =
     useState("Instructores"); /* Guarda la opción seleccionada y la actualiza */
 
+    const handleDelete = () => {
+      console.log("Elemento eliminado"); // Aquí puedes agregar la lógica de eliminación
+    };
+
   return (
     <>
       <Sidebar />
@@ -71,6 +75,7 @@ const Users = () => {
                 showDelete={true}
                 showEdit={true}
                 showMoreOptions={true}
+                onDelete={handleDelete} /* Alerta */
               />
             </div>
           </div>

@@ -1,8 +1,13 @@
 import React from "react";
+
+// Styles
 import styles from "../../styles/actionButtons.module.css";
 
-const DeleteButton = ({ onClick }) => (
-  <button onClick={onClick}>
+// Alerts
+import { Delete } from "../../utils/config/config";
+
+const DeleteButton = ({ onConfirm }) => (
+  <button onClick={() => Delete(onConfirm)}>
     <i className="fas fa-trash-alt"></i>
   </button>
 );
@@ -19,13 +24,7 @@ const MoreOptionsButton = ({ onClick }) => (
   </button>
 );
 
-const VoucherButton = ({ text, onClick }) => (
-  <button onClick={onClick}>
-    {text}
-  </button>
-);
-
-const ActionButtons = ({ onDelete, onEdit, onMoreOptions, onVoucherClick, voucherText }) => (
+const ActionButtons = ({ onDelete, onEdit, onMoreOptions }) => (
   <div className={`action-buttons ${styles.actions}`}>
     <DeleteButton onClick={onDelete} />
     <EditButton onClick={onEdit} />
@@ -33,4 +32,4 @@ const ActionButtons = ({ onDelete, onEdit, onMoreOptions, onVoucherClick, vouche
   </div>
 );
 
-export { DeleteButton, EditButton, MoreOptionsButton, VoucherButton, ActionButtons };
+export { DeleteButton, EditButton, MoreOptionsButton, ActionButtons };

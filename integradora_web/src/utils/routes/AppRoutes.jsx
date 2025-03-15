@@ -22,8 +22,8 @@ const AppRoutes = () => {
     <Routes>
 
       <Route element={<ProtectedRoute isAllowed={true /* !!user && user.role.includes('ADMIN') */} redirectTo="/login" />} >
-        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-        <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/dashboard/" element={<DashboardAdmin />} />
+        <Route path="/admin/users/" element={<Users />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
