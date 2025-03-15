@@ -18,3 +18,4 @@ export const logout = "logout";
 // Users
 export const create_user = "create-user";
 export const count_all_users = "count-all-users";
+export const get_all_users = "get-all-users";
