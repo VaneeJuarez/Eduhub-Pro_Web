@@ -15,7 +15,7 @@ const Menu = () => {
 
   const menuItems = [
     { img: img1, title: "Usuarios", route: "/admin/users" },
-    { img: img2, title: "Cursos" },
+    { img: img2, title: "Cursos", route: "/admin/courses"},
     { img: img3, title: "Finanzas" },
     { img: img4, title: "Cuentas bancarias" },
   ];
