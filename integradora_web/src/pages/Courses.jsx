@@ -21,7 +21,11 @@ const Courses = () => {
     // Filtrar cursos según el término de búsqueda y el filtro seleccionado
   const filteredCourses = courses.filter(course => 
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedFilter === "Aprobados" ? course.status === "Aprobado" : course.status === "Pendiente")
+    (
+        (selectedFilter === "Aprobados" && course.status === "Aprobado") ||
+        (selectedFilter === "Pendientes" && course.status === "Pendiente") ||
+        (selectedFilter === "En Curso" && course.status === "En Curso")
+      )
   );
 
   return (
@@ -38,7 +42,8 @@ const Courses = () => {
         setSelectedFilter={setSelectedFilter}
         toggleOptions={[
             "Aprobados",
-            "Pendientes"
+            "Pendientes",
+            "En Curso"
         ]}
         />
         {filteredCourses.length === 0 ? (

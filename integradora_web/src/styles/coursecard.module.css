@@ -38,6 +38,7 @@
     background-color: #604274;
     margin-right: 2px;
     border-radius: 8px;
+    font-family: "Raleway", sans-serif;
   }
 
   .cardRating {
@@ -58,11 +59,51 @@
     background-color: #65739F;
   }
 
-  /* Mejoras para los acordeones */
-  .accordion-button:not(.collapsed) {
-    background-color: rgba(13, 110, 253, 0.1);
-    color: #0d6efd;
+  /* Course Detail */
+  .cardDetail, .cardFrame, .navItem, .tabContent {
+    z-index: 90;    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
+
+  .contentCourse {
+    display: block;
+    position: relative;
+    top: 0;
+    left: 8px;
+    color: black;
+    z-index: 901;
+  }
+
+  .tabContent {
+    border-radius: 6px;
+  }
+
+  .cardBody {
+    border-radius: 8px;
+  }
+
+  .accordionBtn {
+    background-color: #f8f9fa;
+    border: none;
+  }
+
+  .primaryBtn {
+    background-color: #AA39AD;
+  }
+
+  .primaryBtn:hover {
+    background-color: #8e2991;
+  }
+
+  .cancelBtn {
+    background-color: rgba(128, 128, 128, 0.284);
+  }
+
+  .cancelBtn:hover {
+    background-color: rgba(128, 128, 128, 0.453);
+  }
+
+  /* Mejoras para los acordeones */
+ 
   
   /* Mejoras para las pestañas */
   .nav-tabs .nav-link.active {

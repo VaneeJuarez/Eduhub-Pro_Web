@@ -12,7 +12,7 @@ export const courses = [
       price: 150.0,
       studentLimit: 120,
       tags: ["Programación", "Informática"],
-      status: "Aprobado",
+      status: "En Curso",
       modules: [
         {
           title: "Introducción a React",

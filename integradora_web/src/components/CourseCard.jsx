@@ -38,7 +38,7 @@ const CourseCard = ({ course }) => {
         </div>
         <div className="mt-auto d-flex justify-content-between align-items-center">
             <div className={`fw-bold ${styles.cardPrice}`}>${course.price.toFixed(2)} mx</div>
-            <Link to={`/course/${course.id}`} className={`btn btn-primary ${styles.cardButton}`}>Ver Curso</Link>
+            <Link to={`/admin/course/${course.id}`} className={`btn btn-primary ${styles.cardButton}`}>Ver Curso</Link>
         </div>
       </div>
       

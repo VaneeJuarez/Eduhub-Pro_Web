@@ -14,6 +14,7 @@ import Login from '../../pages/Login';
 import DashboardAdmin from '../../pages/DashboardAdmin';
 import Users from '../../pages/Users';
 import Courses from '../../pages/Courses';
+import CourseDetail from '../../pages/CourseDetail';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -25,11 +26,12 @@ const AppRoutes = () => {
         <Route path="/admin/dashboard/" element={<DashboardAdmin />} />
         <Route path="/admin/users/" element={<Users />} />
         <Route path="/admin/courses/" element={<Courses />} />
+        <Route path="/admin/course/:id" element={<CourseDetail />} />
       </Route>
 
-      <Route path="/login" element={<Login />} />
+    
 
-      <Route path="/" index element={<Login />} />
+      <Route index element={<Login />} />
 
       {/* <Route path="/user/dashboard" element={
               <ProtectedRoute >
