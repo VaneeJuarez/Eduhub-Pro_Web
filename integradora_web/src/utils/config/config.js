@@ -17,3 +17,20 @@ export const Delete = (onConfirm) => {
       }
     });
   };
+
+  // Edición 
+  export const ConfirmEdit = (onConfirm) => {
+    Swal.fire({
+      title: "¿Guardar cambios?",
+      text: "Los cambios se actualizarán en el sistema.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onConfirm(); // Ejecuta la función de guardado si el usuario confirma
+        Swal.fire("Guardado", "Los datos han sido actualizados.", "success");
+      }
+    });
+  };
