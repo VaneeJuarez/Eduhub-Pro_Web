@@ -56,6 +56,7 @@
   .headerArea .mainNav .nav li {
     padding-left: 20px;
     padding-right: 20px;
+    list-style: none;
   }
   
   .headerArea .mainNav .nav li:last-child {

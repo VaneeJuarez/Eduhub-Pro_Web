@@ -1,0 +1,130 @@
+
+/* Mejoras para las tarjetas de curso */
+.cardCourse {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 90;
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .cardCourse:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .cardTitle {
+    margin-left: 0;
+    color: black;
+    width: 500;
+  }
+
+  .cardText {
+    color: black !important;
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-clamp: 2;
+  }
+
+  .cardInfo{
+    font-size: 14px;
+    color: rgb(74, 74, 74) !important;
+  }
+
+  .cardTag {
+    font-size: 13px;
+    background-color: #604274;
+    margin-right: 2px;
+    border-radius: 8px;
+    font-family: "Raleway", sans-serif;
+  }
+
+  .cardRating {
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  .cardIcons {
+    font-size: 1.1rem;
+    margin-right: 5px;
+  }
+  
+  .cardPrice {
+    font-weight: bold;
+  }
+
+  .cardButton {
+    background-color: #65739F;
+  }
+
+  /* Course Detail */
+  .cardDetail, .cardFrame, .navItem, .tabContent {
+    z-index: 90;    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .contentCourse {
+    display: block;
+    position: relative;
+    top: 0;
+    left: 8px;
+    color: black;
+    z-index: 901;
+  }
+
+  .tabContent {
+    border-radius: 6px;
+  }
+
+  .cardBody {
+    border-radius: 8px;
+  }
+
+  .accordionBtn {
+    background-color: #f8f9fa;
+    border: none;
+  }
+
+  .primaryBtn {
+    background-color: #AA39AD;
+  }
+
+  .primaryBtn:hover {
+    background-color: #8e2991;
+  }
+
+  .cancelBtn {
+    background-color: rgba(128, 128, 128, 0.284);
+  }
+
+  .cancelBtn:hover {
+    background-color: rgba(128, 128, 128, 0.453);
+  }
+
+  /* Mejoras para los acordeones */
+ 
+  
+  /* Mejoras para las pestañas */
+  .nav-tabs .nav-link.active {
+    font-weight: 500;
+    border-bottom: 2px solid #0d6efd;
+  }
+  
+  /* Estilos para los botones de lección */
+  .list-group-item-action:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+  }
+  
+  /* Estilos para las badges de categorías */
+  .badge.bg-primary {
+    font-weight: normal;
+    font-size: 0.85rem;
+  }
+  
+  /* Ajustar el tamaño de los iconos en el detalle del curso */
+  .card-body .bi {
+    font-size: 1.1rem;
+    opacity: 0.8;
+  }
+  

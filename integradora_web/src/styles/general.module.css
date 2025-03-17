@@ -54,3 +54,7 @@ h5 {
 ::-webkit-scrollbar {
   display: none;
 }
+
+.cardEmpty {
+  z-index: 90;
+}
