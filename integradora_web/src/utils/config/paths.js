@@ -17,7 +17,7 @@ export const logout = "logout";
 
 // Users
 export const create_user = "create";
-export const count_all_users = "count-all";
+export const count_all_users = "count";
 export const get_all_users = "get-all";
 export const change_status_instructor = "change-status-instructor";
 export const change_status_student = "change-status-student";

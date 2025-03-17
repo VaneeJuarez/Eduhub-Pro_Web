@@ -69,7 +69,7 @@ const DashboardAdmin = () => {
   return (
     <>
       <Sidebar />
-      <Header userName={user.name} />
+      <Header userName={user?.name} />
       <Menu />
       <Analytics
         totalStudents={totalStudents}
