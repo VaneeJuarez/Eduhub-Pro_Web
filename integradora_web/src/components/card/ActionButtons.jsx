@@ -12,8 +12,12 @@ const DeleteButton = ({ onClick }) => (
   </button>
 );
 
-const EditButton = ({ onClick }) => (
-  <button onClick={onClick}>
+const EditButton = ({ onClick, modalId }) => (
+  <button 
+  onClick={onClick}
+  data-bs-toggle="modal"
+  data-bs-target={`#${modalId}`}
+  >
     <i className="fas fa-edit"></i>
   </button>
 );
@@ -24,10 +28,10 @@ const MoreOptionsButton = ({ onClick }) => (
   </button>
 );
 
-const ActionButtons = ({ onDelete, onEdit, onMoreOptions }) => (
+const ActionButtons = ({ onDelete, onEdit, onMoreOptions, modalId }) => (
   <div className={`action-buttons ${styles.actions}`}>
     <DeleteButton onClick={onDelete} />
-    <EditButton onClick={onEdit} />
+    <EditButton onClick={onEdit} modalId={modalId} />
     <MoreOptionsButton onClick={onMoreOptions} />
   </div>
 );

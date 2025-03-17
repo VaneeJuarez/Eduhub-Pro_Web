@@ -47,7 +47,7 @@ const Courses = () => {
         ]}
         />
         {filteredCourses.length === 0 ? (
-        <div className="text-center py-5 ">
+        <div className="text-left m-4 py-5 ">
           <p className="text-muted">No se encontraron cursos que coincidan con tu búsqueda.</p>
         </div>
       ) : (

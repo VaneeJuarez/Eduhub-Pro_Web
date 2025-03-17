@@ -135,7 +135,9 @@ export const courses = [
       studentLimit: 80,
       tags: ["Full Stack", "Web Development", "Node.js"],
       status: "Aprobado",
-      modules: [],
+      modules: [
+        
+      ],
     },
     {
         id: 4,

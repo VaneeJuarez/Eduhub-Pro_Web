@@ -18,6 +18,7 @@ import { ActionButtons } from "../components/card/ActionButtons";
 import AddUserModal from "../components/modals/AddUserModal";
 
 import img from "../assets/img/unknow.jpeg";
+import EditUserModal from "../components/modals/EditUserModal";
 
 // Importamos nuestras rutas y encabezados
 import {
@@ -159,6 +160,7 @@ const Users = () => {
     // Aquí podrías mostrar un menú desplegable, un modal adicional, etc.
   };
 
+
   return (
     <>
       <Sidebar />
@@ -166,6 +168,7 @@ const Users = () => {
       <section className={styles.content}>
         <ControlPanel
           showAddButton={true} /* Muestra el botón de agregar */
+          modalId="addUserModal" // Pasar el id del modal
           showSearch={true} /* Muestra la barra de búsqueda */
           showToggle={true} /* Muestra los botones de alternancia */
           searchTerm={searchTerm} /* Pasa el estado searchTerm a ControlPanel para sincronizar la búsqueda */

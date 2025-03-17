@@ -6,13 +6,13 @@ import { courses } from "../data/courses";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-
+import VideoPlayer from "../components/courses/VideoPlayer";
+import PDFViewer from "../components/courses/PDFViewer";
 
 // Styles
 import styles from "../styles/general.module.css";
 import style from "../styles/coursecard.module.css";
-import "../styles/bootstrap/bootstrap.min.css"
-
+import * as bootstrap from "bootstrap";
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -39,7 +39,7 @@ const CourseDetail = () => {
     <>
       <Sidebar />
       <Header userName="Vanessa Juárez" />
-      <section className={styles.content} style={{backgroundColor: "gray"}}>
+      <section className={styles.content} style={{ backgroundColor: "gray" }}>
         <div>
           <div className="row mb-4 g-3 mt-4 m-4">
             <div className="col-lg-9">
@@ -68,15 +68,21 @@ const CourseDetail = () => {
                         ))}
                       </div>
                       <div className="mb-1">
-                        <i className={`bi bi-calendar me-2 ${style.cardIcons}`}></i>
+                        <i
+                          className={`bi bi-calendar me-2 ${style.cardIcons}`}
+                        ></i>
                         {course.startDate} - {course.endDate}
                       </div>
                       <div className="mb-1">
-                        <i className={`bi bi-person me-2 ${style.cardIcons}`}></i>
+                        <i
+                          className={`bi bi-person me-2 ${style.cardIcons}`}
+                        ></i>
                         Creado por: {course.instructor}
                       </div>
                       <div className="mb-1">
-                        <i className={`bi bi-people me-2 ${style.cardIcons}`}></i>
+                        <i
+                          className={`bi bi-people me-2 ${style.cardIcons}`}
+                        ></i>
                         Límite de estudiantes: {course.studentLimit}
                       </div>
                       <div className="h4 mt-2">
@@ -90,10 +96,14 @@ const CourseDetail = () => {
             <div className="col-lg-3">
               <div className={`card ${style.cardFrame}`}>
                 <div className="card-body">
-                  <h5 className={`card-title text-center ml-0 mb-3 ${style.cardTitle}`}>
+                  <h5
+                    className={`card-title text-center ml-0 mb-3 ${style.cardTitle}`}
+                  >
                     ¿Apruebas este curso?
                   </h5>
-                  <button className={`btn btn-primary w-100 mb-2 ${style.primaryBtn}`}>
+                  <button
+                    className={`btn btn-primary w-100 mb-2 ${style.primaryBtn}`}
+                  >
                     Aprobar curso
                   </button>
                   <button className={`btn btn-light w-100 ${style.cancelBtn}`}>
@@ -104,55 +114,89 @@ const CourseDetail = () => {
             </div>
           </div>
 
-          <h5 className={`ml-5 mb-3 g-3 ${style.contentCourse}`}>Contenido del curso</h5>
+          <h5 className={`ml-5 mb-3 g-3 ${style.contentCourse}`}>
+            Contenido del curso
+          </h5>
           <div className={`tab-content ml-5 mr-5 ${style.tabContent}`}>
-        <div className={`tab-pane fade ${activeTab === "content" ? "show active" : ""}`}>
-          <div className={`card ${style.tabContent}`}>
-            <div className={`card-body ${style.cardBody}`}>
-              <div className="accordion" id="moduleAccordion">
-                {course.modules.map((module, index) => (
-                  <div className="accordion-item" key={index}>
-                    <h2 className="accordion-header">
-                      <button
-                        className={`accordion-button collapsed ${style.accordionBtn}`}
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target={`#module-${index}`}
-                      >
-                        {module.title}
-                      </button>
-                    </h2>
-                    <div
-                      id={`module-${index}`}
-                      className="accordion-collapse collapse"
-                      data-bs-parent="#moduleAccordion"
-                    >
-                      <div className="accordion-body">
-                        <div className="list-group">
-                          {module.lessons.map((lesson, lessonIndex) => (
-                            <button
-                              key={lessonIndex}
-                              className="list-group-item list-group-item-action d-flex align-items-center"
-                              onClick={() => handleLessonClick(lesson)}
-                            >
-                              <i
-                                className={`bi ${lesson.type === "video" ? "bi-camera-video" : "bi-file-text"} me-2 ${style.cardIcons}`}
-                              ></i>
-                              <span>{lesson.title}</span>
-                            </button>
-                          ))}
+            <div
+              className={`tab-pane fade ${
+                activeTab === "content" ? "show active" : ""
+              }`}
+            >
+              <div className={`card ${style.tabContent}`}>
+                <div className={`card-body ${style.cardBody}`}>
+                  <div className="accordion" id="moduleAccordion">
+                    {course.modules.map((module, index) => (
+                      <div className="accordion-item" key={index}>
+                        <h2 className="accordion-header">
+                          <button
+                            className={`accordion-button collapsed ${style.accordionBtn}`}
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target={`#module-${index}`}
+                          >
+                            {module.title}
+                          </button>
+                        </h2>
+                        <div
+                          id={`module-${index}`}
+                          className="accordion-collapse collapse"
+                          data-bs-parent="#moduleAccordion"
+                        >
+                          <div className="accordion-body">
+                            <div className="list-group">
+                              {module.lessons.map((lesson, lessonIndex) => (
+                                <button
+                                  key={lessonIndex}
+                                  className="list-group-item list-group-item-action d-flex align-items-center"
+                                  onClick={() => handleLessonClick(lesson)}
+                                >
+                                  <i
+                                    className={`bi ${
+                                      lesson.type === "video"
+                                        ? "bi-camera-video"
+                                        : "bi-file-text"
+                                    } me-2 ${style.cardIcons}`}
+                                  ></i>
+                                  <span>{lesson.title}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-
+          {/* Modal para lecciones */}
+          <div className="modal fade" id="lessonModal" tabIndex={-1}>
+            <div className="modal-dialog modal-xl">
+              <div className={`modal-content ${style.modalContent}`}>
+                <div className="modal-header">
+                  <h5 className={`modal-title ${style.modalTitle}`}>{selectedLesson?.title}</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  {selectedLesson?.type === "video" ? (
+                    <VideoPlayer src={selectedLesson.content} />
+                  ) : (
+                    <PDFViewer src={selectedLesson?.content || ""} />
+                  )}
+                  <p className="text-muted mt-3">
+                    {selectedLesson?.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
       <Footer />
