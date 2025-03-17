@@ -6,8 +6,8 @@ import styles from "../../styles/actionButtons.module.css";
 // Alerts
 import { Delete } from "../../utils/config/config";
 
-const DeleteButton = ({ onConfirm }) => (
-  <button onClick={() => Delete(onConfirm)}>
+const DeleteButton = ({ onClick }) => (
+  <button onClick={() => Delete(onClick)}>
     <i className="fas fa-trash-alt"></i>
   </button>
 );

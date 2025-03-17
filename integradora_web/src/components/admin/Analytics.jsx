@@ -1,12 +1,12 @@
 import React from "react";
 import styles from "../../styles/analytics.module.css";
 
-const Analytics = () => {
+const Analytics = ({ totalStudents, newStudents, totalInstructors, totalCourses }) => {
   const stats = [
-    { value: 126, label: "Estudiantes", decoration: styles.decorationBottom },
-    { value: 63, label: "Instructores", decoration: styles.decorationTop },
-    { value: 18, label: "Cursos", decoration: styles.decorationTop },
-    { value: 36, label: "Estudiantes nuevos", decoration: "" },
+    { value: totalStudents, label: "Estudiantes", decoration: styles.decorationBottom },
+    { value: totalInstructors, label: "Instructores", decoration: styles.decorationTop },
+    { value: totalCourses, label: "Cursos", decoration: styles.decorationTop },
+    { value: newStudents, label: "Estudiantes nuevos", decoration: "" },
   ];
 
   return (

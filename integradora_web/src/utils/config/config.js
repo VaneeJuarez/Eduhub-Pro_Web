@@ -36,19 +36,6 @@ export function sweetAlert(icon, title, text, redirectUrl, navigate) {
     });
 }
 
-export function deleteSweetAlert() {
-    return Swal.fire({
-        title: "¿Estás seguro?",
-        text: "Esta acción no se puede deshacer.",
-        icon: "warning",
-        buttons: ["Cancelar", "Eliminar"],
-    }).then((result) => {
-        return result.isConfirmed;
-    });
-}
-// Alertas Sweet Alert
-import Swal from "sweetalert2";
-
 // Eliminar
 export const Delete = (onConfirm) => {
     Swal.fire({

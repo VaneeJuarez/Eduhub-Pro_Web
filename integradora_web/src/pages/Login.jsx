@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Svgs
 import signinImage from '../assets/svg/signup.svg';
 import signupImage from '../assets/svg/signin.svg';
 
 import styles from '../styles/login.module.css';
+
+
+import { useUserContext } from '../contexts/UserProvider';
+import { sweetAlert, unlogin } from '../utils/config/config.js';
+import { USER_ACTIONS } from '../utils/config/enums.js';
+
+import {
+    base_api_url,
+
+    auth_path,
+    global_path,
+
+    user_management,
+
+    login,
+    create_user
+} from '../utils/config/paths.js';
 
 const Login = () => {
 
@@ -15,7 +33,7 @@ const Login = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('');     
+    const [role, setRole] = useState('');
 
     useEffect(() => {
         document.body.className = ''; // Limpia todas las clases previas
@@ -26,6 +44,85 @@ const Login = () => {
         };
     }, []);
 
+    const { dispatch } = useUserContext();
+    const navigate = useNavigate();
+
+    const loginRequest = async () => {
+        await fetch(base_api_url + auth_path + login, {
+            method: "POST",
+            headers: unlogin,
+            body: JSON.stringify(
+                {
+                    email: email,
+                    password: password
+                }
+            ),
+            credentials: 'include'
+        }).then(response => response.json())
+            .then(response => {
+
+                if (!response.jwt) {
+                    sweetAlert('error', 'Error', 'Usuario no encontrado', '');
+                } else {
+
+                    dispatch({
+                        type: USER_ACTIONS.LOGIN,
+                        value: {
+                            jwt: response.jwt,
+                            role: response.role,
+                            name: response.name
+                        }
+                    });
+
+                    if (response.role.includes("ADMIN")) {
+                        sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
+                    } else if (response.role.includes("INSTRUCTOR")) {
+                        sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
+                    } else if (response.role.includes("STUDENT")) {
+                        sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
+                    }
+                }
+
+            }).catch((error) => {
+                console.log(error);
+                sweetAlert('error', 'Error', 'Hubo un error, por favor revisa tu conexión a internet o inténtalo más tarde', '');
+            });
+    }
+
+    const registerRequest = async () => {
+        await fetch(base_api_url + global_path + user_management + create_user, {
+            method: "POST",
+            headers: unlogin,
+            body: JSON.stringify(
+                {
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role
+                }
+            )
+        }).then(response => response.json())
+            .then(response => {
+
+                if (response.type !== 'SUCCESS') {
+                    if (typeof response === 'object' && !response.text) {
+                        const errorMessages = Object.values(response).join("\n");
+                        sweetAlert('error', 'Error', errorMessages, '', null);
+                    } else if (response.text) {
+                        sweetAlert('error', 'Error', response.text, '', null);
+                    }
+                    return;
+                }
+
+                sweetAlert('success', 'Éxito', response.text + '. Por favor, inicia sesión', '', null);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 4000);
+            }).catch((error) => {
+                console.log(error);
+                sweetAlert('error', 'Error', 'Hubo un error al registrarte, por favor revisa tu conexión a internet o inténtalo más tarde', '', null);
+            });
+    }
 
     return (
         <div className={`${styles.owncontainer} ${isSignUpMode ? styles.sign_up_mode : ''}`}>
