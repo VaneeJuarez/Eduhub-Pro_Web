@@ -20,7 +20,9 @@ const VideoPlayer = ({ src }) => {
     }
 
     const handleLoadedMetadata = () => {
-      setDuration(video.duration)
+      if (!isNaN(video.duration)) { 
+        setDuration(video.duration) // Solo se establece si el valor es válido
+      }
     }
 
     video.addEventListener("timeupdate", updateProgress)
@@ -66,13 +68,20 @@ const VideoPlayer = ({ src }) => {
   const toggleFullscreen = () => {
     const video = videoRef.current
     if (!video) return
-
+  
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
-      video.requestFullscreen()
+      if (video.requestFullscreen) {
+        video.requestFullscreen()
+      } else if (video.webkitRequestFullscreen) { // Para navegadores basados en WebKit (Safari)
+        video.webkitRequestFullscreen()
+      } else if (video.msRequestFullscreen) { // Para Internet Explorer / Edge antiguo
+        video.msRequestFullscreen()
+      }
     }
   }
+
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60)
