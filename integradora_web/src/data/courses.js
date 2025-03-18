@@ -127,7 +127,7 @@ export const courses = [
       title: "Desarrollo Full Stack",
       description: "Construye aplicaciones web completas",
       image: "https://www.ucatalunya.edu.co/img/blog/que-es-el-desarrollo-web-full-stack-y-por-que-es-una-de-las-profesiones-mas-demandadas-del-mercado-en-aplicaciones-web.jpg",
-      instructor: "John Smith",
+      instructor: "Derick Axel Lagunes",
       startDate: "Feb 15",
       endDate: "Mar 30",
       rating: 4.7,

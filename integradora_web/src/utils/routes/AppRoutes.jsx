@@ -15,6 +15,7 @@ import DashboardAdmin from '../../pages/DashboardAdmin';
 import Users from '../../pages/Users';
 import Courses from '../../pages/Courses';
 import CourseDetail from '../../pages/CourseDetail';
+import MyCourses from '../../pages/instructor/MyCourses';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -26,7 +27,9 @@ const AppRoutes = () => {
         <Route path="/admin/dashboard/" element={<DashboardAdmin />} />
         <Route path="/admin/users/" element={<Users />} />
         <Route path="/admin/courses/" element={<Courses />} />
-        <Route path="/admin/course/:id" element={<CourseDetail />} />
+        <Route path="/course/:id" element={<CourseDetail />} />
+
+        <Route path="/inst/courses/" element={<MyCourses />} />
       </Route>
 
     

@@ -36,4 +36,12 @@ const ActionButtons = ({ onDelete, onEdit, onMoreOptions, modalId }) => (
   </div>
 );
 
-export { DeleteButton, EditButton, MoreOptionsButton, ActionButtons };
+const EditDeleteButtons = ({ onDelete, onEdit, onMoreOptions, modalId }) => (
+  <div className={`action-buttons ${styles.actions}`}>
+    <DeleteButton onClick={onDelete} />
+    <EditButton onClick={onEdit} modalId={modalId} />
+  </div>
+)
+
+
+export { DeleteButton, EditButton, MoreOptionsButton, ActionButtons, EditDeleteButtons };

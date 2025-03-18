@@ -57,13 +57,9 @@ const Users = () => {
           modalId="addUserModal" // Pasar el id del modal
           showSearch={true} /* Muestra la barra de búsqueda */
           showToggle={true} /* Muestra los botones de alternancia */
-          searchTerm={
-            searchTerm
-          } /* Pasa el estado searchTerm a ControlPanel para sincronizar la búsqueda */
+          searchTerm={searchTerm} /* Pasa el estado searchTerm a ControlPanel para sincronizar la búsqueda */
           setSearchTerm={setSearchTerm}
-          selectedFilter={
-            selectedFilter
-          } /* Indica que opción del filtro está activa */
+          selectedFilter={selectedFilter} /* Indica que opción del filtro está activa */
           setSelectedFilter={setSelectedFilter}
           toggleOptions={[
             "Instructores",
@@ -87,7 +83,7 @@ const Users = () => {
               <ActionButtons
                 showDelete={true}
                 showEdit={true}
-                showMoreOptions={true}
+                showMoreOptions={false}
                 onDelete={handleDelete} /* Alerta */
                 onEdit = {() => setSelectedUser(user)}
                 modalId="editUserModal"

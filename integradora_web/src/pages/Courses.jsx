@@ -19,15 +19,19 @@ const Courses = () => {
   const [selectedFilter, setSelectedFilter] = useState("Aprobados");
 
     // Filtrar cursos según el término de búsqueda y el filtro seleccionado
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (
+    const filteredCourses = courses.filter(course => {
+      const matchesSearch = 
+        course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+      const matchesFilter = 
         (selectedFilter === "Aprobados" && course.status === "Aprobado") ||
         (selectedFilter === "Pendientes" && course.status === "Pendiente") ||
-        (selectedFilter === "En Curso" && course.status === "En Curso")
-      )
-  );
-
+        (selectedFilter === "En Curso" && course.status === "En Curso");
+    
+      return matchesSearch && matchesFilter;
+    });
   return (
     <>
       <Sidebar />

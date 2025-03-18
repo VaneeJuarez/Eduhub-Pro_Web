@@ -14,6 +14,7 @@ import styles from "../styles/general.module.css";
 import style from "../styles/coursecard.module.css";
 import * as bootstrap from "bootstrap";
 
+
 const CourseDetail = () => {
   const { id } = useParams();
   const [selectedLesson, setSelectedLesson] = useState(null);
