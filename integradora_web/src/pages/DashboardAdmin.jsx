@@ -44,7 +44,7 @@ const DashboardAdmin = () => {
         }
 
         setTotalStudents(response.result.totalStudents);
-        setNewStudents(response.result.newUsers);
+        setNewStudents(response.result.newStudents);
         setTotalInstructors(response.result.totalInstructors);
         setTotalCourses(response.result.totalCourses);
 
@@ -56,10 +56,11 @@ const DashboardAdmin = () => {
   }
 
   useEffect(() => {
-    getAnalytics();
 
     document.body.className = ""; // Limpia todas las clases previas
     document.body.classList.add(styles.dashboardBody);
+
+    getAnalytics();
 
     return () => {
       document.body.classList.remove(styles.dashboardBody); // Limpia cuando se desmonta

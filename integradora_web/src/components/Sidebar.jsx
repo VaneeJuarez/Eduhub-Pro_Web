@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserProvider";
 import styles from "../styles/sidebar.module.css";
 import { headers, sweetAlert } from "../utils/config/config";
-import { auth_path, base_api_url, logout } from "../utils/config/paths";
 import { USER_ACTIONS } from "../utils/config/enums";
-import { useNavigate } from "react-router-dom";
+import { auth_path, base_api_url, logout } from "../utils/config/paths";
 
 const menuItems = [
   { label: "Inicio", link: "#", icon: "bi bi-house" },
@@ -55,7 +55,7 @@ const Sidebar = () => {
         }
 
         dispatch({ type: USER_ACTIONS.LOGOUT });
-        sweetAlert('success', 'Éxito', response.text, '/login', navigate);
+        sweetAlert('success', 'Éxito', response.text, '', null);
       }).catch((error) => {
         console.log(error);
         sweetAlert('error', 'Error', 'Hubo un error al cerrar la sesión, por favor revisa tu conexión a internet o inténtalo más tarde', '', null);

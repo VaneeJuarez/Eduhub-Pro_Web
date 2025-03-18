@@ -99,7 +99,7 @@ const Users = () => {
     }).then((response) => response.json())
       .then((result) => {
 
-        if (!result.ok) {
+        if (result.type !== 'SUCCESS') {
           if (typeof result === 'object' && !result.text) {
             const errorMessages = Object.values(result).join("\n");
             sweetAlert('error', 'Error', errorMessages, '');
@@ -130,7 +130,7 @@ const Users = () => {
       .then((response) => response.json())
       .then((result) => {
 
-        if (!result.ok) {
+        if (result.type !== 'SUCCESS') {
           if (typeof result === 'object' && !result.text) {
             const errorMessages = Object.values(result).join("\n");
             sweetAlert('error', 'Error', errorMessages, '');
@@ -159,7 +159,6 @@ const Users = () => {
     console.log("Más opciones para usuario con ID:", userId);
     // Aquí podrías mostrar un menú desplegable, un modal adicional, etc.
   };
-
 
   return (
     <>
