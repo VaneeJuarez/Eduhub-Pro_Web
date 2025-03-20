@@ -41,7 +41,7 @@ const CourseCard = ({ course, showActions = false }) => {
         </div>
         <div className="mt-auto d-flex justify-content-between align-items-center">
             <div className={`fw-bold ${styles.cardPrice}`}>${course.price.toFixed(2)} mx</div>
-            <div className="d-flex">
+            <div className="d-flex mt-2">
               {/* 🔹 Mostrar los botones solo si `showActions` es true */}
             {showActions && (
               <EditDeleteButtons
@@ -50,8 +50,9 @@ const CourseCard = ({ course, showActions = false }) => {
                 modalId={`editCourseModal-${course.id}`}
               />
             )}
-            <Link to={`/course/${course.id}`} className={`btn btn-primary ${styles.cardButton}`}>Ver Curso</Link>
             </div>
+            <Link to={`/course/${course.id}`} className={`btn btn-primary ${styles.cardButton} `}>Ver Curso</Link>
+
         </div>
       </div>
       

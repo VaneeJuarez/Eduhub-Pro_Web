@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Styles
 import styles from "../../styles/general.module.css"
@@ -16,9 +17,10 @@ import AddCourseModal from "../../components/modals/AddCourseModal"
 // data
 import { courses } from '../../data/courses';
 
-const MyCourses = () => {
+const MyCourses = ({ addCourse }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedFilter, setSelectedFilter] = useState("Cursos");
+    const navigate = useNavigate();
 
     // Instructor a filtrar
     const instructorFilter = "Derick Axel Lagunes";
@@ -37,6 +39,11 @@ const MyCourses = () => {
       
         return matchesSearch && matchesFilter && matchesInstructor;
       });
+
+      const handleAddCourse = (newCourse) => {
+        const addedCourse = addCourse(newCourse)
+        navigate(`/course/${addedCourse.id}`)
+      }
 
       return(
         <>
@@ -68,7 +75,7 @@ const MyCourses = () => {
       </div>
       )}
         </section>
-        <AddCourseModal />
+        <AddCourseModal onAddCourse={handleAddCourse} />
         <Footer />
         </>
       );

@@ -1,11 +1,70 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../styles/modal.module.css";
 import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
+import { useNavigate } from "react-router-dom";
+import * as bootstrap from "bootstrap";
 
-const AddCourseModal = () => {
+
+const AddCourseModal = ({ onAdd }) => {
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [instructor, setInstructor] = useState("Derick Axel Lagunes")
+  const [price, setPrice] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [tags, setTags] = useState([])
+  const [studentLimit, setStudentLimit] = useState("")
+  const [image, setImage] = useState("")
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    if (!title || !description || !instructor || !price) {
+      alert("Please fill all required fields")
+      return
+    }
+
+    const newCourse = {
+      title,
+      description,
+      instructor,
+      price: Number.parseFloat(price),
+      startDate,
+      endDate,
+      tags,
+      studentLimit,
+      image,
+    }
+
+    onAdd(newCourse)
+  }
+
   useEffect(() => {
     console.log("El modal de agregar curso se ha abierto");
   }, []);
+
+  const navigate = useNavigate(); // 🔹 Hook para redirigir
+
+  const handleSaveCourse = () => {
+    // 1️⃣ Obtener el modal por su ID
+    const modal = document.getElementById("addCourseModal");
+  
+    // 2️⃣ Cerrar el modal usando Bootstrap API
+    if (modal) {
+      const modalInstance = bootstrap.Modal.getInstance(modal);
+      modalInstance.hide();
+    }
+  
+    // 3️⃣ 🔹 Remover cualquier fondo del modal (Bootstrap deja `.modal-backdrop`)
+    setTimeout(() => {
+      document.querySelectorAll(".modal-backdrop").forEach(backdrop => backdrop.remove());
+      document.body.classList.remove("modal-open"); // Elimina la clase que evita el scroll
+      document.body.style = ""; // Restablece los estilos del body
+  
+      // 4️⃣ Redirigir después de limpiar todo
+      navigate("/inst/create-course");
+    }, 300); // Delay para evitar errores visuales
+  };
 
   return (
     <div
@@ -32,7 +91,7 @@ const AddCourseModal = () => {
             ></button>
           </div>
           <div className={styles.modalBody}>
-            <form className={styles.formModal}>
+            <form className={styles.formModal} onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className={`form-label ${styles.formLabel}`}>
                   Nombre del curso
@@ -41,6 +100,10 @@ const AddCourseModal = () => {
                   type="text"
                   className={styles.formControl}
                   placeholder="Nombre del Curso"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  id="title"
+                  required
                 />
               </div>
 
@@ -97,8 +160,8 @@ const AddCourseModal = () => {
 
               <CheckboxMultiSelect />
 
-              <div class="mb-3">
-                <label for="formFile" class="form-label">
+              <div className="mb-3">
+                <label className="form-label">
                   Subir portada del curso
                 </label>
                 <input
@@ -120,7 +183,7 @@ const AddCourseModal = () => {
             </button>
             <button
               type="button"
-              className={`btn btn-primary ${styles.btnPrimary}`}
+              className={`btn btn-primary ${styles.btnPrimary}`} onClick={handleSaveCourse}
             >
               Guardar Usuario
             </button>
