@@ -14,11 +14,13 @@
   .cardTitle {
     margin-left: 0;
     color: black;
-    width: 500;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .cardText {
-    color: black !important;
     font-size: 14px;
     display: -webkit-box;
     -webkit-line-clamp: 2; /* Limita a 2 líneas */
@@ -29,16 +31,16 @@
   }
 
   .cardInfo{
-    font-size: 14px;
-    color: rgb(74, 74, 74) !important;
+    font-size: 15px;
   }
 
   .cardTag {
     font-size: 13px;
-    background-color: #604274;
+    background-color: #604274 !important;
     margin-right: 2px;
     border-radius: 8px;
     font-family: "Raleway", sans-serif;
+    font-weight: 600;
   }
 
   .cardRating {
@@ -58,6 +60,7 @@
   .cardButton {
     background-color: #65739F;
   }
+
 
   /* Course Detail */
   .cardDetail, .cardFrame, .navItem, .tabContent {
@@ -114,3 +117,33 @@
   }
 
   
+  .Icons{
+    border: none !important;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    color: #604274;
+  }
+  
+  .Icons:hover {
+    color: #a02ea3;
+    background: none;
+  }
+
+  .btnBack {
+    overflow: hidden;
+    position: relative;
+    z-index: 101;
+    color: #65739F;
+    border-color: #65739F;
+  }
+
+  .btnAdd {
+    z-index: 101;
+    background-color: #65739F;
+    font-size: 15px;
+  }
+
+  .btnAdd:hover {
+    background-color: #7783a8;
+  }

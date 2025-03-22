@@ -3,15 +3,16 @@ import React from "react";
 import styles from '../styles/panel.module.css'
 
 
-const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [] }) => (
+const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [], onAddClick }) => (
   <div className="container mt-5">
     <div className="row align-items-center">
       {showAddButton && (
         <div className={`col-12 col-md-auto mb-2 ${styles.button}`}>
           <button className={`btn btn-primary ${styles.buttonAdd}`}
-          data-bs-toggle="modal" /* Activar modal */
-          data-bs-target={`#${modalId}`} // 
-          onClick={() => console.log(`Abriendo modal con id: ${modalId}`)}
+          onClick={() => {
+            console.log(`Abriendo modal con id: ${modalId}`)
+            if (onAddClick) onAddClick();
+          }}
           >
             <i className="fas fa-plus"></i> Agregar
           </button>

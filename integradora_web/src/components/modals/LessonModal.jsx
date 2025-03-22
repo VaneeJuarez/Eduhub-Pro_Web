@@ -1,0 +1,147 @@
+"use client"
+
+import { useState } from "react"
+import { Modal, Button, Form } from "react-bootstrap"
+
+function LessonModal({ show, onHide, onSave, initialData = {} }) {
+  const [formData, setFormData] = useState({
+    title: initialData?.title || "",
+    type: initialData?.type || "video",
+    content: initialData?.content || "",
+    description: initialData?.description || "",
+  })
+
+  const [contentFile, setContentFile] = useState(null)
+  const [contentPreview, setContentPreview] = useState(initialData?.content || "")
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleTypeChange = (e) => {
+    // Resetear el archivo y la vista previa cuando cambia el tipo
+    setContentFile(null)
+    setContentPreview("")
+    setFormData((prev) => ({
+      ...prev,
+      type: e.target.value,
+      content: "",
+    }))
+  }
+
+  const handleContentFileChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Crear una URL para el archivo
+    const contentUrl = URL.createObjectURL(file)
+    setContentFile(file)
+    setContentPreview(contentUrl)
+    setFormData((prev) => ({ ...prev, content: contentUrl }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSave({
+      ...formData,
+      content: contentPreview, // Usar la URL del contenido
+    })
+  }
+
+  // Determinar el tipo de archivo aceptado según el tipo de lección
+  const getAcceptedFileTypes = () => {
+    switch (formData.type) {
+      case "video":
+        return "video/*"
+      case "pdf":
+        return "application/pdf"
+      case "image":
+        return "image/*"
+      default:
+        return ""
+    }
+  }
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>{initialData?.title ? "Editar Lección" : "Agregar Nueva Lección"}</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Título de la Lección</Form.Label>
+            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Tipo de Contenido</Form.Label>
+            <Form.Select name="type" value={formData.type} onChange={handleTypeChange}>
+              <option value="video">Video</option>
+              <option value="pdf">PDF</option>
+              <option value="image">Imagen</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Archivo de Contenido</Form.Label>
+            <Form.Control
+              type="file"
+              accept={getAcceptedFileTypes()}
+              onChange={handleContentFileChange}
+              required={!initialData?.content}
+            />
+            {contentPreview && formData.type === "image" && (
+              <div className="mt-2">
+                <img
+                  src={contentPreview || "/placeholder.svg"}
+                  alt="Vista previa"
+                  style={{ maxHeight: "150px", maxWidth: "100%" }}
+                  className="border rounded"
+                />
+              </div>
+            )}
+            {contentPreview && formData.type === "video" && (
+              <div className="mt-2">
+                <video
+                  src={contentPreview}
+                  controls
+                  style={{ maxHeight: "150px", maxWidth: "100%" }}
+                  className="border rounded"
+                />
+              </div>
+            )}
+            {contentPreview && formData.type === "pdf" && (
+              <div className="mt-2">
+                <p className="text-success">PDF cargado correctamente</p>
+              </div>
+            )}
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Descripción</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit">
+            Guardar
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  )
+}
+
+export default LessonModal
+

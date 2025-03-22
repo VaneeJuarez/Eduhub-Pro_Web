@@ -58,3 +58,8 @@ h5 {
 .cardEmpty {
   z-index: 90;
 }
+
+.Accordion {
+  position: relative;
+  z-index: 90;
+}

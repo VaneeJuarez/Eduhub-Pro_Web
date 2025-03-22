@@ -16,7 +16,9 @@ import Users from '../../pages/Users';
 import Courses from '../../pages/Courses';
 import CourseDetail from '../../pages/CourseDetail';
 import MyCourses from '../../pages/instructor/MyCourses';
-import CreateCourse from '../../pages/instructor/CreateCourse';
+import CourseDetailPage from '../../pages/instructor/CourseDetailPage';
+
+import HomePage from '../../pages/instructor/HomePage';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -31,7 +33,8 @@ const AppRoutes = () => {
         <Route path="/course/:id" element={<CourseDetail />} />
 
         <Route path="/inst/courses/" element={<MyCourses />} />
-        <Route path="/inst/create-course/" element={<CreateCourse />} />
+        <Route path="/inst/courses/:id" element={<CourseDetailPage />} />
+        <Route path="/home" element={<HomePage />} />
       </Route>
 
     

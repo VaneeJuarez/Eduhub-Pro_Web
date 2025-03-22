@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 
 // Styles
 import styles from "../../styles/general.module.css"
@@ -9,41 +9,38 @@ import Header from "../../components/Header";
 import ControlPanel from "../../components/ControlPanel";
 import Sidebar from "../../components/Sidebar";
 import Footer from "../../components/Footer";
-import CourseCard from "../../components/CourseCard";
+import CourseList from "../../components/CourseList";
 
 // Modals
 import AddCourseModal from "../../components/modals/AddCourseModal"
 
-// data
-import { courses } from '../../data/courses';
-
-const MyCourses = ({ addCourse }) => {
+const MyCourses = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedFilter, setSelectedFilter] = useState("Cursos");
-    const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Instructor a filtrar
-    const instructorFilter = "Derick Axel Lagunes";
+    const handleSaveCourse = (course) => {
+      // Aquí guardaríamos el curso en la base de datos y obtendríamos un id real
+      const newCourseId = Date.now().toString()
 
-    // Filtra cursos por título, instructor y categoría
-    const filteredCourses = courses.filter(course => {
-        const matchesInstructor = course.instructor === instructorFilter;
-
-        const matchesSearch = 
-          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||  
-          course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-        const matchesFilter = 
-          selectedFilter === "Cursos" ||  // Muestra todos los cursos
-          (selectedFilter === "En Curso" && course.status === "En Curso");
-      
-        return matchesSearch && matchesFilter && matchesInstructor;
-      });
-
-      const handleAddCourse = (newCourse) => {
-        const addedCourse = addCourse(newCourse)
-        navigate(`/course/${addedCourse.id}`)
+      // Simulamos guardar el curso en localStorage para mantener los datos
+      const existingCourses = JSON.parse(localStorage.getItem("courses") || "[]")
+      const newCourse = {
+        ... course,
+        id: newCourseId,
+        instructor: "Usuario Actual", // Esto vendría de la sesión
+        rating: 0, // Inicialmente sin calificación
+        status: "Pendiente", // Estado inicial
       }
+
+      localStorage.setItem("courses", JSON.stringify([...existingCourses, newCourse]))
+
+      // Cerramos el modal
+      setIsModalOpen(false)
+      
+      // Forzar actualización
+      window.dispatchEvent(new Event("storage"))
+    }
 
       return(
         <>
@@ -59,23 +56,12 @@ const MyCourses = ({ addCourse }) => {
             setSearchTerm={setSearchTerm}
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
-            toggleOptions={["Cursos", "En Curso"]}
+            toggleOptions={["Cursos", "En Curso", "Pendientes"]}
+            onAddClick={() => setIsModalOpen(true)} 
             />
-            {filteredCourses.length === 0 ? (
-        <div className="text-left m-4 py-5 ">
-          <p className="text-muted">No se encontraron cursos que coincidan con tu búsqueda.</p>
-        </div>
-      ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 m-2 mt-5" >
-        {filteredCourses.map(course => (
-          <div key={course.id} className="col-12 col-sm-6 col-md-4 col-lg-3 col-md-4 mb-4">
-            <CourseCard course={course} showActions={true} />
-          </div>
-        ))}
-      </div>
-      )}
+            <CourseList />
+            <AddCourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
         </section>
-        <AddCourseModal onAddCourse={handleAddCourse} />
         <Footer />
         </>
       );
