@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Accordion, Button, Modal } from "react-bootstrap";
 import {
-  Pencil,
-  Trash,
   Plus,
   FiletypePdf,
   Image,
@@ -20,12 +18,14 @@ import styles from "../../styles/general.module.css"
 // styles
 import style from "../../styles/coursecard.module.css";
 
-function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false }) {
+function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false, onViewProgress, course, isAdmin = false }) {
   const [currentModuleIndex, setCurrentModuleIndex] = useState(null)
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [moduleToDelete, setModuleToDelete] = useState(null)
+  const [lessonToDelete, setLessonToDelete] = useState(null)
+  const [showDeleteLessonDialog, setShowDeleteLessonDialog] = useState(false)
 
   const handleAddLesson = (moduleIndex, e) => {
     e.stopPropagation() // Evitar que el evento se propague al acordeón
@@ -41,6 +41,15 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
   }
 
   const handleDeleteLesson = (moduleIndex, lessonIndex) => {
+    setCurrentModuleIndex(moduleIndex)
+    setLessonToDelete({ moduleIndex, lessonIndex })
+    setShowDeleteLessonDialog(true)
+  }
+
+  const confirmDeleteLesson = () => {
+    if (!lessonToDelete) return
+
+    const { moduleIndex, lessonIndex } = lessonToDelete
     const updatedModules = [...modules]
     updatedModules[moduleIndex].lessons.splice(lessonIndex, 1)
 
@@ -59,8 +68,12 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
       }
     }
 
-    // Forzar actualización
-    onEditModule(updatedModules[moduleIndex])
+    // Cerrar el diálogo y resetear los estados
+    setShowDeleteLessonDialog(false)
+    setLessonToDelete(null)
+
+    // Disparar evento para actualizar la lista en otras páginas
+    window.dispatchEvent(new Event("storage"))
   }
 
   const handleSaveLesson = (lesson) => {
@@ -158,6 +171,19 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
                     </Button>
                   </div>
                 )}
+                                {!isAdmin && !isPublished && course && course.status === "En Curso" && (
+                  <div className="d-flex" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 text-primary"
+                      onClick={() => onViewProgress(moduleIndex)}
+                      title="Ver progreso de estudiantes"
+                    >
+                      <BarChartFill />
+                    </Button>
+                  </div>
+                )}
               </div>
             </Accordion.Header>
             <Accordion.Body>
@@ -226,6 +252,22 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
             Cancelar
           </Button>
           <Button variant="danger" onClick={handleDeleteModuleConfirmed}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+            {/* Modal de confirmación para eliminar lección */}
+            <Modal show={showDeleteLessonDialog} onHide={() => setShowDeleteLessonDialog(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>¿Estás seguro?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Esta acción no se puede deshacer. Se eliminará permanentemente la lección.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteLessonDialog(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteLesson}>
             Eliminar
           </Button>
         </Modal.Footer>

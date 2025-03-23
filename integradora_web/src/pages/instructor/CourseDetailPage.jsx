@@ -12,6 +12,7 @@ import ModuleAccordion from "../../components/courses/ModuleAccordion";
 import ModuleModal from "../../components/modals/ModuleModal";
 import CourseStatusCard from "../../components/card/CourseStatusCard"
 import ModuleProgressModal from "../../components/modals/ModuleProgressModal"
+import { parseDisplayDate, normalizeDate } from "../../utils/dateUtils";
 
 // Styles
 import styles from "../../styles/general.module.css";
@@ -32,12 +33,35 @@ function CourseDetailPage() {
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
   useEffect(() => {
+    window.scrollTo(0,0);
+
     // Cargar el curso desde localStorage
     const courses = JSON.parse(localStorage.getItem("courses") || "[]");
     const foundCourse = courses.find((c) => c.id === id);
 
     if (foundCourse) {
-      setCourse(foundCourse);
+      // Verificar si el curso está pendiente de aprobación y ya pasó su fecha de inicio
+      if (foundCourse.status === "Pendiente de aprobar") {
+        const courseStartDate = normalizeDate(parseDisplayDate(foundCourse.startDate))
+        const today = normalizeDate(new Date())
+
+        if (today > courseStartDate) {
+          // Eliminar el curso
+          const updatedCourses = courses.filter((c) => c.id !== id)
+          localStorage.setItem("courses", JSON.stringify(updatedCourses))
+
+          // Mostrar notificación y redirigir
+          showToastMessage(
+            "Curso eliminado",
+            "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
+            "danger",
+          )
+          setTimeout(() => navigate("/"), 3000)
+          return
+        }
+      }
+
+      setCourse(foundCourse)
     }
 
     setIsLoading(false);
@@ -53,7 +77,7 @@ function CourseDetailPage() {
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [id]);
+  }, [id, navigate]);
 
   const showToastMessage = (title, body, variant = "success") => {
     setToastMessage({ title, body, variant })
@@ -159,6 +183,8 @@ function CourseDetailPage() {
 
     localStorage.setItem("courses", JSON.stringify(courses));
     setCourse(updatedCourse);
+
+    showToastMessage("Módulo eliminado", "El módulo ha sido eliminado exitosamente", "danger")
 
     // Disparar evento para actualizar la lista en otras páginas
     window.dispatchEvent(new Event("storage"));
@@ -359,7 +385,21 @@ function CourseDetailPage() {
         }}
         module={selectedModule}
       />
-      
+            {/* Toast para notificaciones */}
+            <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        delay={3000}
+        autohide
+        bg={toastMessage.variant}
+        text={toastMessage.variant === "danger" ? "white" : undefined}
+        style={{ position: "fixed", top: 20, right: 20 }}
+      >
+        <Toast.Header>
+          <strong className="me-auto">{toastMessage.title}</strong>
+        </Toast.Header>
+        <Toast.Body>{toastMessage.body}</Toast.Body>
+      </Toast>
       </section>
       <Footer />
     </>

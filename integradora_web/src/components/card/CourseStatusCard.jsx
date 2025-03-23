@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Button, Badge } from "react-bootstrap";
-import { PeopleFill } from "react-bootstrap-icons";
+import { Card, Button, Badge, Alert } from "react-bootstrap";
+import { PeopleFill, Calendar, CheckCircleFill, XCircleFill, ClockFill } from "react-bootstrap-icons"
+import { parseDisplayDate, normalizeDate, isTomorrow } from "../../utils/dateUtils";
 
 // Components
 import StudentListModal from "../modals/StudentListModal";
@@ -12,35 +13,96 @@ import styles from "../../styles/coursecard.module.css";
 
 function CourseStatusCard({ course, onPublishCourse }) {
   const [showStudentList, setShowStudentList] = useState(false);
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
 
-  // Determinar si el curso tiene lecciones
-  const hasLessons = course.modules && course.modules.some((module) => module.lessons && module.lessons.length > 0)
+  // Determinar si el curso tiene lecciones en todos sus módulos
+  const hasLessonsInAllModules = () => {
+    if (!course.modules || course.modules.length === 0) return false
+
+    // Verificar que todos los módulos tengan al menos una lección
+    return course.modules.every((module) => module.lessons && module.lessons.length > 0)
+  }
 
   // Verificar si el curso está en espera de aprobación
   const isPendingApproval = course.status === "Pendiente de aprobar";
 
-  // Verificar si el curso está aprobado pero aún no ha iniciado
-  const isApprovedNotStarted = course.status === "Aprobado" && new Date() < new Date(parseDisplayDate(course.startDate))
+  // Verificar si el curso está aprobado
+  const isApproved = course.status === "Aprobado"
 
   // Verificar si el curso está en curso
-  const isInProgress = course.status === "En Curso";
+  const isInProgress = course.status === "En Curso"
 
   // Verificar si el curso ha finalizado
-  const isFinished =
-    course.status === "Finalizado" ||
-    (course.status === "En Curso" && new Date() > new Date(parseDisplayDate(course.endDate)))
+  const isFinished = course.status === "Finalizado"
 
-  // Función para convertir de "Mar 20" a fecha ISO
-  function parseDisplayDate(displayDate) {
-    if (!displayDate) return ""
-    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    const [month, day] = displayDate.split(" ")
-    const monthIndex = months.indexOf(month)
-    if (monthIndex === -1) return ""
+  // Verificar si el curso comienza mañana
+  const startsTomorrow = () => {
+    if (!course) return false
 
-    const currentYear = new Date().getFullYear()
-    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(Number.parseInt(day)).padStart(2, "0")}`
+    return isTomorrow(parseDisplayDate(course.startDate));
   }
+
+  // Verificar si el curso ya finalizó
+  const hasEnded = () => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date())
+    const endDate = normalizeDate(parseDisplayDate(course.endDate))
+
+    return today > endDate
+  }
+
+  // Verificar si el curso está actualmente en curso
+  const isCurrentlyInProgress = () => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date())
+    const startDate = normalizeDate(parseDisplayDate(course.startDate))
+    const endDate = normalizeDate(parseDisplayDate(course.endDate))
+
+    return today >= startDate && today <= endDate
+  }
+
+  // Determinar el estado actual del curso basado en las fechas
+  const determineCurrentStatus = () => {
+    if (hasEnded()) {
+      return "Finalizado"
+    } else if (isCurrentlyInProgress()) {
+      return "En Curso"
+    } else if (startsTomorrow()) {
+      return "Inicia Mañana"
+    } else {
+      return "Iniciará Pronto"
+    }
+  }
+
+  // Actualizar el estado del curso si es necesario
+  const updateCourseStatus = () => {
+    if (course.status === "Aprobado" || course.status === "En Curso") {
+      const currentStatus = determineCurrentStatus()
+
+      // Si el estado actual no coincide con el estado almacenado, actualizarlo
+      if (
+        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
+        (currentStatus === "En Curso" && course.status !== "En Curso")
+      ) {
+        const courses = JSON.parse(localStorage.getItem("courses") || "[]")
+        const courseIndex = courses.findIndex((c) => c.id === course.id)
+
+        if (courseIndex !== -1) {
+          courses[courseIndex].status = currentStatus
+          localStorage.setItem("courses", JSON.stringify(courses))
+
+          // Disparar evento para actualizar la lista en otras páginas
+          window.dispatchEvent(new Event("storage"))
+        }
+      }
+    }
+  }
+
+  // Ejecutar la actualización del estado
+  updateCourseStatus()
 
   // Generar estudiantes de ejemplo para la demostración
   const generateMockStudents = () => {
@@ -63,25 +125,43 @@ function CourseStatusCard({ course, onPublishCourse }) {
 
   const mockStudents = generateMockStudents();
 
+  const handlePublishCourse = () => {
+    // Verificar que todos los módulos tengan lecciones
+    if (!hasLessonsInAllModules()) {
+      setAlertMessage(
+        "No puedes enviar el curso porque hay módulos sin lecciones. Agrega al menos una lección a cada módulo.",
+      )
+      setShowAlert(true)
+      return
+    }
+
+    onPublishCourse()
+  }
+
   return (
     <>
       <Card className={styles.cardFrame}>
         <Card.Body>
+
+          {showAlert && (
+            <Alert variant="warning" onClose={() => setShowAlert(false)} dismissible className="mb-3">
+              {alertMessage}
+            </Alert>
+          )}
+
           {/* Curso pendiente (no enviado) */}
           {course.status === "Pendiente" && (
             <div className="text-center py-3">
               <p className="mb-3">¿Deseas enviar tu curso?</p>
               <Button
-                onClick={onPublishCourse}
+                onClick={handlePublishCourse}
                 className="w-100"
-                disabled={!hasLessons}
+                disabled={!course.modules || course.modules.length === 0}
               >
                 Enviar Curso
               </Button>
-              {!hasLessons && (
-                <small className="text-muted d-block mt-2">
-                  Agrega lecciones para habilitar esta opción
-                </small>
+              {(!course.modules || course.modules.length === 0) && (
+                <small className="text-muted d-block mt-2">Agrega módulos para habilitar esta opción</small>
               )}
               <small className="text-danger d-block mt-2">
                 <strong>Nota:</strong> Una vez enviado, no podrás editar ni
@@ -93,68 +173,59 @@ function CourseStatusCard({ course, onPublishCourse }) {
           {isPendingApproval && (
             <div className="text-center py-3">
               <Badge bg="warning" className="mb-3 py-2 px-3">
-                Pendiente
+                <ClockFill className="me-2" /> Pendiente
               </Badge>
               <p className="mb-0">En espera de aprobación</p>
-              <small className="text-muted d-block mt-2">
-                Tu curso está siendo revisado por nuestro equipo
-              </small>
+              <small className="text-muted d-block mt-2">Tu curso está siendo revisado por nuestro equipo</small>
             </div>
           )}
 
-          {/* Curso aprobado pero no iniciado */}
-          {isApprovedNotStarted && (
+          {/* Curso aprobado que inicia mañana */}
+          {isApproved && startsTomorrow() && (
             <div className="text-center py-3">
               <Badge bg="info" className="mb-3 py-2 px-3">
-                Aprobado
+                <CheckCircleFill className="me-2" /> Aprobado
               </Badge>
-              <p className="mb-0">En espera de inicialización</p>
-              <small className="text-muted d-block mt-2">
-                El curso comenzará el {course.startDate}
-              </small>
+              <p className="mb-0 fw-bold">El curso inicia mañana</p>
+              <small className="text-muted d-block mt-2">Prepárate para comenzar</small>
+            </div>
+          )}
+
+          {/* Curso aprobado que iniciará pronto (pero no mañana) */}
+          {isApproved && !startsTomorrow() && !isCurrentlyInProgress() && !hasEnded() && (
+            <div className="text-center py-3">
+              <Badge bg="info" className="mb-3 py-2 px-3">
+                <CheckCircleFill className="me-2" /> Aprobado
+              </Badge>
+              <p className="mb-0">El curso iniciará pronto</p>
+              <small className="text-muted d-block mt-2">El curso comenzará el {course.startDate}</small>
             </div>
           )}
 
           {/* Curso en curso */}
-          {isInProgress && (
+          {(isInProgress || (isApproved && isCurrentlyInProgress())) && (
             <div className="text-center py-3">
               <Badge bg="success" className="mb-3 py-2 px-3">
-                En Curso
+                <CheckCircleFill className="me-2" /> En Curso
               </Badge>
               <div className="d-flex align-items-center justify-content-center mb-3">
                 <PeopleFill className="me-2" />
                 <span>{mockStudents.length} estudiantes inscritos</span>
               </div>
-              <Button
-                variant="outline-primary"
-                onClick={() => setShowStudentList(true)}
-                className="w-100"
-              >
+              <Button variant="outline-primary" onClick={() => setShowStudentList(true)} className="w-100">
                 Ver Estudiantes
               </Button>
             </div>
           )}
 
           {/* Curso finalizado */}
-          {isFinished && (
+          {(isFinished || (isApproved && hasEnded())) && (
             <div className="text-center py-3">
               <Badge bg="secondary" className="mb-3 py-2 px-3">
-                Finalizado
+                <Calendar className="me-2" /> Finalizado
               </Badge>
-              <p className="mb-0">Este curso finalizó</p>
-              <small className="text-muted d-block mt-2">
-                Finalizó el {course.endDate}
-              </small>
-            </div>
-          )}
-          {/* Curso rechazado */}
-          {course.status === "Rechazado" && (
-            <div className="text-center py-3">
-              <Badge bg="danger" className="mb-3 py-2 px-3">
-                Rechazado
-              </Badge>
-              <p className="mb-0">Tu curso ha sido rechazado</p>
-              <small className="text-muted d-block mt-2">Contacta con el administrador para más información</small>
+              <p className="mb-0">El curso finalizó</p>
+              <small className="text-muted d-block mt-2">Finalizó el {course.endDate}</small>
             </div>
           )}
 

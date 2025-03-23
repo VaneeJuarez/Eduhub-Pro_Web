@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Badge, Toast, Modal } from "react-bootstrap"
-import { ArrowLeft, Calendar, People, Star, CheckCircleFill, XCircleFill, PeopleFill, ClockFill } from "react-bootstrap-icons"
+import { ArrowLeft, PeopleFill, ClockFill, CheckCircleFill } from "react-bootstrap-icons"
+import { parseDisplayDate, normalizeDate, isTomorrow } from "../utils/dateUtils"
 
 // Components
 import Sidebar from "../components/Sidebar";
@@ -25,27 +26,40 @@ function CourseDetail() {
   const [showStudentList, setShowStudentList] = useState(false)
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [showLessonViewer, setShowLessonViewer] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     // Cargar el curso desde localStorage
     const courses = JSON.parse(localStorage.getItem("courses") || "[]")
     const foundCourse = courses.find((c) => c.id === id)
 
     if (foundCourse) {
       // Verificar si el curso está pendiente de aprobación y ya pasó su fecha de inicio
-      if (foundCourse.status === "Pendiente de aprobar" &&
-        new Date() > new Date(parseDisplayDate(foundCourse.startDate))) {
-        // Eliminar el curso
-        const updatedCourses = courses.filter((c) => c.id !== id)
-        localStorage.setItem("courses", JSON.stringify(updatedCourses))
+      if (foundCourse.status === "Pendiente de aprobar") {
+        const courseStartDate = normalizeDate(parseDisplayDate(foundCourse.startDate));
+        const today = normalizeDate(new Date());
 
-        // Mostrar notificación y redirigir
-        showToastMessage("Curso eliminado", "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado", "danger")
-        setTimeout(() => navigate("/admin"), 3000)
-        return
+        if (today >= courseStartDate.getTime()) {
+          // Eliminar el curso
+          const updatedCourses = courses.filter((c) => c.id !== id)
+          localStorage.setItem("courses", JSON.stringify(updatedCourses))
+
+          // Mostrar notificación y redirigir
+          showToastMessage(
+            "Curso eliminado",
+            "El curso ha sido eliminado porque llegó a su fecha de inicio sin ser aprobado",
+            "danger",
+          )
+          setTimeout(() => navigate("/admin/courses"), 3000)
+          return
+        }
       }
 
-      setCourse(foundCourse)
+      // Actualizar el estado del curso basado en las fechas actuales
+      const updatedCourse = updateCourseStatus(foundCourse)
+      setCourse(updatedCourse)
     }
 
     setIsLoading(false)
@@ -62,6 +76,48 @@ function CourseDetail() {
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
   }, [id, navigate])
+
+  // Función para actualizar el estado del curso basado en las fechas
+  const updateCourseStatus = (course) => {
+    if (course.status === "Aprobado" || course.status === "En Curso") {
+      const currentStatus = determineCurrentStatus(course)
+
+      // Si el estado actual no coincide con el estado almacenado, actualizarlo
+      if (
+        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
+        (currentStatus === "En Curso" && course.status !== "En Curso")
+      ) {
+        const courses = JSON.parse(localStorage.getItem("courses") || "[]")
+        const courseIndex = courses.findIndex((c) => c.id === course.id)
+
+        if (courseIndex !== -1) {
+          courses[courseIndex].status = currentStatus
+          localStorage.setItem("courses", JSON.stringify(courses))
+
+          // Actualizar el curso local
+          return { ...course, status: currentStatus }
+        }
+      }
+    }
+
+    return course
+  }
+
+  // Determinar el estado actual del curso basado en las fechas
+  const determineCurrentStatus = (course) => {
+    if (hasEnded(course)) {
+      return "Finalizado"
+    } else if (isCurrentlyInProgress(course)) {
+      return "En Curso"
+    } else {
+      return course.status
+    }
+  }
+
+  const showToastMessage = (title, body, variant = "success") => {
+    setToastMessage({ title, body, variant })
+    setShowToast(true)
+  }
 
   const handleApproveCourse = () => {
     if (!course) return
@@ -104,16 +160,31 @@ function CourseDetail() {
     navigate("/admin")
   }
 
-  // Función para convertir de "Mar 20" a fecha ISO
-  function parseDisplayDate(displayDate) {
-    if (!displayDate) return ""
-    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    const [month, day] = displayDate.split(" ")
-    const monthIndex = months.indexOf(month)
-    if (monthIndex === -1) return ""
 
-    const currentYear = new Date().getFullYear()
-    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(Number.parseInt(day)).padStart(2, "0")}`
+  // Verificar si el curso comienza mañana
+  const startsTomorrow = (course) => {
+    if (!course) return false
+    return isTomorrow(parseDisplayDate(course.startDate))
+  }
+
+  // Verificar si el curso ya finalizó
+  const hasEnded = (course) => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date());
+    const endDate = normalizeDate(parseDisplayDate(course.endDate));
+    return today > endDate;
+  }
+
+  // Verificar si el curso está actualmente en curso
+  const isCurrentlyInProgress = (course) => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date());
+    const startDate = normalizeDate(parseDisplayDate(course.startDate));
+    const endDate = normalizeDate(parseDisplayDate(course.endDate));
+
+    return today >= startDate && today <= endDate
   }
 
   // Generar estudiantes de ejemplo para la demostración
@@ -172,25 +243,13 @@ function CourseDetail() {
   const isPendingApproval = course.status === "Pendiente de aprobar"
 
   // Verificar si el curso está aprobado pero aún no ha iniciado
-  const isApprovedNotStarted = course.status === "Aprobado" && new Date() < new Date(parseDisplayDate(course.startDate))
-
-  // Verificar si el curso comienza mañana
-  const startsTomorrow = () => {
-    if (!course || course.status !== "Aprobado") return false
-
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    const startDate = new Date(parseDisplayDate(course.startDate))
-
-    return startDate.getDate() === tomorrow.getDate() &&
-      startDate.getMonth() === tomorrow.getMonth() &&
-      startDate.getFullYear() === tomorrow.getFullYear()
-  }
+  const isApproved = course.status === "Aprobado"
 
   // Verificar si el curso está en curso
   const isInProgress = course.status === "En Curso"
+
+  // Verificar si el curso ha finalizado
+  const isFinished = course.status === "Finalizado"
 
   return (
     <>
@@ -258,7 +317,7 @@ function CourseDetail() {
                       onClick={handleApproveCourse}
                       className="mb-2 w-100"
                     >
-                       Aprobar Curso
+                      Aprobar Curso
                     </Button>
                     <Button
                       variant="danger"
@@ -270,23 +329,34 @@ function CourseDetail() {
                   </div>
                 )}
 
-                {isApprovedNotStarted && (
+                {/* Curso aprobado que inicia mañana */}
+                {isApproved && startsTomorrow(course) && (
                   <div className="text-center py-3">
                     <Badge bg="info" className="mb-3 py-2 px-3">
-                      Aprobado
+                      <CheckCircleFill className="me-2" /> Aprobado
                     </Badge>
-                    <div className="d-flex align-items-center justify-content-center mb-2">
-                      <ClockFill className="me-2 text-info" />
-                      <span>{startsTomorrow() ? "El curso empieza mañana" : "Iniciará pronto"}</span>
-                    </div>
-                    <p className="mb-0 text-muted">
-                      {!startsTomorrow() && `El curso comenzará el ${course.startDate}`}
-                    </p>
+                    <p className="mb-0 fw-bold">El curso inicia mañana</p>
+                    <small className="text-muted d-block mt-2">Todo está listo para comenzar</small>
                   </div>
                 )}
 
+                {/* Curso aprobado que iniciará pronto (pero no mañana) */}
+                {isApproved && !startsTomorrow(course) && !isCurrentlyInProgress(course) && !hasEnded(course) && (
+                  <div className="text-center py-3">
+                    <Badge bg="info" className="mb-3 py-2 px-3">
+                      <CheckCircleFill className="me-2" /> Aprobado
+                    </Badge>
+                    <p className="mb-0">El curso iniciará pronto</p>
+                    <small className="text-muted d-block mt-2">El curso comenzará el {course.startDate}</small>
+                  </div>
+                )}
+
+                {/* Curso en curso */}
                 {isInProgress && (
-                  <div className="text-center py-2">
+                  <div className="text-center py-3">
+                    <Badge bg="primary" className="mb-3 py-2 px-3">
+                      <CheckCircleFill className="me-2" /> En Curso
+                    </Badge>
                     <div className="d-flex align-items-center justify-content-center mb-3">
                       <PeopleFill className="me-2" />
                       <span>{mockStudents.length} estudiantes inscritos</span>
@@ -294,6 +364,17 @@ function CourseDetail() {
                     <Button variant="primary" onClick={() => setShowStudentList(true)} className="w-100">
                       Ver Estudiantes
                     </Button>
+                  </div>
+                )}
+
+                {/* Curso finalizado */}
+                {isFinished && (
+                  <div className="text-center py-3">
+                    <Badge bg="secondary" className="mb-3 py-2 px-3">
+                      <Calendar className="me-2" /> Finalizado
+                    </Badge>
+                    <p className="mb-0">El curso finalizó</p>
+                    <small className="text-muted d-block mt-2">Finalizó el {course.endDate}</small>
                   </div>
                 )}
               </Card.Body>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/modal.module.css";
 import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import { parseDisplayDate } from "../../utils/dateUtils";
 
 const categoryOptions = [
   { value: "Programación", label: "Programación" },
@@ -28,6 +29,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(initialData.image || "");
+  const [startDateError, setStartDateError] = useState("")
+  const [endDateError, setEndDateError] = useState("")
 
   // Función para formatear fechas de formato ISO a "Mar 20"
   const formatDateForDisplay = (isoDate) => {
@@ -37,27 +40,6 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     return `${months[date.getMonth()]} ${date.getDate()}`
   }
 
-  // Función para convertir de "Mar 20" a fecha ISO para el input date
-  const parseDisplayDate = (displayDate) => {
-    if (!displayDate) return ""
-    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    const [month, day] = displayDate.split(" ")
-    const monthIndex = months.indexOf(month)
-    if (monthIndex === -1) return ""
-
-    const currentYear = new Date().getFullYear()
-    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(Number.parseInt(day)).padStart(2, "0")}`
-  }
-
-  // Obtener la fecha actual en formato YYYY-MM-DD para el min de los inputs date
-  const getTodayDate = () => {
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = String(today.getMonth() + 1).padStart(2, "0")
-    const day = String(today.getDate()).padStart(2, "0")
-    return `${year}-${month}-${day}`
-  }
-
   // Obtener la fecha de mañana para el mínimo de la fecha de inicio
   const getTomorrowDate = () => {
     const tomorrow = new Date()
@@ -65,6 +47,20 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     const year = tomorrow.getFullYear()
     const month = String(tomorrow.getMonth() + 1).padStart(2, "0")
     const day = String(tomorrow.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
+
+  // Obtener la fecha mínima para la fecha de fin (un día después de la fecha de inicio)
+  const getMinEndDate = () => {
+    if (!formData.startDateISO) return getTomorrowDate()
+
+    const startDate = new Date(formData.startDateISO)
+    startDate.setDate(startDate.getDate() + 1)
+
+    const year = startDate.getFullYear()
+    const month = String(startDate.getMonth() + 1).padStart(2, "0")
+    const day = String(startDate.getDate()).padStart(2, "0")
+
     return `${year}-${month}-${day}`
   }
 
@@ -78,29 +74,88 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "price" || name === "studentLimit"
-          ? Number.parseFloat(value)
-          : value,
-    }));
-  };
+      [name]: name === "price" || name === "studentLimit" ? Number.parseFloat(value) : value,
+    }))
+  }
 
   const handleDateChange = (e) => {
-    const { name, value } = e.target;
-    // Crear la fecha con la hora establecida a mediodía para evitar problemas con la zona horaria
-    const date = new Date(value + "T12:00:00");
-    const formattedDate = formatDateForDisplay(date);
+    const { name, value } = e.target
+
+    // Validar fecha de inicio
+    if (name === "startDateISO") {
+      const startDate = new Date(value)
+      startDate.setHours(0, 0, 0, 0)
+
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      if (startDate < today) {
+        setStartDateError("La fecha de inicio debe ser igual o posterior a mañana")
+        return
+      } else {
+        setStartDateError("")
+      }
+
+      // Si la fecha de fin ya está establecida, verificar que sea posterior a la nueva fecha de inicio
+      if (formData.endDateISO) {
+        const endDate = new Date(formData.endDateISO)
+        endDate.setHours(0, 0, 0, 0)
+
+        const minEndDate = new Date(startDate)
+        minEndDate.setDate(minEndDate.getDate() + 1)
+
+        if (endDate <= startDate) {
+          setEndDateError("La fecha de fin no puede ser la misma que la fecha de inicio.")
+
+          // Resetear la fecha de fin
+          setFormData((prev) => ({
+            ...prev,
+            endDate: "",
+            endDateISO: "",
+          }))
+
+          return
+        } else {
+          setEndDateError("")
+        }
+      }
+    }
+
+    // Validar fecha de fin
+    if (name === "endDateISO") {
+      if (formData.startDateISO) {
+        const startDate = new Date(formData.startDateISO)
+        startDate.setHours(0, 0, 0, 0)
+
+        const endDate = new Date(value)
+        endDate.setHours(0, 0, 0, 0)
+
+        const minEndDate = new Date(startDate)
+        minEndDate.setDate(minEndDate.getDate() + 1)
+
+        if (endDate <= startDate) {
+          setEndDateError("Debe ser al menos un día después de la fecha de inicio")
+          return
+        } else {
+          setEndDateError("")
+        }
+      }
+    }
+
+    // Crear la fecha con la hora establecida a mediodía para evitar problemas de zona horaria
+    const date = new Date(value + "T12:00:00")
+    const formattedDate = formatDateForDisplay(date)
 
     // Actualizar tanto la fecha ISO como la fecha formateada
     setFormData((prev) => ({
       ...prev,
       [name === "startDateISO" ? "startDate" : "endDate"]: formattedDate,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -115,6 +170,22 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validar que ambas fechas estén establecidas
+    if (!formData.startDate || !formData.endDate) {
+      if (!formData.startDate) setStartDateError("La fecha de inicio es obligatoria")
+      if (!formData.endDate) setEndDateError("La fecha de fin es obligatoria")
+      return
+    }
+
+    // Validar que la fecha de fin sea posterior a la fecha de inicio
+    const startDate = new Date(parseDisplayDate(formData.startDate))
+    const endDate = new Date(parseDisplayDate(formData.endDate))
+
+    if (endDate <= startDate) {
+      setEndDateError("La fecha de fin debe ser posterior a la fecha de inicio")
+      return
+    }
 
     // Mantener los campos que no se editan si es una edición
     const completeData = {
@@ -178,6 +249,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                   min={getTomorrowDate()} // Usar la fecha de mañana como mínimo
                   required
                 />
+                {startDateError && <Form.Text className="text-danger">{startDateError}</Form.Text>}
+
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -188,9 +261,12 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                   name="endDateISO"
                   value={formData.endDateISO || ""}
                   onChange={handleDateChange}
-                  min={formData.startDateISO || getTomorrowDate()}
+                  min={getMinEndDate()} // Usar un día después de la fecha de inicio como mínimo
                   required
+                  disabled={!formData.startDateISO} // Deshabilitar hasta que se seleccione una fecha de inicio
                 />
+                {endDateError && <Form.Text className="text-danger">{endDateError}</Form.Text>}
+
               </Form.Group>
             </Col>
           </Row>

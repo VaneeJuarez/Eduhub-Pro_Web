@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Badge, Button, Toast, Modal } from "react-bootstrap";
 import { Star } from "react-bootstrap-icons";
+import { parseDisplayDate, normalizeDate } from "../utils/dateUtils"
 
 // styles
 import styles from "../styles/coursecard.module.css";
@@ -18,25 +19,40 @@ function CourseList() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [courseToEdit, setCourseToEdit] = useState(null);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState({
-    title: "",
-    body: "",
-    variant: "success",
-  });
+  const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
   const navigate = useNavigate();
 
   useEffect(() => {
     // Cargar cursos desde localStorage
     const storedCourses = JSON.parse(localStorage.getItem("courses") || "[]");
-    setCourses(storedCourses);
+
+    // Filtrar cursos pendientes de aprobación con fecha vencida
+    const filteredCourses = storedCourses.filter((course) => {
+      if (course.status === "Pendiente de aprobar") {
+        const courseStartDate = normalizeDate(parseDisplayDate(course.startDate));
+        const today = normalizeDate(new Date());
+        return today <= courseStartDate;
+      }
+      return true;
+    });
+
+    // Si se eliminaron cursos, actualizar localStorage
+    if (filteredCourses.length < storedCourses.length) {
+      localStorage.setItem("courses", JSON.stringify(filteredCourses))
+      showToastMessage(
+        "Cursos actualizados",
+        "Se han eliminado cursos pendientes de aprobación con fecha de inicio vencida",
+        "warning",
+      )
+    }
+
+    setCourses(filteredCourses);
 
     // Suscribirse a cambios en localStorage
     const handleStorageChange = () => {
-      const updatedCourses = JSON.parse(
-        localStorage.getItem("courses") || "[]"
-      );
-      setCourses(updatedCourses);
-    };
+      const updatedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
+      setCourses(updatedCourses)
+    }
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
@@ -99,20 +115,15 @@ function CourseList() {
 
   const handleSaveEditedCourse = (updatedCourse) => {
     const updatedCourses = courses.map((course) =>
-      course.id === updatedCourse.id
-        ? { ...updatedCourse, id: course.id }
-        : course
-    );
+      course.id === updatedCourse.id ? { ...updatedCourse, id: course.id } : course,
+    )
 
     localStorage.setItem("courses", JSON.stringify(updatedCourses));
     setCourses(updatedCourses);
     setIsEditModalOpen(false);
     setCourseToEdit(null);
 
-    showToastMessage(
-      "Curso actualizado",
-      "El curso ha sido actualizado exitosamente"
-    );
+    showToastMessage("Curso actualizado", "El curso ha sido actualizado exitosamente")
 
     // Disparar evento para actualizar la lista en otras páginas
     window.dispatchEvent(new Event("storage"));
@@ -219,22 +230,15 @@ function CourseList() {
       </Row>
 
       {/* Modal de confirmación para eliminar curso */}
-      <Modal
-        show={isDeleteDialogOpen}
-        onHide={() => setIsDeleteDialogOpen(false)}
-      >
+      <Modal show={isDeleteDialogOpen} onHide={() => setIsDeleteDialogOpen(false)}>
         <Modal.Header closeButton>
           <Modal.Title>¿Estás seguro?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Esta acción no se puede deshacer. Se eliminará permanentemente el
-          curso y todos sus módulos y lecciones.
+          Esta acción no se puede deshacer. Se eliminará permanentemente el curso y todos sus módulos y lecciones.
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setIsDeleteDialogOpen(false)}
-          >
+          <Button variant="secondary" onClick={() => setIsDeleteDialogOpen(false)}>
             Cancelar
           </Button>
           <Button variant="danger" onClick={confirmDeleteCourse}>

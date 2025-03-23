@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
 
+// Styles
+import styles from "../../styles/modal.module.css"
+
 function LessonModal({ show, onHide, onSave, initialData = {} }) {
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -66,9 +69,9 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>{initialData?.title ? "Editar Lección" : "Agregar Nueva Lección"}</Modal.Title>
+        <Modal.Title className={styles.ModalTitle}>{initialData?.title ? "Editar Lección" : "Agregar Nueva Lección"}</Modal.Title>
       </Modal.Header>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} className={styles.Form}>
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Título de la Lección</Form.Label>
@@ -77,7 +80,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
 
           <Form.Group className="mb-3">
             <Form.Label>Tipo de Contenido</Form.Label>
-            <Form.Select name="type" value={formData.type} onChange={handleTypeChange}>
+            <Form.Select name="type" value={formData.type} onChange={handleTypeChange} className={styles.Select}>
               <option value="video">Video</option>
               <option value="pdf">PDF</option>
               <option value="image">Imagen</option>

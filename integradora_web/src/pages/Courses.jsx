@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Container, Card, Badge, Button, Table, Row, Col } from "react-bootstrap"
+import { Card, Badge, Button, Row, Col } from "react-bootstrap"
 import { useNavigate } from "react-router-dom";
-import { Star, ClockFill, CheckCircleFill, XCircleFill, EyeFill } from "react-bootstrap-icons"
-
+import { Star } from "react-bootstrap-icons"
+import { parseDisplayDate, normalizeDate } from "../utils/dateUtils"
 
 // Components
 import ControlPanel from "../components/ControlPanel";
@@ -31,36 +31,101 @@ function Courses() {
   const loadCourses = () => {
     const courses = JSON.parse(localStorage.getItem("courses") || "[]")
 
-    // Filtrar cursos pendientes de aprobación con fecha vencida
+    // Filtrar cursos: excluir los que están en estado "Pendiente" y los pendientes de aprobación con fecha vencida
     const filteredCourses = courses.filter((course) => {
+      // Excluir cursos en estado "Pendiente" (que el docente no ha enviado aún)
+      if (course.status === "Pendiente") {
+        return false
+      }
+
+      // Verificar si es un curso pendiente de aprobación con fecha vencida
       if (course.status === "Pendiente de aprobar") {
         // Convertir fecha de inicio a formato de fecha
-        const startDate = parseDisplayDate(course.startDate)
-        // Verificar si la fecha ya pasó
-        return new Date() <= new Date(startDate)
+        const courseStartDate = normalizeDate(parseDisplayDate(course.startDate));
+        const today = normalizeDate(new Date());
+
+        return today < courseStartDate;
+
       }
+
+      // Actualizar el estado del curso basado en las fechas actuales
+      updateCourseStatus(course)
+
       return true
     })
 
     // Si se eliminaron cursos, actualizar localStorage
     if (filteredCourses.length < courses.length) {
-      localStorage.setItem("courses", JSON.stringify(filteredCourses))
+      localStorage.setItem(
+        "courses",
+        JSON.stringify(
+          courses.filter(
+            (course) =>
+              course.status !== "Pendiente" &&
+              !(
+                course.status === "Pendiente de aprobar" &&
+                new Date().setHours(0, 0, 0, 0) >= new Date(parseDisplayDate(course.startDate)).setHours(0, 0, 0, 0)
+              ),
+          ),
+        ),
+      )
     }
 
     setCourses(filteredCourses)
   }
 
-  // Función para convertir de "Mar 20" a fecha ISO
-  function parseDisplayDate(displayDate) {
-    if (!displayDate) return ""
-    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    const [month, day] = displayDate.split(" ")
-    const monthIndex = months.indexOf(month)
-    if (monthIndex === -1) return ""
+  // Función para actualizar el estado del curso basado en las fechas
+  const updateCourseStatus = (course) => {
+    if (course.status === "Aprobado" || course.status === "En Curso") {
+      const currentStatus = determineCurrentStatus(course)
 
-    const currentYear = new Date().getFullYear()
-    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(Number.parseInt(day)).padStart(2, "0")}`
+      // Si el estado actual no coincide con el estado almacenado, actualizarlo
+      if (
+        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
+        (currentStatus === "En Curso" && course.status !== "En Curso")
+      ) {
+        const courses = JSON.parse(localStorage.getItem("courses") || "[]")
+        const courseIndex = courses.findIndex((c) => c.id === course.id)
+
+        if (courseIndex !== -1) {
+          courses[courseIndex].status = currentStatus
+          localStorage.setItem("courses", JSON.stringify(courses))
+        }
+      }
+    }
   }
+
+    // Determinar el estado actual del curso basado en las fechas
+    const determineCurrentStatus = (course) => {
+      if (hasEnded(course)) {
+        return "Finalizado"
+      } else if (isCurrentlyInProgress(course)) {
+        return "En Curso"
+      } else {
+        return course.status
+      }
+    }
+  
+    // Verificar si el curso ya finalizó
+    const hasEnded = (course) => {
+      if (!course) return false
+  
+      const today = normalizeDate(new Date());
+      const endDate = normalizeDate(parseDisplayDate(course.endDate));
+  
+      return today > endDate
+    }
+  
+    // Verificar si el curso está actualmente en curso
+    const isCurrentlyInProgress = (course) => {
+      if (!course) return false
+  
+      const today = normalizeDate(new Date());
+      const startDate = normalizeDate(parseDisplayDate(course.startDate));
+      const endDate = normalizeDate(parseDisplayDate(course.endDate));    
+  
+      return today >= startDate && today <= endDate
+    }
 
   const handleViewCourse = (courseId) => {
     navigate(`/admin/courses/${courseId}`)
