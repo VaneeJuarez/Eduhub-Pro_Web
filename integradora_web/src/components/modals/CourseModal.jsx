@@ -13,7 +13,7 @@ const categoryOptions = [
   { value: "Comunicación", label: "Comunicación" },
 ];
 
-const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
+const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
@@ -31,51 +31,42 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   // Función para formatear fechas de formato ISO a "Mar 20"
   const formatDateForDisplay = (isoDate) => {
-    if (!isoDate) return "";
-    const date = new Date(isoDate);
-    const months = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
-    ];
-    return `${months[date.getMonth()]} ${date.getDate()}`;
-  };
+    if (!isoDate) return ""
+    const date = new Date(isoDate)
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    return `${months[date.getMonth()]} ${date.getDate()}`
+  }
 
   // Función para convertir de "Mar 20" a fecha ISO para el input date
   const parseDisplayDate = (displayDate) => {
-    if (!displayDate) return "";
-    const months = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
-    ];
-    const [month, day] = displayDate.split(" ");
-    const monthIndex = months.indexOf(month);
-    if (monthIndex === -1) return "";
+    if (!displayDate) return ""
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    const [month, day] = displayDate.split(" ")
+    const monthIndex = months.indexOf(month)
+    if (monthIndex === -1) return ""
 
-    const currentYear = new Date().getFullYear();
-    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(
-      Number.parseInt(day)
-    ).padStart(2, "0")}`;
-  };
+    const currentYear = new Date().getFullYear()
+    return `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(Number.parseInt(day)).padStart(2, "0")}`
+  }
+
+  // Obtener la fecha actual en formato YYYY-MM-DD para el min de los inputs date
+  const getTodayDate = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, "0")
+    const day = String(today.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
+
+  // Obtener la fecha de mañana para el mínimo de la fecha de inicio
+  const getTomorrowDate = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const year = tomorrow.getFullYear()
+    const month = String(tomorrow.getMonth() + 1).padStart(2, "0")
+    const day = String(tomorrow.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
 
   useEffect(() => {
     // Inicializar las fechas en formato ISO para los inputs date
@@ -99,7 +90,8 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    const date = new Date(value);
+    // Crear la fecha con la hora establecida a mediodía para evitar problemas con la zona horaria
+    const date = new Date(value + "T12:00:00");
     const formattedDate = formatDateForDisplay(date);
 
     // Actualizar tanto la fecha ISO como la fecha formateada
@@ -108,11 +100,6 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       [name === "startDateISO" ? "startDate" : "endDate"]: formattedDate,
       [name]: value,
     }));
-  };
-
-  const handleTagsChange = (e) => {
-    const tagsArray = e.target.value.split(",").map((tag) => tag.trim());
-    setFormData((prev) => ({ ...prev, tags: tagsArray }));
   };
 
   const handleImageChange = (e) => {
@@ -137,6 +124,9 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       rating: initialData.rating !== undefined ? initialData.rating : 0,
       status: initialData.status || "Pendiente",
       image: imagePreview, // Usar la URL de la imagen
+      // Asegurarse de que las fechas estén en el formato correcto
+      startDate: formData.startDate,
+      endDate: formData.endDate,
     };
 
     onSave(completeData);
@@ -169,6 +159,7 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
               as="textarea"
               rows={2}
               name="description"
+              maxLength={203}
               value={formData.description}
               onChange={handleChange}
               required
@@ -184,6 +175,7 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                   name="startDateISO"
                   value={formData.startDateISO || ""}
                   onChange={handleDateChange}
+                  min={getTomorrowDate()} // Usar la fecha de mañana como mínimo
                   required
                 />
               </Form.Group>
@@ -196,6 +188,7 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                   name="endDateISO"
                   value={formData.endDateISO || ""}
                   onChange={handleDateChange}
+                  min={formData.startDateISO || getTomorrowDate()}
                   required
                 />
               </Form.Group>
@@ -232,15 +225,21 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
             </Col>
           </Row>
 
-          <CheckboxMultiSelect 
+          <CheckboxMultiSelect
             options={categoryOptions}
             value={formData.tags}
-            onChange={(newTags) => setFormData((prev) => ({ ...prev, tags: newTags}))}
+            onChange={(newTags) =>
+              setFormData((prev) => ({ ...prev, tags: newTags }))
+            }
           />
 
           <Form.Group className="mb-3">
             <Form.Label>Imagen de Portada</Form.Label>
-            <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
             {imagePreview && (
               <div className="mt-2">
                 <img
@@ -266,4 +265,4 @@ const AddCourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   );
 };
 
-export default AddCourseModal;
+export default CourseModal;

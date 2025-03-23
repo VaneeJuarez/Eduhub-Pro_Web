@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
 
 // Styles
@@ -12,6 +12,21 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
     lessons: initialData?.lessons || [],
   })
 
+   // Resetear el formulario cuando se abre el modal para un nuevo módulo
+   useEffect(() => {
+    if (show && !initialData) {
+      setFormData({
+        title: "",
+        lessons: [],
+      })
+    } else if (show && initialData) {
+      setFormData({
+        title: initialData.title || "",
+        lessons: initialData.lessons || [],
+      })
+    }
+  }, [show, initialData])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -19,11 +34,21 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSave({
-      ...formData,
-      title: formData.title,
-      lessons: formData.lessons,
-    })
+
+    // Si estamos editando un módulo existente, preservar las lecciones
+    if (initialData) {
+      onSave({
+        ...formData,
+        title: formData.title,
+        lessons: initialData.lessons || [],
+      })
+    } else {
+      onSave({
+        ...formData,
+        title: formData.title,
+        lessons: [],
+      })
+    }
   }
 
   return (

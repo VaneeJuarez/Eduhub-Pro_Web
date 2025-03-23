@@ -24,7 +24,7 @@ function LessonItem({ lesson, icon, onEdit, onDelete, isPublished = false }) {
           </div>
           <div className="d-flex">
             <Button variant="link" className={`p-0 me-2 mr-3 ${styles.Icons}`} onClick={() => setShowViewer(true)}>
-            <i class="fa-regular fa-eye"></i>
+            <i className="fa-regular fa-eye"></i>
             </Button>
             {!isPublished && (
               <>

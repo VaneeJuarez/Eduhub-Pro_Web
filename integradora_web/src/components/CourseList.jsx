@@ -3,21 +3,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Badge, Button, Toast, Modal } from "react-bootstrap";
-import {
-  Calendar,
-  Person,
-  People,
-  Star,
-  Eye,
-  Pencil,
-  Trash,
-} from "react-bootstrap-icons";
+import { Star } from "react-bootstrap-icons";
 
 // styles
 import styles from "../styles/coursecard.module.css";
 
 // modals
-import AddCourseModal from "./modals/AddCourseModal";
+import CourseModal from "./modals/CourseModal";
 
 function CourseList() {
   const [courses, setCourses] = useState([]);
@@ -60,12 +52,17 @@ function CourseList() {
     navigate(`/inst/courses/${courseId}`);
   };
 
+  // Verificar si el curso es editable 
+  const isCourseEditable = (course) => {
+    return course.status === "Pendiente"
+  }
+
   const handleEditCourse = (course, e) => {
     e.stopPropagation();
 
-    // No permitir editar cursos publicados
-    if (course.status === "Publicado") {
-      return;
+    // No permitir editar cursos que no están en estado "Pendiente"
+    if (!isCourseEditable(course)) {
+      return
     }
 
     setCourseToEdit(course);
@@ -75,9 +72,9 @@ function CourseList() {
   const handleDeleteCourse = (courseId, e) => {
     e.stopPropagation();
 
-    // No permitir eliminar cursos publicados
+    // No permitir eliminar cursos que no están en estado "Pendiente"
     const courseToDelete = courses.find((course) => course.id === courseId);
-    if (courseToDelete && courseToDelete.status === "Publicado") {
+    if (courseToDelete && !isCourseEditable(courseToDelete)) {
       return;
     }
 
@@ -87,24 +84,18 @@ function CourseList() {
 
   const confirmDeleteCourse = () => {
     if (courseToDelete) {
-      const updatedCourses = courses.filter(
-        (course) => course.id !== courseToDelete
-      );
-      localStorage.setItem("courses", JSON.stringify(updatedCourses));
-      setCourses(updatedCourses);
-      setIsDeleteDialogOpen(false);
-      setCourseToDelete(null);
+      const updatedCourses = courses.filter((course) => course.id !== courseToDelete)
+      localStorage.setItem("courses", JSON.stringify(updatedCourses))
+      setCourses(updatedCourses)
+      setIsDeleteDialogOpen(false)
+      setCourseToDelete(null)
 
-      showToastMessage(
-        "Curso eliminado",
-        "El curso ha sido eliminado exitosamente",
-        "danger"
-      );
+      showToastMessage("Curso eliminado", "El curso ha sido eliminado exitosamente", "danger")
 
       // Disparar evento para actualizar la lista en otras páginas
-      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("storage"))
     }
-  };
+  }
 
   const handleSaveEditedCourse = (updatedCourse) => {
     const updatedCourses = courses.map((course) =>
@@ -182,7 +173,6 @@ function CourseList() {
                   <i className={`bi bi-calendar me-2 ${styles.cardIcons}`}></i>
                   {course.startDate} - {course.endDate}
                 </div>
-                
               </Card.Body>
               <Card.Footer className="bg-white">
                 <div className="mt-auto d-flex justify-content-between align-items-center">
@@ -195,14 +185,8 @@ function CourseList() {
                       size="sm"
                       className={`mr-2 ${styles.Icons}`}
                       onClick={(e) => handleDeleteCourse(course.id, e)}
-                      disabled={course.status === "Publicado"}
-                      style={
-                        course.status === "Publicado"
-                          ? { opacity: 0.5, cursor: "not-allowed", color:"gray" }
-                          : {}
-                          
-                      }
-                      
+                      disabled={!isCourseEditable(course)}
+                      style={!isCourseEditable(course) ? { opacity: 0.5, cursor: "not-allowed", color: "gray" } : {}}
                     >
                       <i className="fas fa-trash-alt"></i>
                     </Button>
@@ -211,12 +195,9 @@ function CourseList() {
                       size="sm"
                       className={`me-1 mr-2 ${styles.Icons}`}
                       onClick={(e) => handleEditCourse(course, e)}
-                      disabled={course.status === "Publicado"}
-                      style={
-                        course.status === "Publicado"
-                          ? { opacity: 0.5, cursor: "not-allowed" }
-                          : {}
-                      }
+                      disabled={!isCourseEditable(course)}
+                      style={!isCourseEditable(course) ? { opacity: 0.5, cursor: "not-allowed", color: "gray" } : {}}
+
                     >
                       <i className="fas fa-edit"></i>
                     </Button>
@@ -264,7 +245,7 @@ function CourseList() {
 
       {/* Modal para editar curso */}
       {courseToEdit && (
-        <AddCourseModal
+        <CourseModal
           show={isEditModalOpen}
           onHide={() => {
             setIsEditModalOpen(false);

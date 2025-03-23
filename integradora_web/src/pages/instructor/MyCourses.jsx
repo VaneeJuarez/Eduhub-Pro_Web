@@ -12,7 +12,7 @@ import Footer from "../../components/Footer";
 import CourseList from "../../components/CourseList";
 
 // Modals
-import AddCourseModal from "../../components/modals/AddCourseModal"
+import CourseModal from "../../components/modals/CourseModal"
 
 const MyCourses = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -60,7 +60,7 @@ const MyCourses = () => {
             onAddClick={() => setIsModalOpen(true)} 
             />
             <CourseList />
-            <AddCourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
+            <CourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
         </section>
         <Footer />
         </>

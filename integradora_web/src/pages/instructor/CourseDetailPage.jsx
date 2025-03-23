@@ -1,37 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { courses } from "../../data/courses";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Badge,
-  Card,
-  Modal,
-} from "react-bootstrap";
-import {
-  ArrowLeft,
-  Calendar,
-  People,
-  Star,
-  Trash,
-  Plus,
-} from "react-bootstrap-icons";
+
+import { Container, Row, Col, Button, Badge, Card, Toast, Modal } from "react-bootstrap"
+import { ArrowLeft, Plus } from "react-bootstrap-icons";
 
 // Components
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import VideoPlayer from "../../components/courses/VideoPlayer";
-import PDFViewer from "../../components/courses/PDFViewer";
 import ModuleAccordion from "../../components/courses/ModuleAccordion";
 import ModuleModal from "../../components/modals/ModuleModal";
+import CourseStatusCard from "../../components/card/CourseStatusCard"
+import ModuleProgressModal from "../../components/modals/ModuleProgressModal"
 
 // Styles
 import styles from "../../styles/general.module.css";
 import style from "../../styles/coursecard.module.css";
-import * as bootstrap from "bootstrap";
 
 function CourseDetailPage() {
   const { id } = useParams();
@@ -42,7 +26,10 @@ function CourseDetailPage() {
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [currentModule, setCurrentModule] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isPublished, setIsPublished] = useState(false);
+  const [showModuleProgress, setShowModuleProgress] = useState(false)
+  const [selectedModule, setSelectedModule] = useState(null)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
   useEffect(() => {
     // Cargar el curso desde localStorage
@@ -51,26 +38,27 @@ function CourseDetailPage() {
 
     if (foundCourse) {
       setCourse(foundCourse);
-      setIsPublished(foundCourse.status === "Publicado");
     }
 
     setIsLoading(false);
 
     // Suscribirse a cambios en localStorage
     const handleStorageChange = () => {
-      const updatedCourses = JSON.parse(
-        localStorage.getItem("courses") || "[]"
-      );
-      const updatedCourse = updatedCourses.find((c) => c.id === id);
+      const updatedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
+      const updatedCourse = updatedCourses.find((c) => c.id === id)
       if (updatedCourse) {
-        setCourse(updatedCourse);
-        setIsPublished(updatedCourse.status === "Publicado");
+        setCourse(updatedCourse)
       }
-    };
+    }
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [id]);
+
+  const showToastMessage = (title, body, variant = "success") => {
+    setToastMessage({ title, body, variant })
+    setShowToast(true)
+  }
 
   const handlePublishCourse = () => {
     if (!course) return;
@@ -80,13 +68,15 @@ function CourseDetailPage() {
 
     if (courseIndex === -1) return;
 
-    // Actualizar el estado del curso a "Publicado"
-    const updatedCourse = { ...course, status: "Publicado" };
-    courses[courseIndex] = updatedCourse;
+    // Actualizar el estado del curso a "Pendiente de aprobar"
+    const updatedCourse = { ...course, status: "Pendiente de aprobar" }
+    courses[courseIndex] = updatedCourse
 
-    localStorage.setItem("courses", JSON.stringify(courses));
-    setCourse(updatedCourse);
-    setIsPublished(true);
+    localStorage.setItem("courses", JSON.stringify(courses))
+    setCourse(updatedCourse)
+
+    // Mostrar notificación
+    showToastMessage("Curso enviado", "El curso ha sido enviado para aprobación")
 
     // Disparar evento para actualizar la lista de otras páginas
     window.dispatch(new Event("storage"));
@@ -98,6 +88,8 @@ function CourseDetailPage() {
     const courses = JSON.parse(localStorage.getItem("courses") || "[]");
     const updatedCourses = courses.filter((c) => c.id != course.id);
     localStorage.setItem("courses", JSON.stringify(updatedCourses));
+
+    showToastMessage("Curso eliminado", "El curso ha sido eliminado exitosamente", "danger")
 
     window.dispatchEvent(new Event("storage"));
 
@@ -114,24 +106,30 @@ function CourseDetailPage() {
 
     // Si estamos editando un módulo existente
     if (currentModule) {
-      const moduleIndex =
-        course.modules?.findIndex((m) => m.title === currentModule.title) ?? -1
+      const moduleIndex = course.modules?.findIndex((m) => m.title === currentModule.title) ?? -1
 
       if (moduleIndex !== -1) {
-        const updatedModules = [...(course.modules || [])];
-        updatedModules[moduleIndex] = module
+        const updatedModules = [...(course.modules || [])]
+        // Preservar las lecciones del módulo existente
+        updatedModules[moduleIndex] = {
+          ...module,
+          lessons: currentModule.lessons || [],
+        }
 
-        const updatedCourse = { ...course, modules: updatedModules };
+        const updatedCourse = { ...course, modules: updatedModules }
         courses[courseIndex] = updatedCourse
         setCourse(updatedCourse)
 
+        showToastMessage("Módulo actualizado", "El módulo ha sido actualizado exitosamente")
       }
     } else {
       // Si estamos agregando un nuevo módulo
-      const updatedModules = [...(course.modules || []), module];
-      const updatedCourse = { ...course, modules: updatedModules };
-      courses[courseIndex] = updatedCourse;
-      setCourse(updatedCourse);
+      const updatedModules = [...(course.modules || []), module]
+      const updatedCourse = { ...course, modules: updatedModules }
+      courses[courseIndex] = updatedCourse
+      setCourse(updatedCourse)
+
+      showToastMessage("Módulo agregado", "El módulo ha sido agregado exitosamente")
     }
 
     localStorage.setItem("courses", JSON.stringify(courses));
@@ -155,10 +153,9 @@ function CourseDetailPage() {
 
     if (courseIndex === -1) return;
 
-    const updatedModules =
-      course.modules?.filter((m) => m.title !== moduleTitle) || [];
-    const updatedCourse = { ...course, modules: updatedModules };
-    courses[courseIndex] = updatedCourse;
+    const updatedModules = course.modules?.filter((m) => m.title !== moduleTitle) || []
+    const updatedCourse = { ...course, modules: updatedModules }
+    courses[courseIndex] = updatedCourse
 
     localStorage.setItem("courses", JSON.stringify(courses));
     setCourse(updatedCourse);
@@ -166,6 +163,50 @@ function CourseDetailPage() {
     // Disparar evento para actualizar la lista en otras páginas
     window.dispatchEvent(new Event("storage"));
   };
+
+    // Generar progreso de módulos para la demostración
+    const generateModuleProgress = (moduleIndex) => {
+      if (!course || !course.modules || !course.modules[moduleIndex]) return []
+  
+      // Generar estudiantes de ejemplo
+      const mockStudents = []
+      const numStudents = Math.floor(Math.random() * course.studentLimit) + 1
+  
+      for (let i = 1; i <= numStudents; i++) {
+        const completed = Math.random() > 0.3 // 70% de probabilidad de completar
+        mockStudents.push({
+          id: i,
+          name: `Estudiante ${i}`,
+          email: `estudiante${i}@ejemplo.com`,
+          enrollmentDate: new Date(
+            Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
+          ).toLocaleDateString(),
+          completed,
+          completionDate: completed
+            ? new Date(Date.now() - Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000).toLocaleDateString()
+            : null,
+        })
+      }
+  
+      return mockStudents
+    }
+
+    const handleViewModuleProgress = (moduleIndex) => {
+      if (!course || !course.modules || !course.modules[moduleIndex]) return
+  
+      setSelectedModule({
+        title: course.modules[moduleIndex].title,
+        progress: generateModuleProgress(moduleIndex),
+      })
+  
+      setShowModuleProgress(true)
+    }
+  
+    // Verificar si el curso está en un estado editable
+    const isEditable = () => {
+      if (!course) return false
+      return course.status === "Pendiente"
+    }
 
   if (isLoading) {
     return (
@@ -179,15 +220,11 @@ function CourseDetailPage() {
     return (
       <Container className="py-4">
         <p>Curso no encontrado</p>
-        <Button
-          variant="outline-primary"
-          onClick={() => navigate("/")}
-          className="mt-3"
-        >
+        <Button variant="outline-primary" onClick={() => navigate("/")} className="mt-3">
           <ArrowLeft className="me-2" /> Volver
         </Button>
       </Container>
-    );
+    )
   }
 
   return (
@@ -209,7 +246,7 @@ function CourseDetailPage() {
                         src={course.image || "/palceholder.svg"}
                         alt={course.title}
                         className="img-fluid rounded mb-3 mb-md-0 w-100"
-                        style={{ objectFit: "cover", maxHeight: "285px" }}
+                        style={{ objectFit: "cover", maxHeight: "280px" }}
                       />
                     )}
                   </div>
@@ -248,27 +285,8 @@ function CourseDetailPage() {
             </Card>
           </Col>
           <div className="col-lg-3">
-            <Card className={style.cardFrame}>
-              <Card.Body>
-                <h5
-                  className={`card-title text-center ml-0 mb-3 ${style.cardTitle}`}
-                >
-                  ¿Deseas enviar el curso?
-                </h5>
-                {!isPublished &&
-                  course.modules &&
-                  course.modules.length > 0 && (
-                    <>
-                      <Button
-                        onClick={handlePublishCourse}
-                        className={`w-100 mb-2 ${style.primaryBtn}`}
-                      >
-                        Enviar Curso
-                      </Button>
-                    </>
-                  )}
-              </Card.Body>
-            </Card>
+            {/* Card de estado del curso */}
+            <CourseStatusCard course={course} onPublishCourse={handlePublishCourse} />
           </div>
         </Row>
 
@@ -277,7 +295,7 @@ function CourseDetailPage() {
           <h5 className={`mb-3 g-3 ${style.contentCourse}`}>
             Contenido del curso
           </h5>
-          {!isPublished && (
+          {isEditable && (
             <Button
               className={`mr-2 ${style.btnAdd}`}
               onClick={() => {
@@ -295,12 +313,12 @@ function CourseDetailPage() {
               modules={course.modules}
               onEditModule={handleEditModule}
               onDeleteModule={handleDeleteModule}
-              isPublished={isPublished}
+              isPublished={!isEditable()}
+              onViewProgress={handleViewModuleProgress}
+              course={course}
             />
           ) : (
-            <p className="text-muted text-center py-4">
-              No hay módulos disponibles. ¡Agrega uno nuevo!
-            </p>
+            <p className="text-muted text-center py-4">No hay módulos disponibles. ¡Agrega uno nuevo!</p>
           )}
         </Col>
               {/* Modal para agregar/editar módulos */}
@@ -332,6 +350,15 @@ function CourseDetailPage() {
         </Modal.Footer>
       </Modal>
 
+      {/* Modal para ver el progreso de un módulo */}
+      <ModuleProgressModal
+        show={showModuleProgress}
+        onHide={() => {
+          setShowModuleProgress(false)
+          setSelectedModule(null)
+        }}
+        module={selectedModule}
+      />
       
       </section>
       <Footer />
