@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Badge, Button, Toast, Modal } from "react-bootstrap";
 import { Star } from "react-bootstrap-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { parseDisplayDate, normalizeDate } from "../utils/dateUtils"
 
 // styles
@@ -199,8 +201,8 @@ function CourseList() {
                       disabled={!isCourseEditable(course)}
                       style={!isCourseEditable(course) ? { opacity: 0.5, cursor: "not-allowed", color: "gray" } : {}}
                     >
-                      <i className="fas fa-trash-alt"></i>
-                    </Button>
+                   <FontAwesomeIcon icon={faTrashCan} />
+                   </Button>
                     <Button
                       variant="outline-secondary"
                       size="sm"
@@ -210,7 +212,7 @@ function CourseList() {
                       style={!isCourseEditable(course) ? { opacity: 0.5, cursor: "not-allowed", color: "gray" } : {}}
 
                     >
-                      <i className="fas fa-edit"></i>
+                      <FontAwesomeIcon icon={faPenToSquare} />
                     </Button>
 
                     <Button

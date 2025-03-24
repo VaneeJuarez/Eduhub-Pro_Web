@@ -2,9 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import { useUserContext } from '../../contexts/UserProvider';
 
-// Styles
-import '../../styles/preloader.css';
-
 // Bootstrap
 import '../../styles/bootstrap/bootstrap-icons.min.css';
 import '../../styles/bootstrap/bootstrap.min.css'
