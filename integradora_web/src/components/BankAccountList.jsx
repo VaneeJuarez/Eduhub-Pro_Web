@@ -2,36 +2,34 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col, Card, Button, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Row, Col, Card, Button, Modal, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import defaultProfile from "../assets/img/unknow.jpeg";
 
-// Styles
+// Styles 
 import styles from "../styles/card.module.css"
 
-// Modals 
-import UserModal from "./modals/UserModal";
+// Modals
+import BankAccountModal from "./modals/BankAccountModal";
 
-function UserList() {
-    const [users, setUsers] = useState([]);
+function BankAccountList() {
+    const [accounts, setAccounts] = useState([]);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState(null);
+    const [accountToDelete, setAccountToDelete] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [userToEdit, setUserToEdit] = useState(null)
+    const [accountToEdit, setAccountToEdit] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Cargar usuarios desde localStorage
-        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]")
-        setUsers(storedUsers);
+        // Cargar cuentas desde localStorage
+        const storedAccounts = JSON.parse(localStorage.getItem("accounts") || "[]")
+        setAccounts(storedAccounts);
 
-        // Suscribirse a cambios en el localStorge
         const handleStorageChange = () => {
-            const updatedUsers = JSON.parse(localStorage.getItem("users") || "[]")
-            setUsers(updatedUsers)
+            const updatedAccounts = JSON.parse(localStorage.getItem("accounts") || "[]")
+            setAccounts(updatedAccounts)
         }
 
         window.addEventListener("storage", handleStorageChange);
@@ -43,58 +41,56 @@ function UserList() {
         setShowToast(true);
     };
 
-    const handleEditUser = (user, e) => {
+    const handleEditAccount = (account, e) => {
         e.stopPropagation();
 
-        setUserToEdit(user);
+        setAccountToEdit(account);
         setIsEditModalOpen(true);
     }
 
-    const handleDeleteUser = (userId, e) => {
+    const handleDeleteAccount = (accountId, e) => {
         e.stopPropagation();
 
-        const userToDelete = users.find((user) => user.id === userId);
+        const accountToDelete = accounts.find((account) => account.id === accountId);
 
-        setUserToDelete(userId);
+        setAccountToDelete(accountId);
         setIsDeleteDialogOpen(true);
     };
 
-    const confirmDeleteUser = () => {
-        if (userToDelete) {
-            const updatedUsers = users.filter((user) => user.id !== userToDelete)
-            localStorage.setItem("users", JSON.stringify(updatedUsers))
-            setUsers(updatedUsers)
+    const confirmDeleteAccount = () => {
+        if (accountToDelete) {
+            const updatedAccounts = accounts.filter((account) => account.id !== accountToDelete)
+            localStorage.setItem("accounts", JSON.stringify(updatedAccounts))
+            setAccounts(updatedAccounts)
             setIsDeleteDialogOpen(false)
-            setUserToDelete(null)
+            setAccountToDelete(null)
 
-            showToastMessage("Usuario eliminado", "El usuario ha sido eliminado exitosamente", "danger")
+            showToastMessage("Cuenta eliminada", "La cuenta bancaria ha sido eliminada con éxito", "danger")
 
-            // Disparar evento para actualizar la lista en otras páginas
             window.dispatchEvent(new Event("storage"))
         }
     }
 
-    const handleSaveEditedUser = (updatedUser) => {
-        const updatedUsers = users.map((user) =>
-            user.id === updatedUser.id ? { ...updatedUser, id: user.id } : user,
+    const handleSaveEditedAccount = (updatedAccount) => {
+        const updatedAccounts = accounts.map((account) =>
+            account.id === updatedAccount.id ? { ...updatedAccount, id: account.id } : account,
         )
 
-        localStorage.setItem("users", JSON.stringify(updatedUsers));
-        setUsers(updatedUsers);
+        localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
+        setAccounts(updatedAccounts);
         setIsEditModalOpen(false);
-        setUserToEdit(null);
+        setAccountToEdit(null);
 
-        showToastMessage("Curso actualizado", "El curso ha sido actualizado exitosamente")
+        showToastMessage("Cuenta actualizada", "La cuenta bancaria ha sido actualizada exitosamente")
 
-        // Disparar evento para actualizar la lista en otras páginas
         window.dispatchEvent(new Event("storage"));
     };
 
-    if (users.length === 0) {
+    if (accounts.length === 0) {
         return (
             <div className="text-center py-5">
                 <p className="text-muted">
-                    No hay usuarios registrados
+                    No hay cuentas bancarias registradas
                 </p>
             </div>
         )
@@ -103,46 +99,47 @@ function UserList() {
     return (
         <>
             <Row className="mt-4 m-5">
-                {users.map((user) => (
-                    <Col md={3} key={user.id} className="mb-3">
+                {accounts.map((account) => (
+                    <Col md={3} key={account.id} className="mb-3">
                         <Card className={styles.Card}>
                             <Card.Body className="p-1">
-                                {/* Sección superior con imagen, nombre y correo */}
                                 <Row className="align-items-center mb-0">
                                     <Col xs="auto">
                                         <div>
                                             <img
-                                                src={user.profilePictura || defaultProfile}
-                                                alt="User"
-                                                className={styles.Img}    
+                                                alt="Logo del banco"
+                                                className={styles.Img}
                                             />
                                         </div>
                                     </Col>
-                                    <Col style={{minWidth: 0}}>
+                                    <Col style={{ minWidth: 0 }}>
+
+                                        <h6 className={`mb-0 fw-bold ${styles.Title}`}>{account.name}</h6>
+
                                         <OverlayTrigger
                                             placement="top"
-                                            overlay={<Tooltip id={`tooltip-name-${user.id}`}>{user.name}</Tooltip>}
+                                            overlay={<Tooltip id={`tooltip-number-${account.id}`}>{account.number}</Tooltip>}
                                         >
-                                        <h6 className={`mb-0 fw-bold ${styles.Title}`}>{user.name}</h6>
+                                            <p className={`text-muted mb-0 ${styles.Description}`}>
+                                                {account.number}
+                                            </p>
                                         </OverlayTrigger>
                                         <OverlayTrigger
                                             placement="top"
-                                            overlay={<Tooltip id={`tooltip-email-${user.id}`}>{user.email}</Tooltip>}
+                                            overlay={<Tooltip id={`tooltip-key-${account.id}`}>{account.key}</Tooltip>}
                                         >
-                                        <p className={`text-muted mb-0 ${styles.Description}`}>
-                                            {user.email}
-                                        </p>
+                                            <p className={`text-muted mb-0 ${styles.Description}`}>
+                                                {account.key}
+                                            </p>
                                         </OverlayTrigger>
                                     </Col>
                                 </Row>
-
-                                {/* Sección inferior con botones alineados a la derecha */}
                                 <Row className="mt-0">
                                     <Col xs={12} className="d-flex justify-content-end gap-3">
-                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteUser(user.id, e)}>
+                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteAccount(account.id, e)}>
                                             <FontAwesomeIcon icon={faTrashCan} />
                                         </Button>
-                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleEditUser(user, e)}>
+                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleEditAccount(account, e)}>
                                             <FontAwesomeIcon icon={faPenToSquare} />
                                         </Button>
                                     </Col>
@@ -152,37 +149,35 @@ function UserList() {
                     </Col>
                 ))}
             </Row>
-            {/* Modal de confirmación para eliminar usuario */}
+            {/* Modal de confirmación para eliminar una cuenta */}
             <Modal show={isDeleteDialogOpen} onHide={() => setIsDeleteDialogOpen(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>¿Estás seguro?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Esta acción no se puede deshacer. Se eliminará permanentemente el usuario.
+                    Esta acción no se puede deshacer. Se eliminará permanentemente la cuenta bancaria.
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setIsDeleteDialogOpen(false)}>
                         Cancelar
                     </Button>
-                    <Button variant="danger" onClick={confirmDeleteUser}>
+                    <Button variant="danger" onClick={confirmDeleteAccount}>
                         Eliminar
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {/* Modal para editar usuario */}
-            {userToEdit && (
-                <UserModal
+                        {/* Modal para editar una cuenta */}
+                        {accountToEdit && (
+                <BankAccountModal
                     show={isEditModalOpen}
                     onHide={() => {
                         setIsEditModalOpen(false);
-                        setUserToEdit(null);
+                        setAccountToEdit(null);
                     }}
-                    onSave={handleSaveEditedUser}
-                    initialData={userToEdit}
+                    onSave={handleSaveEditedAccount}
+                    initialData={accountToEdit}
                 />
             )}
         </>
     )
 }
-
-export default UserList

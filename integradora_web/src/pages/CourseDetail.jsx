@@ -157,7 +157,7 @@ function CourseDetail() {
     window.dispatchEvent(new Event("storage"))
 
     // Redirigir al panel de administración
-    navigate("/admin")
+    navigate("/admin/courses")
   }
 
 

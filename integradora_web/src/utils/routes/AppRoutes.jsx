@@ -14,6 +14,8 @@ import Courses from '../../pages/Courses';
 import CourseDetail from '../../pages/CourseDetail';
 import MyCourses from '../../pages/instructor/MyCourses';
 import CourseDetailPage from '../../pages/instructor/CourseDetailPage';
+import BankAccounts from '../../pages/BankAccounts';
+import Dashboard from '../../pages/instructor/Dashboard';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -22,12 +24,14 @@ const AppRoutes = () => {
     <Routes>
 
       <Route element={<ProtectedRoute isAllowed={true /* !!user && user.role.includes('ADMIN') */} redirectTo="/login" />} >
-        <Route path="/admin/dashboard/" element={<DashboardAdmin />} />
-        <Route path="/admin/users/" element={<Users />} />
-        <Route path="/admin/courses/" element={<Courses />} />
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/courses" element={<Courses />} />
         <Route path="/admin/courses/:id" element={<CourseDetail />} />
+        <Route path="/admin/accounts" element={<BankAccounts/>} />
 
-        <Route path="/inst/courses/" element={<MyCourses />} />
+        <Route path="/inst/dashboard" element={<Dashboard />} /> 
+        <Route path="/inst/courses" element={<MyCourses />} />
         <Route path="/inst/courses/:id" element={<CourseDetailPage />} />
       </Route>
 
