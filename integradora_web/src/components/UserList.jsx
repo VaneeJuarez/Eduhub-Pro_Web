@@ -112,7 +112,7 @@ function UserList() {
                                     <Col xs="auto">
                                         <div>
                                             <img
-                                                src={user.profilePictura || defaultProfile}
+                                                src={user.profilePicture || defaultProfile}
                                                 alt="User"
                                                 className={styles.Img}    
                                             />

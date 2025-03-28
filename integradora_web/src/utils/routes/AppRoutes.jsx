@@ -16,7 +16,10 @@ import MyCourses from '../../pages/instructor/MyCourses';
 import CourseDetailPage from '../../pages/instructor/CourseDetailPage';
 import BankAccounts from '../../pages/BankAccounts';
 import Dashboard from '../../pages/instructor/Dashboard';
-
+import Payments from '../../pages/Payments';
+import Profile from '../../pages/instructor/Profile';
+import ProfilePhoto from '../../pages/instructor/ProfilePhoto'
+import ToastExample from '../../pages/ToastExample';
 const AppRoutes = () => {
   const { user } = useUserContext();
 
@@ -29,10 +32,15 @@ const AppRoutes = () => {
         <Route path="/admin/courses" element={<Courses />} />
         <Route path="/admin/courses/:id" element={<CourseDetail />} />
         <Route path="/admin/accounts" element={<BankAccounts/>} />
+        <Route path="/admin/payments" element={<Payments />} />
 
         <Route path="/inst/dashboard" element={<Dashboard />} /> 
         <Route path="/inst/courses" element={<MyCourses />} />
         <Route path="/inst/courses/:id" element={<CourseDetailPage />} />
+        <Route path='/inst/profile' element={<Profile />} />
+        <Route path='/inst/profile/photo' element={<ProfilePhoto />} />
+
+        <Route path='/toast' element={<ToastExample />} />
       </Route>
 
     

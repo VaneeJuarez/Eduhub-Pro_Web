@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "react-bootstrap"
+import { Button, FormText } from "react-bootstrap"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 // styles
 import styles from "../../styles/coursecard.module.css";
@@ -29,10 +31,10 @@ function LessonItem({ lesson, icon, onEdit, onDelete, isPublished = false }) {
             {!isPublished && (
               <>
                 <Button variant="link" className={`p-0 me-2 mr-3 ${styles.Icons}`} onClick={onEdit}>
-                <i className="fas fa-edit"></i>
+                <FontAwesomeIcon icon={faPenToSquare}></FontAwesomeIcon>
                 </Button>
                 <Button variant="link" className={`p-0 mr-3 ${styles.Icons}`} onClick={onDelete}>
-                <i className="fas fa-trash-alt"></i>
+                <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon>
                 </Button>
               </>
             )}

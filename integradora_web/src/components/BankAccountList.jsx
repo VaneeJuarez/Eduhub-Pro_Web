@@ -41,6 +41,12 @@ function BankAccountList() {
         setShowToast(true);
     };
 
+    const formatAccountNumber = (number) => {
+        return number.replace(/\s+/g, "") // eliminar espacios existentes
+        .replace(/(.{4})/g, "$1 ")     // cada 4 dígitos agrega espacio
+        .trim();                       // quitar espacio final
+    }
+
     const handleEditAccount = (account, e) => {
         e.stopPropagation();
 
@@ -100,15 +106,16 @@ function BankAccountList() {
         <>
             <Row className="mt-4 m-5">
                 {accounts.map((account) => (
-                    <Col md={3} key={account.id} className="mb-3">
+                    <Col md={4} key={account.id} className="mb-3">
                         <Card className={styles.Card}>
                             <Card.Body className="p-1">
                                 <Row className="align-items-center mb-0">
                                     <Col xs="auto">
                                         <div>
                                             <img
-                                                alt="Logo del banco"
-                                                className={styles.Img}
+                                                src={account.logo}
+                                                alt={`Logo de ${account.name}`}
+                                                className={styles.ImgBank}
                                             />
                                         </div>
                                     </Col>
@@ -121,7 +128,7 @@ function BankAccountList() {
                                             overlay={<Tooltip id={`tooltip-number-${account.id}`}>{account.number}</Tooltip>}
                                         >
                                             <p className={`text-muted mb-0 ${styles.Description}`}>
-                                                {account.number}
+                                               <strong>No.Cuenta:</strong> {formatAccountNumber(account.number)}
                                             </p>
                                         </OverlayTrigger>
                                         <OverlayTrigger
@@ -129,7 +136,7 @@ function BankAccountList() {
                                             overlay={<Tooltip id={`tooltip-key-${account.id}`}>{account.key}</Tooltip>}
                                         >
                                             <p className={`text-muted mb-0 ${styles.Description}`}>
-                                                {account.key}
+                                                <strong>CLABE:</strong> {account.key}
                                             </p>
                                         </OverlayTrigger>
                                     </Col>
@@ -181,3 +188,5 @@ function BankAccountList() {
         </>
     )
 }
+
+export default BankAccountList
