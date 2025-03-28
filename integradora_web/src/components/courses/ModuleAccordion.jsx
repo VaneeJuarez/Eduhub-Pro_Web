@@ -8,6 +8,8 @@ import {
   Image,
   PlayBtn,
 } from "react-bootstrap-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 // Components
 import LessonItem from "./LessonItem";
@@ -159,7 +161,7 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
                       className={`p-0 me-3 mr-3 ${style.Icons}`}
                       onClick={() => onEditModule(module)}
                     >
-                      <i className="fas fa-edit"></i>
+                      <FontAwesomeIcon icon={faPenToSquare}></FontAwesomeIcon>
                     </Button>
                     <Button
                       variant="link"
@@ -167,7 +169,7 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
                       className={`p-0 mr-3 ${style.Icons}`}
                       onClick={() => confirmDeleteModule(module.title)}
                     >
-                      <i className="fas fa-trash-alt"></i>
+                      <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon>
                     </Button>
                   </div>
                 )}
