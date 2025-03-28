@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Badge, Toast, Modal } from "react-bootstrap"
-import { ArrowLeft, PeopleFill, ClockFill, CheckCircleFill } from "react-bootstrap-icons"
+import { ArrowLeft, PeopleFill, ClockFill, CheckCircleFill, Calendar } from "react-bootstrap-icons"
 import { parseDisplayDate, normalizeDate, isTomorrow } from "../utils/dateUtils"
 
 // Components
@@ -232,7 +232,7 @@ function CourseDetail() {
     return (
       <Container className="py-4">
         <p>Curso no encontrado</p>
-        <Button variant="outline-primary" onClick={() => navigate("/admin")} className="mt-3">
+        <Button variant="outline-primary" onClick={() => navigate("/admin/courses")} className="mt-3">
           <ArrowLeft className="me-2" /> Volver
         </Button>
       </Container>
