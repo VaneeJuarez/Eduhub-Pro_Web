@@ -18,13 +18,12 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
-    image: initialData.image || "",
+    bannerPath: initialData.image || "",
     startDate: initialData.startDate || "",
     endDate: initialData.endDate || "",
     price: initialData.price || 0.0,
-    studentLimit: initialData.studentLimit || 1,
-    tags: initialData.tags || [],
-    modules: initialData.modules || [],
+    size: initialData.studentLimit || 1,
+    categoriesId: initialData.tags || [],
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -165,6 +164,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     const imageUrl = URL.createObjectURL(file);
     setImageFile(file);
     setImagePreview(imageUrl);
+
+    // Cambiar la url
     setFormData((prev) => ({ ...prev, image: imageUrl }));
   };
 

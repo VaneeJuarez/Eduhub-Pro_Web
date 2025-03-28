@@ -13,36 +13,62 @@ import CourseList from "../../components/CourseList";
 // Modals
 import CourseModal from "../../components/modals/CourseModal"
 import { useUserContext } from "../../contexts/UserProvider";
+import { admin_path, base_api_url, course_management, create } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config";
 
 const MyCourses = () => {
 
   const { user } = useUserContext();
 
+  const [response, setResponse] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSaveCourse = (course) => {
-    // Aquí guardaríamos el curso en la base de datos y obtendríamos un id real
-    const newCourseId = Date.now().toString()
+  const handleSaveCourse = async (course) => {
 
-    // Simulamos guardar el curso en localStorage para mantener los datos
-    const existingCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const newCourse = {
-      ...course,
-      id: newCourseId,
-      instructor: "Usuario Actual", // Esto vendría de la sesión
-      rating: 0, // Inicialmente sin calificación
-      status: "Pendiente", // Estado inicial
-    }
+    await fetch(`${base_api_url}${admin_path}${course_management}${create}`, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        title: course.title,
+        description: course.description,
+        bannerPath: course.bannerPath,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        price: course.price,
+        size: course.size,
+        instructorId: user.jwt,
+        categoriesId: course.categoriesId
+      }),
+    }).then(response => response.json())
+      .then((result) => {
+        console.log(result);
 
-    localStorage.setItem("courses", JSON.stringify([...existingCourses, newCourse]))
+        if (result.type !== 'SUCCESS') {
+          if (typeof result === 'object' && !result.text) {
+            const errorMessages = Object.values(result).join("\n");
+            sweetAlert('error', 'Error', errorMessages, '');
+          } else if (result.text) {
+            sweetAlert('error', 'Error', result.text, '');
+          }
+          return;
+        }
+
+        setResponse(true);
+        fetchAllUsers();
+
+      }).catch((error) => {
+        console.log(error);
+        sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
+      });
 
     // Cerramos el modal
-    setIsModalOpen(false)
-
-    // Forzar actualización
-    window.dispatchEvent(new Event("storage"))
+    if (response) {
+      setIsModalOpen(false);
+      setResponse(false);
+    }
   }
 
   return (
