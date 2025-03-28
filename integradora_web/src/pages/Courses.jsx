@@ -13,8 +13,12 @@ import Footer from "../components/Footer";
 // Styles
 import styles from "../styles/general.module.css";
 import style from "../styles/coursecard.module.css";
+import { useUserContext } from "../contexts/UserProvider";
 
 function Courses() {
+
+  const { user } = useUserContext();
+
   const [courses, setCourses] = useState([])
   const [filter, setFilter] = useState("all")
   const navigate = useNavigate()
@@ -95,37 +99,37 @@ function Courses() {
     }
   }
 
-    // Determinar el estado actual del curso basado en las fechas
-    const determineCurrentStatus = (course) => {
-      if (hasEnded(course)) {
-        return "Finalizado"
-      } else if (isCurrentlyInProgress(course)) {
-        return "En Curso"
-      } else {
-        return course.status
-      }
+  // Determinar el estado actual del curso basado en las fechas
+  const determineCurrentStatus = (course) => {
+    if (hasEnded(course)) {
+      return "Finalizado"
+    } else if (isCurrentlyInProgress(course)) {
+      return "En Curso"
+    } else {
+      return course.status
     }
-  
-    // Verificar si el curso ya finalizó
-    const hasEnded = (course) => {
-      if (!course) return false
-  
-      const today = normalizeDate(new Date());
-      const endDate = normalizeDate(parseDisplayDate(course.endDate));
-  
-      return today > endDate
-    }
-  
-    // Verificar si el curso está actualmente en curso
-    const isCurrentlyInProgress = (course) => {
-      if (!course) return false
-  
-      const today = normalizeDate(new Date());
-      const startDate = normalizeDate(parseDisplayDate(course.startDate));
-      const endDate = normalizeDate(parseDisplayDate(course.endDate));    
-  
-      return today >= startDate && today <= endDate
-    }
+  }
+
+  // Verificar si el curso ya finalizó
+  const hasEnded = (course) => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date());
+    const endDate = normalizeDate(parseDisplayDate(course.endDate));
+
+    return today > endDate
+  }
+
+  // Verificar si el curso está actualmente en curso
+  const isCurrentlyInProgress = (course) => {
+    if (!course) return false
+
+    const today = normalizeDate(new Date());
+    const startDate = normalizeDate(parseDisplayDate(course.startDate));
+    const endDate = normalizeDate(parseDisplayDate(course.endDate));
+
+    return today >= startDate && today <= endDate
+  }
 
   const handleViewCourse = (courseId) => {
     navigate(`/admin/courses/${courseId}`)
@@ -142,7 +146,7 @@ function Courses() {
   return (
     <>
       <Sidebar />
-      <Header userName={"Vanessa Juárez"} />
+      <Header userName={user?.name} />
       <section className={styles.content}>
         <ControlPanel
           showSearch={true}
@@ -159,12 +163,12 @@ function Courses() {
 
         {filteredCourses.length > 0 ? (
           <Row className="g-4 m-4">
-            {filteredCourses.map((course) => (
-              <Col key={course.id} md={6} lg={3} className="mt-4">
+            {filteredCourses.map((course, id) => (
+              <Col key={id} md={6} lg={3} className="mt-4">
                 <Card className={`h-100 shadow-sm d-flex flex-column ${style.cardCourse}`}>
                   <Card.Img
                     variant="top"
-                    src={course.image || "/placeholder.svg"}
+                    src={course.banner_path || "/placeholder.svg"}
                     alt={course.title}
                     className="card-img-top"
                     style={{ height: "250px", objectFit: "cover" }}
@@ -174,16 +178,16 @@ function Courses() {
                       <Card.Title className={`mb-2 ${style.cardTitle}`}>
                         {course.title}
                       </Card.Title>
-                      <div className="d-flex align-items-center text-muted">
+                     {/*  <div className="d-flex align-items-center text-muted">
                         <Star className="me-2 text-warning" size={14} />
                         <small>{course.rating}</small>
-                      </div>
+                      </div> */}
                     </div>
                     <Card.Text className={`text-muted mb-2 ${style.cardText}`}>
                       {course.description}
                     </Card.Text>
                     <div className="mb-2">
-                      {course.tags?.map((tag, index) => (
+                      {course.categories?.map((tag, index) => (
                         <Badge key={index} text="light" className={style.cardTag}>
                           {tag}
                         </Badge>
@@ -192,7 +196,7 @@ function Courses() {
                     <div className={`text-muted mb-2 ${style.cardInfo}`}>
                       <div className="mb-0">
                         <i className={`bi bi-person me-2 ${style.cardIcons}`}></i>
-                        {course.instructor}
+                        {course.instructor.name}
                       </div>
                     </div>
                     <div className="mb-0">
@@ -206,12 +210,12 @@ function Courses() {
                         ${course.price.toFixed(2)} mx
                       </span>
                       <div className="d-flex mt-2">
-                    <Button   
-                      variant="primary"
-                      size="sm"
-                      className={`flex-grow-1 me-2 ${style.cardButton}`}
-                      onClick={(e) => handleViewCourse(course.id, e)}
-                    >Ver Curso</Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className={`flex-grow-1 me-2 ${style.cardButton}`}
+                          onClick={(e) => handleViewCourse(course.courseId, e)}
+                        >Ver Curso</Button>
                       </div>
                     </div>
                   </Card.Footer>

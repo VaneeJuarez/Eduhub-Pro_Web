@@ -1,42 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Row, Col, Card, Button, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
+import { Button, Card, Col, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import defaultProfile from "../assets/img/unknow.jpeg";
 
 // Styles
-import styles from "../styles/card.module.css"
+import styles from "../styles/card.module.css";
 
 // Modals 
 import UserModal from "./modals/UserModal";
+import { admin_path, base_api_url, change_status_instructor, change_status_student, user_management } from "../utils/config/paths";
+import { headers, sweetAlert } from "../utils/config/config";
 
-function UserList() {
-    const [users, setUsers] = useState([]);
+function UserList({ userList }) {
+    const [users, setUsers] = useState(userList);
+
+    useEffect(() => {
+        setUsers(userList);
+    }, [userList]);
+
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [userToEdit, setUserToEdit] = useState(null)
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        // Cargar usuarios desde localStorage
-        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]")
-        setUsers(storedUsers);
-
-        // Suscribirse a cambios en el localStorge
-        const handleStorageChange = () => {
-            const updatedUsers = JSON.parse(localStorage.getItem("users") || "[]")
-            setUsers(updatedUsers)
-        }
-
-        window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
-    }, []);
 
     const showToastMessage = (title, body, variant = "success") => {
         setToastMessage({ title, body, variant });
@@ -50,47 +40,77 @@ function UserList() {
         setIsEditModalOpen(true);
     }
 
-    const handleDeleteUser = (userId, e) => {
+    const handleDeleteUser = (user, e) => {
         e.stopPropagation();
-
-        const userToDelete = users.find((user) => user.id === userId);
-
-        setUserToDelete(userId);
+        setUserToDelete(user);
         setIsDeleteDialogOpen(true);
     };
 
+
     const confirmDeleteUser = () => {
-        if (userToDelete) {
-            const updatedUsers = users.filter((user) => user.id !== userToDelete)
-            localStorage.setItem("users", JSON.stringify(updatedUsers))
-            setUsers(updatedUsers)
-            setIsDeleteDialogOpen(false)
-            setUserToDelete(null)
+        if (!userToDelete) return;
 
-            showToastMessage("Usuario eliminado", "El usuario ha sido eliminado exitosamente", "danger")
+        const handler = userToDelete.role === "INSTRUCTOR"
+            ? handleChangeStatusInstructor
+            : handleChangeStatusStudent;
 
-            // Disparar evento para actualizar la lista en otras páginas
-            window.dispatchEvent(new Event("storage"))
-        }
-    }
+        // PASAR objeto completo, no solo ID
+        handler(userToDelete).then((result) => {
+            if (result?.type !== "SUCCESS") {
+                const message = result?.text || "Error al eliminar el usuario.";
+                showToastMessage("Error", message, "danger");
+                setIsDeleteDialogOpen(false);
+                setUserToDelete(null);
+                return;
+            }
 
-    const handleSaveEditedUser = (updatedUser) => {
-        const updatedUsers = users.map((user) =>
-            user.id === updatedUser.id ? { ...updatedUser, id: user.id } : user,
-        )
+            setUsers((prev) => prev.filter((u) => u.userId !== userToDelete.userId));
+            setIsDeleteDialogOpen(false);
+            setUserToDelete(null);
+            showToastMessage("Usuario eliminado", "El usuario ha sido eliminado exitosamente", "danger");
+        });
+    };
 
-        localStorage.setItem("users", JSON.stringify(updatedUsers));
-        setUsers(updatedUsers);
-        setIsEditModalOpen(false);
-        setUserToEdit(null);
 
-        showToastMessage("Curso actualizado", "El curso ha sido actualizado exitosamente")
+    // FUNCIÓN DE ELIMINACIÓN
+    // 2. Cambiar estado (PUT) para Instructores
+    const handleChangeStatusInstructor = (user) => {
+        return fetch(`${base_api_url}${admin_path}${user_management}${change_status_instructor}`, {
+            method: "PUT",
+            headers: headers,
+            body: JSON.stringify({
+                userId: user.userId, // ⬅️ importante: debe ser user.userId, no el objeto completo
+                status: "INACTIVE"
+            })
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+                console.log(error);
+                showToastMessage("Error", "No pudimos eliminar el instructor. Inténtalo nuevamente.", "danger");
+                return { type: "ERROR" }; // ⬅️ asegura que siempre retorne algo
+            });
+    };
 
-        // Disparar evento para actualizar la lista en otras páginas
-        window.dispatchEvent(new Event("storage"));
+
+    // 3. Cambiar estado (PUT) para Estudiantes
+    const handleChangeStatusStudent = (user) => {
+        return fetch(`${base_api_url}${admin_path}${user_management}${change_status_student}`, {
+            method: "PUT",
+            headers: headers,
+            body: JSON.stringify({
+                userId: user.userId,
+                status: "INACTIVE"
+            })
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+                console.log(error);
+                return { type: "ERROR", text: "Error al eliminar el estudiante." };
+            });
     };
 
     if (users.length === 0) {
+
         return (
             <div className="text-center py-5">
                 <p className="text-muted">
@@ -103,8 +123,8 @@ function UserList() {
     return (
         <>
             <Row className="mt-4 m-5">
-                {users.map((user) => (
-                    <Col md={3} key={user.id} className="mb-3">
+                {users.map((user, id) => (
+                    <Col md={3} key={id} className="mb-3">
                         <Card className={styles.Card}>
                             <Card.Body className="p-1">
                                 {/* Sección superior con imagen, nombre y correo */}
@@ -112,26 +132,26 @@ function UserList() {
                                     <Col xs="auto">
                                         <div>
                                             <img
-                                                src={user.profilePictura || defaultProfile}
+                                                src={user.profilePhotoPath || defaultProfile}
                                                 alt="User"
-                                                className={styles.Img}    
+                                                className={styles.Img}
                                             />
                                         </div>
                                     </Col>
-                                    <Col style={{minWidth: 0}}>
+                                    <Col style={{ minWidth: 0 }}>
                                         <OverlayTrigger
                                             placement="top"
-                                            overlay={<Tooltip id={`tooltip-name-${user.id}`}>{user.name}</Tooltip>}
+                                            overlay={<Tooltip id={`tooltip-name-${user.userId}`}>{user.name}</Tooltip>}
                                         >
-                                        <h6 className={`mb-0 fw-bold ${styles.Title}`}>{user.name}</h6>
+                                            <h6 className={`mb-0 fw-bold ${styles.Title}`}>{user.name}</h6>
                                         </OverlayTrigger>
                                         <OverlayTrigger
                                             placement="top"
                                             overlay={<Tooltip id={`tooltip-email-${user.id}`}>{user.email}</Tooltip>}
                                         >
-                                        <p className={`text-muted mb-0 ${styles.Description}`}>
-                                            {user.email}
-                                        </p>
+                                            <p className={`text-muted mb-0 ${styles.Description}`}>
+                                                {user.email}
+                                            </p>
                                         </OverlayTrigger>
                                     </Col>
                                 </Row>
@@ -139,7 +159,7 @@ function UserList() {
                                 {/* Sección inferior con botones alineados a la derecha */}
                                 <Row className="mt-0">
                                     <Col xs={12} className="d-flex justify-content-end gap-3">
-                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteUser(user.id, e)}>
+                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteUser(user, e)}>
                                             <FontAwesomeIcon icon={faTrashCan} />
                                         </Button>
                                         <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleEditUser(user, e)}>

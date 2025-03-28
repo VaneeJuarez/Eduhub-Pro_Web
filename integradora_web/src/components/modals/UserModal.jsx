@@ -88,8 +88,8 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             className={styles.Select}
                         >
                             <option value="">Selecciona un rol</option>
-                            <option value="Instructor">Intructor</option>
-                            <option value="Estudiante">Estudiante</option>
+                            <option value="INSTRUCTOR">Intructor</option>
+                            <option value="STUDENT">Estudiante</option>
                         </Form.Select>
                     </Form.Group>
                 </Modal.Body>

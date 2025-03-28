@@ -22,22 +22,22 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-
-      <Route element={<ProtectedRoute isAllowed={true /* !!user && user.role.includes('ADMIN') */} redirectTo="/login" />} >
+      <Route element={<ProtectedRoute isAllowed={!!user && user.role.includes('ADMIN')} redirectTo="/login" />} >
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/courses" element={<Courses />} />
         <Route path="/admin/courses/:id" element={<CourseDetail />} />
-        <Route path="/admin/accounts" element={<BankAccounts/>} />
+        <Route path="/admin/accounts" element={<BankAccounts />} />
+      </Route>
 
-        <Route path="/inst/dashboard" element={<Dashboard />} /> 
+      <Route element={<ProtectedRoute isAllowed={!!user && user.role.includes('INSTRUCTOR')} redirectTo="/login" />} >
+        <Route path="/inst/dashboard" element={<Dashboard />} />
         <Route path="/inst/courses" element={<MyCourses />} />
         <Route path="/inst/courses/:id" element={<CourseDetailPage />} />
       </Route>
 
-    
-
-      <Route index element={<Login />} />
+      <Route path='/login' index element={<Login />} />
+      <Route path='/' element={<Login />} />
 
       {/* <Route path="/user/dashboard" element={
               <ProtectedRoute >
