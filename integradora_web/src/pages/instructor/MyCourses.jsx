@@ -6,7 +6,7 @@ import styles from "../../styles/general.module.css"
 // Components
 import Header from "../../components/Header";
 import ControlPanel from "../../components/ControlPanel";
-import Sidebar from "../../components/Sidebar";
+import SidebarInstructor from "../../components/SidebarInstructor";
 import Footer from "../../components/Footer";
 import CourseList from "../../components/CourseList";
 
@@ -47,7 +47,7 @@ const MyCourses = () => {
 
   return (
     <>
-      <Sidebar />
+      <SidebarInstructor />
       <Header userName={user?.name} />
       <section className={styles.content}>
         <ControlPanel

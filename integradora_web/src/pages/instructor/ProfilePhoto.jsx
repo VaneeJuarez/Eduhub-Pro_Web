@@ -11,7 +11,6 @@ import style from "../../styles/general.module.css"
 
 // Components
 import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
 import Footer from "../../components/Footer";
 
 function ProfilePhoto() {
@@ -84,7 +83,6 @@ function ProfilePhoto() {
     // Vista de configuración del perfil inicial
         return (
             <>
-            <Sidebar />
             <Header />
             <section className={style.content} >
             <div className="py-4">

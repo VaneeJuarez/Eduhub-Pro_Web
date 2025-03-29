@@ -13,7 +13,7 @@ import style from "../../styles/general.module.css"
 
 // Components
 import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
+import SidebarInstructor from "../../components/SidebarInstructor";
 import Footer from "../../components/Footer";
 
 function Profile() {
@@ -92,7 +92,7 @@ function Profile() {
     // Vista de edción del pefil 
     return (
         <>
-        <Sidebar />
+        <SidebarInstructor />
         <Header />
         <section className={style.content}>
         <div className="py-5">

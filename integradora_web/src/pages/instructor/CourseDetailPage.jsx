@@ -6,7 +6,7 @@ import { ArrowLeft, Plus } from "react-bootstrap-icons";
 
 
 // Components
-import Sidebar from "../../components/Sidebar";
+import SidebarInstructor from "../../components/SidebarInstructor";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ModuleAccordion from "../../components/courses/ModuleAccordion";
@@ -256,7 +256,7 @@ function CourseDetailPage() {
 
   return (
     <>
-      <Sidebar />
+      <SidebarInstructor />
       <Header userName="Vanessa Juárez" />
       <section className={styles.content} style={{ backgroundColor: "gray" }}>
         {/* <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className={`m-5 ${style.btnBack}`}>
