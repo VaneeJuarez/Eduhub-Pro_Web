@@ -1,21 +1,28 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Row, Col, Card, Badge, Button, Toast, Modal } from "react-bootstrap";
-import { Star } from "react-bootstrap-icons";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import { parseDisplayDate, normalizeDate } from "../utils/dateUtils"
+import { useEffect, useState } from "react";
+import { Badge, Button, Card, Col, Modal, Row, Toast } from "react-bootstrap";
+import { Star } from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
+import { normalizeDate, parseDisplayDate } from "../utils/dateUtils";
 
 // styles
 import styles from "../styles/coursecard.module.css";
 
 // modals
+import { all, base_api_url, course_management, instructor_path } from "../utils/config/paths";
 import CourseModal from "./modals/CourseModal";
+import { headers } from "../utils/config/config";
+import { useUserContext } from "../contexts/UserProvider";
+
+import defaultCourse from "../assets/svg/signup.svg";
 
 function CourseList() {
+
+  const { user } = useUserContext();
+
   const [courses, setCourses] = useState([]);
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -25,12 +32,12 @@ function CourseList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Cargar cursos desde localStorage
-    const storedCourses = JSON.parse(localStorage.getItem("courses") || "[]");
+
+    fetchAllCourses();
 
     // Filtrar cursos pendientes de aprobación con fecha vencida
-    const filteredCourses = storedCourses.filter((course) => {
-      if (course.status === "Pendiente de aprobar") {
+    const filteredCourses = courses.filter((course) => {
+      if (course.courseStatus === "TO_APPROVE") {
         const courseStartDate = normalizeDate(parseDisplayDate(course.startDate));
         const today = normalizeDate(new Date());
         return today <= courseStartDate;
@@ -39,7 +46,7 @@ function CourseList() {
     });
 
     // Si se eliminaron cursos, actualizar localStorage
-    if (filteredCourses.length < storedCourses.length) {
+    if (filteredCourses.length < courses.length) {
       localStorage.setItem("courses", JSON.stringify(filteredCourses))
       showToastMessage(
         "Cursos actualizados",
@@ -49,15 +56,6 @@ function CourseList() {
     }
 
     setCourses(filteredCourses);
-
-    // Suscribirse a cambios en localStorage
-    const handleStorageChange = () => {
-      const updatedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-      setCourses(updatedCourses)
-    }
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const showToastMessage = (title, body, variant = "success") => {
@@ -72,7 +70,7 @@ function CourseList() {
 
   // Verificar si el curso es editable 
   const isCourseEditable = (course) => {
-    return course.status === "Pendiente"
+    return course.courseStatus === "IN_EDITION"
   }
 
   const handleEditCourse = (course, e) => {
@@ -91,7 +89,7 @@ function CourseList() {
     e.stopPropagation();
 
     // No permitir eliminar cursos que no están en estado "Pendiente"
-    const courseToDelete = courses.find((course) => course.id === courseId);
+    const courseToDelete = courses.find((course) => course.courseId === courseId);
     if (courseToDelete && !isCourseEditable(courseToDelete)) {
       return;
     }
@@ -102,7 +100,7 @@ function CourseList() {
 
   const confirmDeleteCourse = () => {
     if (courseToDelete) {
-      const updatedCourses = courses.filter((course) => course.id !== courseToDelete)
+      const updatedCourses = courses.filter((course) => course.courseId !== courseToDelete)
       localStorage.setItem("courses", JSON.stringify(updatedCourses))
       setCourses(updatedCourses)
       setIsDeleteDialogOpen(false)
@@ -115,9 +113,29 @@ function CourseList() {
     }
   }
 
+  const fetchAllCourses = async () => {
+    await fetch(`${base_api_url}${instructor_path}${course_management}${all}`, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(
+        {
+          instructorId: user?.jwt
+        }
+      )
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setCourses(response.result);
+      })
+      .catch((error) => {
+        console.log(error);
+        // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
+      });
+  };
+
   const handleSaveEditedCourse = (updatedCourse) => {
     const updatedCourses = courses.map((course) =>
-      course.id === updatedCourse.id ? { ...updatedCourse, id: course.id } : course,
+      course.courseId === updatedCourse.courseId ? { ...updatedCourse, courseId: course.courseId } : course,
     )
 
     localStorage.setItem("courses", JSON.stringify(updatedCourses));
@@ -144,14 +162,14 @@ function CourseList() {
   return (
     <>
       <Row className="g-4 m-4">
-        {courses.map((course) => (
-          <Col key={course.id} md={6} lg={3} className="mt-4">
+        {courses.map((course, id) => (
+          <Col key={id} md={6} lg={3} className="mt-4">
             <Card
               className={`h-100 shadow-sm d-flex flex-column ${styles.cardCourse}`}
             >
               <Card.Img
                 variant="top"
-                src={course.image || "/placeholder.svg"}
+                src={course.bannerPath || defaultCourse}
                 alt={course.title}
                 className="card-img-top"
                 style={{ height: "250px", objectFit: "cover" }}
@@ -161,25 +179,25 @@ function CourseList() {
                   <Card.Title className={`mb-2 ${styles.cardTitle}`}>
                     {course.title}
                   </Card.Title>
-                  <div className="d-flex align-items-center text-muted">
+                  {/*      <div className="d-flex align-items-center text-muted">
                     <Star className="me-2 text-warning" size={14} />
                     <small>{course.rating}</small>
-                  </div>
+                  </div> */}
                 </div>
                 <Card.Text className={`text-muted mb-2 ${styles.cardText}`}>
                   {course.description}
                 </Card.Text>
                 <div className="mb-2">
-                  {course.tags?.map((tag, index) => (
+                  {course.category?.map((category, index) => (
                     <Badge key={index} text="light" className={styles.cardTag}>
-                      {tag}
+                      {category?.name}
                     </Badge>
                   ))}
                 </div>
                 <div className={`text-muted mb-2 ${styles.cardInfo}`}>
                   <div className="mb-0">
                     <i className={`bi bi-person me-2 ${styles.cardIcons}`}></i>
-                    {course.instructor}
+                    {course.instructor.name}
                   </div>
                 </div>
                 <div className="mb-0">
@@ -197,12 +215,12 @@ function CourseList() {
                       variant="outline-danger"
                       size="sm"
                       className={`mr-2 ${styles.Icons}`}
-                      onClick={(e) => handleDeleteCourse(course.id, e)}
+                      onClick={(e) => handleDeleteCourse(course.courseId, e)}
                       disabled={!isCourseEditable(course)}
                       style={!isCourseEditable(course) ? { opacity: 0.5, cursor: "not-allowed", color: "gray" } : {}}
                     >
-                   <FontAwesomeIcon icon={faTrashCan} />
-                   </Button>
+                      <FontAwesomeIcon icon={faTrashCan} />
+                    </Button>
                     <Button
                       variant="outline-secondary"
                       size="sm"
@@ -219,7 +237,7 @@ function CourseList() {
                       variant="primary"
                       size="sm"
                       className={`flex-grow-1 me-2 ${styles.cardButton}`}
-                      onClick={(e) => handleViewCourse(course.id, e)}
+                      onClick={(e) => handleViewCourse(course.courseId, e)}
                     >
                       Ver Curso
                     </Button>

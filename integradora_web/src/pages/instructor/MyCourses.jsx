@@ -1,46 +1,43 @@
 import React, { useState } from "react";
 
 // Styles
-import styles from "../../styles/general.module.css"
+import styles from "../../styles/general.module.css";
 
 // Components
-import Header from "../../components/Header";
 import ControlPanel from "../../components/ControlPanel";
-import Sidebar from "../../components/Sidebar";
-import Footer from "../../components/Footer";
 import CourseList from "../../components/CourseList";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import Sidebar from "../../components/Sidebar";
 
 // Modals
-import CourseModal from "../../components/modals/CourseModal"
+import CourseModal from "../../components/modals/CourseModal";
 import { useUserContext } from "../../contexts/UserProvider";
-import { admin_path, base_api_url, course_management, create } from "../../utils/config/paths";
 import { headers, sweetAlert } from "../../utils/config/config";
+import { base_api_url, course_management, create, instructor_path } from "../../utils/config/paths";
 
 const MyCourses = () => {
 
   const { user } = useUserContext();
-
-  const [response, setResponse] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSaveCourse = async (course) => {
-
-    await fetch(`${base_api_url}${admin_path}${course_management}${create}`, {
+    await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({
         title: course.title,
         description: course.description,
         bannerPath: course.bannerPath,
-        startDate: course.startDate,
-        endDate: course.endDate,
+        startDate: course.startDateISO,
+        endDate: course.endDateISO,
         price: course.price,
         size: course.size,
         instructorId: user.jwt,
-        categoriesId: course.categoriesId
+        categoriesId: []
       }),
     }).then(response => response.json())
       .then((result) => {
@@ -56,19 +53,12 @@ const MyCourses = () => {
           return;
         }
 
-        setResponse(true);
-        fetchAllUsers();
+        setIsModalOpen(false);
 
       }).catch((error) => {
         console.log(error);
         sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
       });
-
-    // Cerramos el modal
-    if (response) {
-      setIsModalOpen(false);
-      setResponse(false);
-    }
   }
 
   return (
