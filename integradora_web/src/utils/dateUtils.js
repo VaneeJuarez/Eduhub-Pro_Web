@@ -13,7 +13,7 @@ export function parseDisplayDate(displayDate) {
   
   export function normalizeDate(date) {
     if (!date) return null;
-    const normalized = new Date(date);
+    const normalized = new Date(date);  
     normalized.setHours(0, 0, 0, 0);
     return normalized;
   }
