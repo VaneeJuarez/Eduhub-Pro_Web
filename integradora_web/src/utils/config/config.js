@@ -15,6 +15,10 @@ export const unlogin = {
   "Accept": "application/json"
 };
 
+export const headersUpload = {
+  "Authorization": "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt,
+};
+
 // Alertas
 export function sweetAlert(icon, title, text, redirectUrl, navigate) {
   Swal.fire({

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "../styles/sidebar.module.css";
@@ -10,12 +10,12 @@ import { auth_path, base_api_url, logout } from "../utils/config/paths";
 import { useUserContext } from "../contexts/UserProvider";
 
 const menuItems = [
-  { label: "Inicio", link: "#", icon: "bi bi-house" },
-  { label: "Usuarios", link: "#", icon: "bi bi-person" },
-  { label: "Cursos", link: "#", icon: "bi bi-book" },
-  { label: "Finanzas", link: "#", icon: "bi bi-coin" },
-  { label: "Cuentas bancarias", link: "#", icon: "bi bi-credit-card" },
-  { label: "Analíticas", link: "#analytics", icon: "bi bi-bar-chart-line" },
+  { label: "Inicio", link: `/admin/dashboard`, icon: "bi bi-house" },
+  { label: "Usuarios", link: `/admin/users`, icon: "bi bi-person" },
+  { label: "Cursos", link: `/admin/admin/courses`, icon: "bi bi-book" },
+  { label: "Finanzas", link: `/admin/payments`, icon: "bi bi-coin" },
+  { label: "Cuentas bancarias", link: `/admin/accounts`, icon: "bi bi-credit-card" },
+  { label: "Analíticas", link: `/admin/dashboard#analytics`, icon: "bi bi-bar-chart-line" },
 ];
 
 const Sidebar = () => {

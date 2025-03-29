@@ -39,10 +39,10 @@ const Menu = () => {
                     <img src={item.img} style={{ height: "60px", width: "60px" }} alt="" />
                   </i>
                   <strong>{item.title}</strong>
-                  <button 
-                  type="button" 
-                  className={styles.btnOutlineSecondary}
-                  onClick={() => navigate(item.route)}
+                  <button
+                    type="button"
+                    className={styles.btnOutlineSecondary}
+                    onClick={() => navigate(item.route)}
                   >Gestionar</button>
                 </a>
               </div>

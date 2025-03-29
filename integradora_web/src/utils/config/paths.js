@@ -9,7 +9,7 @@ export const admin_path = "admin/";
 export const student_path = "student/";
 export const instructor_path = "instructor/";
 export const auth_path = "auth/";
-export const storage_path = "storage/";
+export const storage_path = "api/storage/";
 
 // 3. Modules
 export const user_management = "user/";
@@ -66,4 +66,4 @@ export const to_approve_reg = "to-approve"; // si necesitas diferenciar un "to-a
 export const object_list = "object-list";
 export const get_file = "get-file";
 export const delete_file = "delete"; // para no chocar con la palabra reservada 'delete'
-export const download = "download";
+export const upload = "upload";

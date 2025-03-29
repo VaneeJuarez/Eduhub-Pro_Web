@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import styles from "../../styles/modal.module.css";
-import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
-import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import { headers, headersUpload, sweetAlert } from "../../utils/config/config";
+import { all, base_api_url, category_management, instructor_path, storage_path, upload } from "../../utils/config/paths";
 import { parseDisplayDate } from "../../utils/dateUtils";
+import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
 
-const categoryOptions = [
+/* const categoryOptions = [
   { value: "Programación", label: "Programación" },
   { value: "Informática", label: "Informática" },
   { value: "Marketing", label: "Marketing" },
@@ -12,20 +14,25 @@ const categoryOptions = [
   { value: "Negocios", label: "Negocios" },
   { value: "Ciencias", label: "Ciencias" },
   { value: "Comunicación", label: "Comunicación" },
-];
+]; */
+
 
 const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
     image: initialData.image || "",
+    bannerPath: "",
     startDate: initialData.startDate || "",
     endDate: initialData.endDate || "",
     price: initialData.price || 0.0,
-    studentLimit: initialData.studentLimit || 1,
+    size: initialData.studentLimit || 1,
     tags: initialData.tags || [],
-    modules: initialData.modules || [],
   });
+
+  // verificar al cargar una imagen
+  const [isUploading, setIsUploading] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState([]);
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(initialData.image || "");
@@ -65,12 +72,36 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   }
 
   useEffect(() => {
+    if (!show) {
+      // ✅ Limpiar campos al cerrar el modal
+      setFormData({
+        title: "",
+        description: "",
+        image: "",
+        bannerPath: "",
+        startDate: "",
+        endDate: "",
+        price: 0.0,
+        size: 1,
+        tags: [],
+        startDateISO: "",
+        endDateISO: ""
+      });
+      setImagePreview("");
+      setImageFile(null);
+      setStartDateError("");
+      setEndDateError("");
+    }
+  }, [show]);
+
+  useEffect(() => {
     // Inicializar las fechas en formato ISO para los inputs date
     setFormData((prev) => ({
       ...prev,
       startDateISO: parseDisplayDate(prev.startDate),
       endDateISO: parseDisplayDate(prev.endDate),
     }));
+    fetchAllCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -157,15 +188,42 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     }))
   }
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Crear una URL para previsualizar la imagen
     const imageUrl = URL.createObjectURL(file);
     setImageFile(file);
     setImagePreview(imageUrl);
-    setFormData((prev) => ({ ...prev, image: imageUrl }));
+
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    setIsUploading(true);
+
+    // Subir imagen
+    const res = await fetch(`${base_api_url}${storage_path}${upload}`, {
+      method: "POST",
+      headers: headersUpload,
+      body: formDataUpload,
+    });
+
+    // Validar respuesta
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Error al subir la imagen:", errorText);
+      sweetAlert("error", "Error", "No se pudo subir la imagen al servidor.", "", null);
+      setIsUploading(false);
+      return;
+    }
+
+    // Extraer la URL de la imagen (respuesta como string plano)
+    const url = await res.text();
+
+    console.log(url);
+
+    setFormData((prev) => ({ ...prev, bannerPath: url }));
+    setIsUploading(false);
   };
 
   const handleSubmit = (e) => {
@@ -203,11 +261,31 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     onSave(completeData);
   };
 
+  const fetchAllCategories = async () => {
+    await fetch(`${base_api_url}${instructor_path}${category_management}${all}`, {
+      method: "GET",
+      headers: headers,
+    })
+      .then(response => response.json())
+      .then(response => {
+        console.log(response);
+
+        if (response.type === "SUCCESS") {
+          const options = response.result.map(cat => ({
+            id: cat.id,
+            value: cat.name,     // UUID
+            label: cat.name    // Nombre visible
+          }));
+          setCategoryOptions(options);
+        }
+      });
+  }
+
   return (
     <Modal show={show} onHide={onHide} size="medium">
       <Modal.Header closeButton>
         <Modal.Title className={styles.ModalTitle}>
-          {initialData.id ? "Editar Curso" : "Agregar Nuevo Curso"}
+          {initialData.courseId ? "Editar Curso" : "Agregar Nuevo Curso"}
         </Modal.Title>
       </Modal.Header>
       <Form className={styles.Form} onSubmit={handleSubmit}>
@@ -303,11 +381,12 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
           <CheckboxMultiSelect
             options={categoryOptions}
-            value={formData.tags}
-            onChange={(newTags) =>
-              setFormData((prev) => ({ ...prev, tags: newTags }))
+            value={formData.categoriesId}
+            onChange={(newIds) =>
+              setFormData(prev => ({ ...prev, categoriesId: newIds }))
             }
           />
+
 
           <Form.Group className="mb-3">
             <Form.Label>Imagen de Portada</Form.Label>
@@ -332,8 +411,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
           <Button variant="secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="primary" type="submit">
-            Guardar
+          <Button variant="primary" type="submit" disabled={isUploading}>
+            {isUploading ? "Subiendo imagen..." : "Guardar"}
           </Button>
         </Modal.Footer>
       </Form>

@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 
 // Styles
-import styles from "../../styles/general.module.css"
+import styles from "../../styles/general.module.css";
 
 // Components
-import Header from "../../components/Header";
 import ControlPanel from "../../components/ControlPanel";
-import SidebarInstructor from "../../components/SidebarInstructor";
-import Footer from "../../components/Footer";
 import CourseList from "../../components/CourseList";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import SidebarInstructor from "../../components/SidebarInstructor";
 
 // Modals
-import CourseModal from "../../components/modals/CourseModal"
+import CourseModal from "../../components/modals/CourseModal";
 import { useUserContext } from "../../contexts/UserProvider";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { base_api_url, course_management, create, instructor_path } from "../../utils/config/paths";
 
 const MyCourses = () => {
 
@@ -22,27 +24,41 @@ const MyCourses = () => {
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSaveCourse = (course) => {
-    // Aquí guardaríamos el curso en la base de datos y obtendríamos un id real
-    const newCourseId = Date.now().toString()
+  const handleSaveCourse = async (course) => {
+    await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        title: course.title,
+        description: course.description,
+        bannerPath: course.bannerPath,
+        startDate: course.startDateISO,
+        endDate: course.endDateISO,
+        price: course.price,
+        size: course.size,
+        instructorId: user.jwt,
+        categoriesId: []
+      }),
+    }).then(response => response.json())
+      .then((result) => {
+        console.log(result);
 
-    // Simulamos guardar el curso en localStorage para mantener los datos
-    const existingCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const newCourse = {
-      ...course,
-      id: newCourseId,
-      instructor: "Usuario Actual", // Esto vendría de la sesión
-      rating: 0, // Inicialmente sin calificación
-      status: "Pendiente", // Estado inicial
-    }
+        if (result.type !== 'SUCCESS') {
+          if (typeof result === 'object' && !result.text) {
+            const errorMessages = Object.values(result).join("\n");
+            sweetAlert('error', 'Error', errorMessages, '');
+          } else if (result.text) {
+            sweetAlert('error', 'Error', result.text, '');
+          }
+          return;
+        }
 
-    localStorage.setItem("courses", JSON.stringify([...existingCourses, newCourse]))
+        setIsModalOpen(false);
 
-    // Cerramos el modal
-    setIsModalOpen(false)
-
-    // Forzar actualización
-    window.dispatchEvent(new Event("storage"))
+      }).catch((error) => {
+        console.log(error);
+        sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
+      });
   }
 
   return (

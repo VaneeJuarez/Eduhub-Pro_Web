@@ -85,7 +85,7 @@ const Login = () => {
                     navigate('/admin/dashboard');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
-                    navigate('/inst/courses');
+                    navigate('/inst/dashboard');
                 } else if (response.role.includes("STUDENT")) {
                     sweetAlert('question', 'Aviso', 'Tu cuenta es de estudiante. Inicia sesión en nuestra app móvil.', '', navigate);
                     dispatch({ type: USER_ACTIONS.LOGOUT });
