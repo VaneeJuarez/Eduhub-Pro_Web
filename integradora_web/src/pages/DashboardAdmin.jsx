@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Menu from "../components/Menu";
 import Analytics from "../components/admin/Analytics";
-import Support from "../components/instructor/Support";
 import Footer from "../components/Footer";
 import Sidebar from "../components/Sidebar";
 
@@ -76,7 +75,6 @@ const DashboardAdmin = () => {
         totalInstructors={totalInstructors}
         totalCourses={totalCourses}
       />
-      <Support />
       <Footer />
     </>
   );

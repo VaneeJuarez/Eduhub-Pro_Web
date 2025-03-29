@@ -8,7 +8,7 @@ import ControlPanel from "../../components/ControlPanel";
 import CourseList from "../../components/CourseList";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
+import SidebarInstructor from "../../components/SidebarInstructor";
 
 // Modals
 import CourseModal from "../../components/modals/CourseModal";
@@ -63,7 +63,7 @@ const MyCourses = () => {
 
   return (
     <>
-      <Sidebar />
+      <SidebarInstructor />
       <Header userName={user?.name} />
       <section className={styles.content}>
         <ControlPanel
