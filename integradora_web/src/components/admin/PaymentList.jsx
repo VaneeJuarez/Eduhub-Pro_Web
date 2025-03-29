@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react"
-import { Row, Col, Card, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faEye } from "@fortawesome/free-solid-svg-icons"
-import defaultProfile from "../assets/img/unknow.jpeg";
+import { useEffect, useState } from "react";
+import { Button, Card, Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import defaultProfile from "../../assets/img/unknow.jpeg";
 
 // Styles
-import styles from "../styles/card.module.css"
+import styles from "../../styles/card.module.css";
 
 // Components
-import PaymentModal from "./modals/PaymentModal"
+import PaymentModal from "../modals/PaymentModal";
 
 function PaymentList({ selectedFilter }) {
   const [payments, setPayments] = useState([])

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 // Styles 
-import styles from "../styles/general.module.css";
+import styles from "../../styles/general.module.css";
 
 // Components
-import ControlPanel from "../components/ControlPanel";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import Footer from "../components/Footer";
-import PaymentList from "../components/PaymentList";
+import ControlPanel from "../../components/ControlPanel";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import PaymentList from "../../components/admin/PaymentList";
+import Sidebar from "../../components/admin/Sidebar";
 
-import defaultProfile from "../assets/img/unknow.jpeg"
+import defaultProfile from "../../assets/img/unknow.jpeg";
 
 const Payments = () => {
     const [selectedFilter, setSelectedFilter] = useState("Pagado");

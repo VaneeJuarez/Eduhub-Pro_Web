@@ -1,25 +1,25 @@
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
-import { useUserContext } from '../../contexts/UserProvider';
+import { useUserContext } from '../contexts/UserProvider';
 
 // Bootstrap
-import '../../styles/bootstrap/bootstrap-icons.min.css';
-import '../../styles/bootstrap/bootstrap.min.css'
+import '../styles/bootstrap/bootstrap-icons.min.css';
+import '../styles/bootstrap/bootstrap.min.css'
 
 // Pages
-import Login from '../../pages/Login';
-import DashboardAdmin from '../../pages/DashboardAdmin';
-import Users from '../../pages/Users';
-import Courses from '../../pages/Courses';
-import CourseDetail from '../../pages/CourseDetail';
-import MyCourses from '../../pages/instructor/MyCourses';
-import CourseDetailPage from '../../pages/instructor/CourseDetailPage';
-import BankAccounts from '../../pages/BankAccounts';
-import Payments from '../../pages/Payments';
-import Profile from '../../pages/instructor/Profile';
-import ProfilePhoto from '../../pages/instructor/ProfilePhoto'
-import TechnicalSupport from '../../pages/instructor/TechnicalSupport';
-import RecoverPassword from '../../pages/RecoverPassword';
+import Login from '../pages/global/Login';
+import DashboardAdmin from '../pages/admin/DashboardAdmin';
+import Users from '../pages/admin/Users';
+import Courses from '../pages/admin/Courses';
+import CourseDetail from '../pages/admin/CourseDetail';
+import MyCourses from '../pages/instructor/MyCourses';
+import CourseDetailPage from '../pages/instructor/CourseDetailPage';
+import BankAccounts from '../pages/admin/BankAccounts';
+import Payments from '../pages/admin/Payments';
+import Profile from '../pages/instructor/Profile';
+import ProfilePhoto from '../pages/instructor/ProfilePhoto'
+import TechnicalSupport from '../pages/instructor/TechnicalSupport';
+import RecoverPassword from '../pages/global/RecoverPassword';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -57,4 +57,4 @@ const AppRoutes = () => {
   )
 };
 
-export default AppRoutes;
+export default AppRoutes;

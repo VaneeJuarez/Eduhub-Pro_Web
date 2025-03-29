@@ -7,10 +7,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 // Styles 
-import styles from "../styles/card.module.css"
+import styles from "../../styles/card.module.css"
 
 // Modals
-import BankAccountModal from "./modals/BankAccountModal";
+import BankAccountModal from "../modals/BankAccountModal";
 
 function BankAccountList() {
     const [accounts, setAccounts] = useState([]);

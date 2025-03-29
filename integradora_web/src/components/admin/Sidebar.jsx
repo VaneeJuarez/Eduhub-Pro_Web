@@ -1,13 +1,12 @@
-import React, { use, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
-import styles from "../styles/sidebar.module.css";
+import styles from "../../styles/sidebar.module.css";
 
 // Config
-import { headers, sweetAlert } from "../utils/config/config";
-import { USER_ACTIONS } from "../utils/config/enums";
-import { auth_path, base_api_url, logout } from "../utils/config/paths";
-import { useUserContext } from "../contexts/UserProvider";
+import { useUserContext } from "../../contexts/UserProvider";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { USER_ACTIONS } from "../../utils/config/enums";
+import { auth_path, base_api_url, logout } from "../../utils/config/paths";
 
 const menuItems = [
   { label: "Inicio", link: `/admin/dashboard`, icon: "bi bi-house" },

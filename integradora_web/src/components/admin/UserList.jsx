@@ -4,15 +4,15 @@ import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
-import defaultProfile from "../assets/img/unknow.jpeg";
+import defaultProfile from "../../assets/img/unknow.jpeg";
 
 // Styles
-import styles from "../styles/card.module.css";
+import styles from "../../styles/card.module.css";
 
 // Modals 
-import UserModal from "./modals/UserModal";
-import { admin_path, base_api_url, change_status_instructor, change_status_student, user_management } from "../utils/config/paths";
-import { headers, sweetAlert } from "../utils/config/config";
+import { headers } from "../../utils/config/config";
+import { admin_path, base_api_url, change_status_instructor, change_status_student, user_management } from "../../utils/config/paths";
+import UserModal from "../modals/UserModal";
 
 function UserList({ userList }) {
     const [users, setUsers] = useState(userList);

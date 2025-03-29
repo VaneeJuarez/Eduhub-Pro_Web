@@ -3,15 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, Col, Modal, Row, Toast } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { formatCourseDate, normalizeDate, parseDisplayDate } from "../utils/dateUtils";
+import { formatCourseDate, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 // styles
-import styles from "../styles/coursecard.module.css";
+import styles from "../../styles/coursecard.module.css";
 
 // modals
-import CourseModal from "./modals/CourseModal";
+import CourseModal from "../modals/CourseModal";
 
-import defaultCourse from "../assets/svg/signup.svg";
+import defaultCourse from "../../assets/svg/signup.svg";
 
 function CourseList({ courses, setCourses, refreshCourses }) {
 

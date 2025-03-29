@@ -1,5 +1,5 @@
-import { Modal, ModalTitle, Spinner } from "react-bootstrap"
 import { useState } from "react"
+import { Modal } from "react-bootstrap"
 
 const VoucherViewer = ({ show, onHide, voucher }) => {
     const [loading, setLoading] = useState(true)

@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 
 // Components
-import Header from "../components/Header";
-import Menu from "../components/Menu";
-import Analytics from "../components/admin/Analytics";
-import Footer from "../components/Footer";
-import Sidebar from "../components/Sidebar";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import Analytics from "../../components/admin/Analytics";
+import Menu from "../../components/admin/Menu";
+import Sidebar from "../../components/admin/Sidebar";
 
 // Styles
-import styles from "../styles/dashboard.module.css";
+import styles from "../../styles/dashboard.module.css";
 
-import { useUserContext } from "../contexts/UserProvider";
-import { headers, sweetAlert } from "../utils/config/config";
-import { admin_path, base_api_url, count, user_management } from "../utils/config/paths";
+import { useUserContext } from "../../contexts/UserProvider";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { admin_path, base_api_url, count, user_management } from "../../utils/config/paths";
 
 const DashboardAdmin = () => {
   const { user } = useUserContext();
