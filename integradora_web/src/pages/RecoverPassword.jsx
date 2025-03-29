@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Svgs
-import signupImage from '../assets/svg/signin.svg';
-import signinImage from '../assets/svg/signup.svg';
+import forgotImage from '../assets/svg/forgot_password.svg';
+import recoverImage from '../assets/svg/recover_password.svg';
 
 import styles from '../styles/login.module.css';
 
@@ -183,16 +183,12 @@ const Login = () => {
         <div className={`${styles.owncontainer} ${isSignUpMode ? styles.sign_up_mode : ''}`}>
             <div className={styles.signin_signup}>
                 <form className={styles.sign_in_form}>
-                    <h2 className={styles.title}>Iniciar Sesión</h2>
+                    <h2 className={styles.title}>Recuperar Contraseña</h2>
                     <div className={styles.input_field}>
                         <i className="bi bi-envelope-fill"></i>
                         <input type="text" placeholder="Correo electrónico" onChange={(e) => setEmail(e.target.value)} />
                     </div>
-                    <div className={styles.input_field}>
-                        <i className="bi bi-lock-fill"></i>
-                        <input type="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} />
-                    </div>
-                    <input type='button' value="Iniciar sesión" onClick={async () => await loginRequest()} className={styles.botonpro} />
+                    <input type='button' value="Enviar enlace" onClick={async () => await loginRequest()} className={styles.botonpro} />
                     <p className={styles.social_text}>
                         <a href="#" onClick={() => navigate('/forgot-password')}>¿Olvidaste tu contraseña?</a>
                     </p>
@@ -238,15 +234,15 @@ const Login = () => {
                         <p>Inicia sesión y sigue disfrutando de todo nuestro contenido.</p>
                         <button className={styles.botonpro} onClick={() => setIsSignUpMode(false)}>Inicia sesión</button>
                     </div>
-                    <img src={signupImage} className={styles.image} alt="Sign up" />
+                    <img src={recoverImage} className={styles.image} alt="Recover Password" />
                 </div>
                 <div className={`${styles.panel} ${styles.right_panel}`}>
                     <div className={styles.content_panel}>
-                        <h3>¿Eres nuevo aquí?</h3>
-                        <p>Regístrate y conoce todo lo que nuestro sistema ofrece para el aprendizaje.</p>
+                        <h3>¿Olvidaste tu contraseña?</h3>
+                        <p>Ingresa tu correo electrónico para recuperar tu cuenta.</p>
                         <button className={styles.botonpro} onClick={() => setIsSignUpMode(true)}>Registrarse</button>
                     </div>
-                    <img src={signinImage} className={styles.image} alt="Sign in" />
+                    <img src={forgotImage} className={styles.image} alt="Forgot Password" />
                 </div>
             </div>
         </div>
