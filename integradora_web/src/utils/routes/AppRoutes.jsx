@@ -19,6 +19,7 @@ import Payments from '../../pages/Payments';
 import Profile from '../../pages/instructor/Profile';
 import ProfilePhoto from '../../pages/instructor/ProfilePhoto'
 import TechnicalSupport from '../../pages/instructor/TechnicalSupport';
+import RecoverPassword from '../../pages/RecoverPassword';
 
 const AppRoutes = () => {
   const { user } = useUserContext();
@@ -44,6 +45,7 @@ const AppRoutes = () => {
 
       <Route path='/login' index element={<Login />} />
       <Route path='/' element={<Login />} />
+      <Route path='/forgot-password' element={<RecoverPassword />} />
 
       {/* <Route path="/user/dashboard" element={
               <ProtectedRoute >
