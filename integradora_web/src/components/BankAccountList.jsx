@@ -12,8 +12,16 @@ import styles from "../styles/card.module.css"
 // Modals
 import BankAccountModal from "./modals/BankAccountModal";
 
-function BankAccountList() {
+import { admin_path, base_api_url, account_management, change_status } from "../utils/config/paths";
+import { headers, sweetAlert } from "../utils/config/config"
+
+function BankAccountList({ accountList }) {
     const [accounts, setAccounts] = useState([]);
+
+    useEffect(() => {
+        setAccounts(accountList);
+    }, [accountList]);
+
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [accountToDelete, setAccountToDelete] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
