@@ -34,7 +34,7 @@ function CourseDetailPage() {
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
   useEffect(() => {
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
 
     // Cargar el curso desde localStorage
     const courses = JSON.parse(localStorage.getItem("courses") || "[]");
@@ -66,18 +66,6 @@ function CourseDetailPage() {
     }
 
     setIsLoading(false);
-
-    // Suscribirse a cambios en localStorage
-    const handleStorageChange = () => {
-      const updatedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-      const updatedCourse = updatedCourses.find((c) => c.id === id)
-      if (updatedCourse) {
-        setCourse(updatedCourse)
-      }
-    }
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, [id, navigate]);
 
   const showToastMessage = (title, body, variant = "success") => {
@@ -191,49 +179,49 @@ function CourseDetailPage() {
     window.dispatchEvent(new Event("storage"));
   };
 
-    // Generar progreso de módulos para la demostración
-    const generateModuleProgress = (moduleIndex) => {
-      if (!course || !course.modules || !course.modules[moduleIndex]) return []
-  
-      // Generar estudiantes de ejemplo
-      const mockStudents = []
-      const numStudents = Math.floor(Math.random() * course.studentLimit) + 1
-  
-      for (let i = 1; i <= numStudents; i++) {
-        const completed = Math.random() > 0.3 // 70% de probabilidad de completar
-        mockStudents.push({
-          id: i,
-          name: `Estudiante ${i}`,
-          email: `estudiante${i}@ejemplo.com`,
-          enrollmentDate: new Date(
-            Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
-          ).toLocaleDateString(),
-          completed,
-          completionDate: completed
-            ? new Date(Date.now() - Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000).toLocaleDateString()
-            : null,
-        })
-      }
-  
-      return mockStudents
+  // Generar progreso de módulos para la demostración
+  const generateModuleProgress = (moduleIndex) => {
+    if (!course || !course.modules || !course.modules[moduleIndex]) return []
+
+    // Generar estudiantes de ejemplo
+    const mockStudents = []
+    const numStudents = Math.floor(Math.random() * course.size) + 1
+
+    for (let i = 1; i <= numStudents; i++) {
+      const completed = Math.random() > 0.3 // 70% de probabilidad de completar
+      mockStudents.push({
+        id: i,
+        name: `Estudiante ${i}`,
+        email: `estudiante${i}@ejemplo.com`,
+        enrollmentDate: new Date(
+          Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
+        ).toLocaleDateString(),
+        completed,
+        completionDate: completed
+          ? new Date(Date.now() - Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000).toLocaleDateString()
+          : null,
+      })
     }
 
-    const handleViewModuleProgress = (moduleIndex) => {
-      if (!course || !course.modules || !course.modules[moduleIndex]) return
-  
-      setSelectedModule({
-        title: course.modules[moduleIndex].title,
-        progress: generateModuleProgress(moduleIndex),
-      })
-  
-      setShowModuleProgress(true)
-    }
-  
-    // Verificar si el curso está en un estado editable
-    const isEditable = () => {
-      if (!course) return false
-      return course.status === "Pendiente"
-    }
+    return mockStudents
+  }
+
+  const handleViewModuleProgress = (moduleIndex) => {
+    if (!course || !course.modules || !course.modules[moduleIndex]) return
+
+    setSelectedModule({
+      title: course.modules[moduleIndex].title,
+      progress: generateModuleProgress(moduleIndex),
+    })
+
+    setShowModuleProgress(true)
+  }
+
+  // Verificar si el curso está en un estado editable
+  const isEditable = () => {
+    if (!course) return false
+    return course.status === "Pendiente"
+  }
 
   if (isLoading) {
     return (
@@ -247,13 +235,46 @@ function CourseDetailPage() {
     return (
       <Container className="py-4">
         <p>Curso no encontrado</p>
-        <Button variant="outline-primary" onClick={() => navigate("/")} className="mt-3">
+        <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className="mt-3">
           <ArrowLeft className="me-2" /> Volver
         </Button>
       </Container>
     )
   }
 
+  const fetchCoursebyId = async () => {
+    await fetch(`${base_api_url}${instructor_path}${course_management}/find/${id}`, {
+      method: "GET",
+      headers,
+    }).then(response => response.json())
+      .then(response => {
+        if (response.type === "SUCCESS" && response.result.length > 0) {
+          const courseData = response.result[0];
+
+          const mappedCourse = {
+            ...courseData,
+            id: courseData.courseId,
+            title: courseData.title,
+            description: courseData.description,
+            image: courseData.bannerPath,
+            startDate: courseData.startDate,
+            endDate: courseData.endDate,
+            price: courseData.price,
+            size: courseData.size,
+            status: courseData.courseStatus,
+            modules: courseData.modules || [],
+            tags: courseData.categories.map(c => c.name),
+            categoriesId: courseData.categories.map(c => c.categoryId),
+            instructor: courseData.instructor.name,
+          };
+
+          setCourse(mappedCourse);
+        } else {
+          setCourse(null);
+        }
+        setIsLoading(false);
+      });
+  }
   return (
     <>
       <SidebarInstructor />
@@ -303,7 +324,7 @@ function CourseDetailPage() {
                     </div>
                     <div className="mb-2">
                       <i className={`bi bi-people me-2 ${style.cardIcons}`}></i>
-                      Límite de estudiantes: {course.studentLimit}
+                      Límite de estudiantes: {course.size}
                     </div>
                     <div className="h5 mt-3">${course.price.toFixed(2)} mx</div>
                   </div>
@@ -335,7 +356,7 @@ function CourseDetailPage() {
           )}
         </div>
         <Col lg={9}>
-        {course.modules && course.modules.length > 0 ? (
+          {course.modules && course.modules.length > 0 ? (
             <ModuleAccordion
               modules={course.modules}
               onEditModule={handleEditModule}
@@ -348,59 +369,59 @@ function CourseDetailPage() {
             <p className="text-muted text-center py-4">No hay módulos disponibles. ¡Agrega uno nuevo!</p>
           )}
         </Col>
-              {/* Modal para agregar/editar módulos */}
-      <ModuleModal
-        show={isModuleModalOpen}
-        onHide={() => {
-          setIsModuleModalOpen(false)
-          setCurrentModule(null)
-        }}
-        onSave={handleSaveModule}
-        initialData={currentModule}
-      />
+        {/* Modal para agregar/editar módulos */}
+        <ModuleModal
+          show={isModuleModalOpen}
+          onHide={() => {
+            setIsModuleModalOpen(false)
+            setCurrentModule(null)
+          }}
+          onSave={handleSaveModule}
+          initialData={currentModule}
+        />
 
-      {/* Modal de confirmación para eliminar curso */}
-      <Modal show={isDeleteDialogOpen} onHide={() => setIsDeleteDialogOpen(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>¿Estás seguro?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Esta acción no se puede deshacer. Se eliminará permanentemente el curso y todos sus módulos y lecciones.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setIsDeleteDialogOpen(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDeleteCourse}>
-            Eliminar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        {/* Modal de confirmación para eliminar curso */}
+        <Modal show={isDeleteDialogOpen} onHide={() => setIsDeleteDialogOpen(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>¿Estás seguro?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Esta acción no se puede deshacer. Se eliminará permanentemente el curso y todos sus módulos y lecciones.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleDeleteCourse}>
+              Eliminar
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
-      {/* Modal para ver el progreso de un módulo */}
-      <ModuleProgressModal
-        show={showModuleProgress}
-        onHide={() => {
-          setShowModuleProgress(false)
-          setSelectedModule(null)
-        }}
-        module={selectedModule}
-      />
-            {/* Toast para notificaciones */}
-            <Toast
-        show={showToast}
-        onClose={() => setShowToast(false)}
-        delay={3000}
-        autohide
-        bg={toastMessage.variant}
-        text={toastMessage.variant === "danger" ? "white" : undefined}
-        style={{ position: "fixed", top: 20, right: 20 }}
-      >
-        <Toast.Header>
-          <strong className="me-auto">{toastMessage.title}</strong>
-        </Toast.Header>
-        <Toast.Body>{toastMessage.body}</Toast.Body>
-      </Toast>
+        {/* Modal para ver el progreso de un módulo */}
+        <ModuleProgressModal
+          show={showModuleProgress}
+          onHide={() => {
+            setShowModuleProgress(false)
+            setSelectedModule(null)
+          }}
+          module={selectedModule}
+        />
+        {/* Toast para notificaciones */}
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={3000}
+          autohide
+          bg={toastMessage.variant}
+          text={toastMessage.variant === "danger" ? "white" : undefined}
+          style={{ position: "fixed", top: 20, right: 20 }}
+        >
+          <Toast.Header>
+            <strong className="me-auto">{toastMessage.title}</strong>
+          </Toast.Header>
+          <Toast.Body>{toastMessage.body}</Toast.Body>
+        </Toast>
       </section>
       <Footer />
     </>

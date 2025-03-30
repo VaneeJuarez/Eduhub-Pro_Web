@@ -38,6 +38,8 @@ export function isTomorrow(date) {
 // dateUtils.js
 export function formatCourseDate(dateString) {
   const date = new Date(dateString + "T00:00:00");
+  if (isNaN(date.getTime())) return "Fecha inválida";
+
   const formatter = new Intl.DateTimeFormat('es-MX', {
     month: 'short',
     day: 'numeric',

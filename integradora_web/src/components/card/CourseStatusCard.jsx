@@ -107,7 +107,7 @@ function CourseStatusCard({ course, onPublishCourse }) {
   // Generar estudiantes de ejemplo para la demostración
   const generateMockStudents = () => {
     const mockStudents = [];
-    const numStudents = Math.floor(Math.random() * course.studentLimit) + 1;
+    const numStudents = Math.floor(Math.random() * course.size) + 1;
 
     for (let i = 1; i <= numStudents; i++) {
       mockStudents.push({
