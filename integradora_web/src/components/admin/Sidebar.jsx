@@ -11,7 +11,7 @@ import { auth_path, base_api_url, logout } from "../../utils/config/paths";
 const menuItems = [
   { label: "Inicio", link: `/admin/dashboard`, icon: "bi bi-house" },
   { label: "Usuarios", link: `/admin/users`, icon: "bi bi-person" },
-  { label: "Cursos", link: `/admin/admin/courses`, icon: "bi bi-book" },
+  { label: "Cursos", link: `/admin/courses`, icon: "bi bi-book" },
   { label: "Finanzas", link: `/admin/payments`, icon: "bi bi-coin" },
   { label: "Cuentas bancarias", link: `/admin/accounts`, icon: "bi bi-credit-card" },
   { label: "Analíticas", link: `/admin/dashboard#analytics`, icon: "bi bi-bar-chart-line" },

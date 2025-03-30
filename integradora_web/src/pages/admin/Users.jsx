@@ -26,6 +26,24 @@ const Users = () => {
   const [selectedFilter, setSelectedFilter] = useState("Instructores"); /* Guarda la opción seleccionada y la actualiza */
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const filteredUsers = userList.length > 0 ? userList.filter((user) => {
+    // Filtro por rol
+    if (selectedFilter === "Instructores") {
+      return user.role === "INSTRUCTOR";
+    } else if (selectedFilter === "Estudiantes") {
+      return user.role === "STUDENT";
+    }
+    return true;
+  }).filter((user) => {
+    // Filtro por término de búsqueda en nombre o email
+    if (!searchTerm) return true;
+    const lowerSearch = searchTerm.toLowerCase();
+    return (
+      user.name.toLowerCase().includes(lowerSearch) || 
+      user.email.toLowerCase().includes(lowerSearch)
+    );
+  }) : [];
+
   const [response, setResponse] = useState(false);
 
   const handleSaveUser = async (user) => {
@@ -136,7 +154,7 @@ const Users = () => {
           ]} /* Define los nombres de los botones de alternancia */
         />
 
-        <UserList userList={userList} />
+        <UserList userList={filteredUsers} />
         <UserModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveUser} />
       </section>
       <Footer />
