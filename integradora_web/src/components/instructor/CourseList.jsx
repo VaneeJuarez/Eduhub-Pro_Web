@@ -12,6 +12,8 @@ import styles from "../../styles/coursecard.module.css";
 import CourseModal from "../modals/CourseModal";
 
 import defaultCourse from "../../assets/svg/signup.svg";
+import { base_api_url, change_status, course_management, instructor_path, update } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config";
 
 function CourseList({ courses, setCourses, refreshCourses }) {
 
@@ -90,35 +92,33 @@ function CourseList({ courses, setCourses, refreshCourses }) {
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDeleteCourse = () => {
+  const confirmDeleteCourse = async () => {
     if (courseToDelete) {
-      const updatedCourses = courses.filter((course) => course.courseId !== courseToDelete)
-      localStorage.setItem("courses", JSON.stringify(updatedCourses))
-      setCourses(updatedCourses)
-      setIsDeleteDialogOpen(false)
-      setCourseToDelete(null)
+      await changeStatusCourse(courseToDelete);
 
-      showToastMessage("Curso eliminado", "El curso ha sido eliminado exitosamente", "danger")
+      const updatedCourses = courses.filter((course) => course.courseId !== courseToDelete);
+      setCourses(updatedCourses);
+      setIsDeleteDialogOpen(false);
+      setCourseToDelete(null);
 
-      // Disparar evento para actualizar la lista en otras páginas
-      window.dispatchEvent(new Event("storage"))
+      showToastMessage("Curso eliminado", "El curso ha sido eliminado exitosamente", "danger");
     }
-  }
+  };
 
   const handleSaveEditedCourse = (updatedCourse) => {
     const updatedCourses = courses.map((course) =>
       course.courseId === updatedCourse.courseId ? { ...updatedCourse, courseId: course.courseId } : course,
     )
 
-    localStorage.setItem("courses", JSON.stringify(updatedCourses));
+    console.log(updatedCourse);
+
+    editCourse(updatedCourse);
+
     setCourses(updatedCourses);
     setIsEditModalOpen(false);
     setCourseToEdit(null);
 
     showToastMessage("Curso actualizado", "El curso ha sido actualizado exitosamente")
-
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"));
   };
 
   if (courses.length === 0) {
@@ -130,6 +130,62 @@ function CourseList({ courses, setCourses, refreshCourses }) {
       </div>
     );
   }
+
+  const editCourse = async (course) => {
+    await fetch(`${base_api_url}${instructor_path}${course_management}${update}`, {
+      method: "PUT",
+      headers: headers,
+      body: JSON.stringify({
+        courseId: course.courseId,
+        title: course.title,
+        description: course.description,
+        bannerPath: course.bannerPath,
+        startDate: course.startDateISO,
+        endDate: course.endDateISO,
+        price: course.price,
+        size: course.size,
+        categoriesId: course.tags
+      }),
+    }).then(response => response.json())
+      .then((result) => {
+        if (result.type !== 'SUCCESS') {
+          if (typeof result === 'object' && !result.text) {
+            const errorMessages = Object.values(result).join("\n");
+            sweetAlert('error', 'Error', errorMessages, '');
+          } else if (result.text) {
+            sweetAlert('error', 'Error', result.text, '');
+          }
+          return;
+        }
+
+        refreshCourses();
+        setIsEditModalOpen(false);
+
+      }).catch((error) => {
+        console.log(error);
+        sweetAlert('error', "Error", "No pudimos editar el curso. Inténtalo nuevamente.", "", null);
+      });
+  }
+
+  const changeStatusCourse = (courseId) => {
+    return fetch(`${base_api_url}${instructor_path}${course_management}${change_status}`, {
+      method: "PUT",
+      headers: headers,
+      body: JSON.stringify({
+        courseId: courseId,
+        courseStatus: "INACTIVE"
+      })
+    }).then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+
+        refreshCourses();
+      })
+      .catch((error) => {
+        console.log(error);
+        sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
+      });
+  };
 
   return (
     <>

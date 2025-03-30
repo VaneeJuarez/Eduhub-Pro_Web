@@ -193,7 +193,7 @@ function CourseDetail() {
     if (!course) return []
 
     const mockStudents = []
-    const numStudents = Math.floor(Math.random() * course.studentLimit) + 1
+    const numStudents = Math.floor(Math.random() * course.size) + 1
 
     for (let i = 1; i <= numStudents; i++) {
       mockStudents.push({
@@ -298,7 +298,7 @@ function CourseDetail() {
                     </div>
                     <div className="mb-2">
                       <i className={`bi bi-people me-2 ${style.cardIcons}`}></i>
-                      Límite de estudiantes: {course.studentLimit}
+                      Límite de estudiantes: {course.size}
                     </div>
                     <div className="h5 mt-3">${course.price.toFixed(2)} mx</div>
                   </div>

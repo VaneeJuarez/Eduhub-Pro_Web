@@ -16,7 +16,6 @@ import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
   { value: "Comunicación", label: "Comunicación" },
 ]; */
 
-
 const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
@@ -26,7 +25,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     startDate: initialData.startDate || "",
     endDate: initialData.endDate || "",
     price: initialData.price || 0.0,
-    size: initialData.studentLimit || 1,
+    size: initialData.size || 1,
     tags: initialData.tags || [],
   });
 
@@ -95,6 +94,24 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   }, [show]);
 
   useEffect(() => {
+    if (show && initialData?.courseId) {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        bannerPath: initialData.bannerPath || "",
+        price: initialData.price || 0.0,
+        size: initialData.size || 1,
+        startDate: initialData.startDate || "",
+        endDate: initialData.endDate || "",
+        //startDateISO: parseDisplayDate(initialData.startDate),
+        //endDateISO: parseDisplayDate(initialData.endDate),
+        tags: initialData.categories?.map(cat => cat.categoryId) || [], // fix
+      });
+      setImagePreview(initialData.bannerPath || "");
+    }
+  }, [show, initialData]);
+
+  useEffect(() => {
     // Inicializar las fechas en formato ISO para los inputs date
     setFormData((prev) => ({
       ...prev,
@@ -108,7 +125,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "studentLimit" ? Number.parseFloat(value) : value,
+      [name]: name === "price" || name === "size" ? Number.parseFloat(value) : value,
     }))
   }
 
@@ -367,8 +384,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                 <Form.Control
                   type="number"
                   min="1"
-                  name="studentLimit"
-                  value={formData.studentLimit}
+                  name="size"
+                  value={formData.size}
                   onChange={handleChange}
                   required
                 />
