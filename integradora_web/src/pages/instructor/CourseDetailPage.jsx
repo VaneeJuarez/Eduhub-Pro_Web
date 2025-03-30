@@ -6,7 +6,7 @@ import { ArrowLeft, Plus } from "react-bootstrap-icons";
 
 
 // Components
-import SidebarInstructor from "../../components/SidebarInstructor";
+import SidebarInstructor from "../../components/instructor/SidebarInstructor";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ModuleAccordion from "../../components/courses/ModuleAccordion";

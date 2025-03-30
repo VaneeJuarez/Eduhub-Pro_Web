@@ -4,7 +4,7 @@ import { Modal, Button, Row, Col, Toast, ToastContainer } from "react-bootstrap"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons"
-import VoucherViewer from "../VoucherViewer"
+import VoucherViewer from "../admin/VoucherViewer"
 
 const PaymentModal = ({ show, onHide, payment }) => {
   const [showVoucher, setShowVoucher] = useState(false)

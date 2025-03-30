@@ -13,7 +13,7 @@ import style from "../../styles/general.module.css"
 
 // Components
 import Header from "../../components/Header";
-import SidebarInstructor from "../../components/SidebarInstructor";
+import SidebarInstructor from "../../components/instructor/SidebarInstructor";
 import Footer from "../../components/Footer";
 
 function Profile() {

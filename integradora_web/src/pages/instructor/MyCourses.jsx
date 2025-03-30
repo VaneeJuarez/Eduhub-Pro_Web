@@ -5,10 +5,10 @@ import styles from "../../styles/general.module.css";
 
 // Components
 import ControlPanel from "../../components/ControlPanel";
-import CourseList from "../../components/CourseList";
+import CourseList from "../../components/instructor/CourseList";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import SidebarInstructor from "../../components/SidebarInstructor";
+import SidebarInstructor from "../../components/instructor/SidebarInstructor";
 
 // Modals
 import CourseModal from "../../components/modals/CourseModal";
