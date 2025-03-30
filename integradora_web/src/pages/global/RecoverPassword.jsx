@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Svgs
-import signupImage from '../assets/svg/signin.svg';
-import signinImage from '../assets/svg/signup.svg';
+import forgotImage from '../../assets/svg/forgot_password.svg';
+import recoverImage from '../../assets/svg/recover_password.svg';
 
-import styles from '../styles/login.module.css';
+import styles from '../../styles/login.module.css';
 
-import { sweetAlert, unlogin } from '../utils/config/config.js';
-import { USER_ACTIONS } from '../utils/config/enums.js';
+import { sweetAlert, unlogin } from '../../utils/config/config.js';
+import { USER_ACTIONS } from '../../utils/config/enums.js';
 
-import { useUserContext } from '../contexts/UserProvider';
+import { useUserContext } from '../../contexts/UserProvider.jsx';
 
 import {
     auth_path,
     base_api_url,
     login,
     register
-} from '../utils/config/paths.js';
+} from '../../utils/config/paths.js';
 
 const Login = () => {
 
@@ -85,7 +85,7 @@ const Login = () => {
                     navigate('/admin/dashboard');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
-                    navigate('/inst/dashboard');
+                    navigate('/inst/courses');
                 } else if (response.role.includes("STUDENT")) {
                     sweetAlert('question', 'Aviso', 'Tu cuenta es de estudiante. Inicia sesión en nuestra app móvil.', '', navigate);
                     dispatch({ type: USER_ACTIONS.LOGOUT });
@@ -183,18 +183,14 @@ const Login = () => {
         <div className={`${styles.owncontainer} ${isSignUpMode ? styles.sign_up_mode : ''}`}>
             <div className={styles.signin_signup}>
                 <form className={styles.sign_in_form}>
-                    <h2 className={styles.title}>Iniciar Sesión</h2>
+                    <h2 className={styles.title}>Recuperar Contraseña</h2>
                     <div className={styles.input_field}>
                         <i className="bi bi-envelope-fill"></i>
                         <input type="text" placeholder="Correo electrónico" onChange={(e) => setEmail(e.target.value)} />
                     </div>
-                    <div className={styles.input_field}>
-                        <i className="bi bi-lock-fill"></i>
-                        <input type="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} />
-                    </div>
-                    <input type='button' value="Iniciar sesión" onClick={async () => await loginRequest()} className={styles.botonpro} />
+                    <input type='button' value="Enviar código" onClick={() => setIsSignUpMode(true)} className={styles.botonpro} />
                     <p className={styles.social_text}>
-                        <a href="#" onClick={() => navigate('/forgot-password')}>¿Olvidaste tu contraseña?</a>
+                        <a href="#" onClick={() => navigate('/')}><i class="bi bi-arrow-left"></i> Volver al inicio de sesión</a>
                     </p>
 
 
@@ -203,28 +199,20 @@ const Login = () => {
                     </p>
                 </form>
                 <form className={styles.sign_up_form}>
-                    <h2 className={styles.title}>Registrarse</h2>
+                    <h2 className={styles.title}>Restaurar Contraseña</h2>
                     <div className={styles.input_field}>
-                        <i className="bi bi-person-fill"></i>
-                        <input type="text" placeholder="Nombre completo" onChange={(e) => setName(e.target.value)} />
-                    </div>
-                    <div className={styles.input_field}>
-                        <i className="bi bi-envelope-fill"></i>
-                        <input type="text" placeholder="Correo electrónico" onChange={(e) => setEmail(e.target.value)} />
+                        <i class="bi bi-key-fill"></i>
+                        <input type="text" placeholder="Código de recuperación" onChange={(e) => setEmail(e.target.value)} />
                     </div>
                     <div className={styles.input_field}>
                         <i className="bi bi-lock-fill"></i>
                         <input type="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <div className={styles.input_field}>
-                        <i className="bi bi-people-fill"></i>
-                        <select className={styles.role_select} value={role} onChange={(e) => setRole(e.target.value)}>
-                            <option disabled value="">Selecciona un rol</option>
-                            <option value="INSTRUCTOR">Docente</option>
-                            <option value="STUDENT">Estudiante</option>
-                        </select>
+                        <i className="bi bi-lock-fill"></i>
+                        <input type="password" placeholder="Repetir contraseña" onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <input type="button" value="Registrarse" className={styles.botonpro} onClick={async () => await registerRequest()} />
+                    <input type="button" value="Restaurar" className={styles.botonpro} onClick={async () => await registerRequest()} />
 
                     <p className={styles.account_text}>¿Ya tienes una cuenta?
                         <a href="#" onClick={() => setIsSignUpMode(false)}>Inicia sesión</a>
@@ -234,19 +222,20 @@ const Login = () => {
             <div className={styles.panels_container}>
                 <div className={`${styles.panel} ${styles.left_panel}`}>
                     <div className={styles.content_panel}>
-                        <h3>¿Ya eres miembro?</h3>
-                        <p>Inicia sesión y sigue disfrutando de todo nuestro contenido.</p>
-                        <button className={styles.botonpro} onClick={() => setIsSignUpMode(false)}>Inicia sesión</button>
+                        <h3>Revisa tu correo electrónico</h3>
+                        <p>Ingresa el código de recuperación que te enviamos a tu correo e ingresa tu nueva contraseña.</p>
+                        <button className={styles.botonpro} onClick={() => setIsSignUpMode(false)}>Regresar</button>
                     </div>
-                    <img src={signupImage} className={styles.image} alt="Sign up" />
+                    <img src={recoverImage} className={styles.image} alt="Recover Password" />
                 </div>
                 <div className={`${styles.panel} ${styles.right_panel}`}>
                     <div className={styles.content_panel}>
-                        <h3>¿Eres nuevo aquí?</h3>
-                        <p>Regístrate y conoce todo lo que nuestro sistema ofrece para el aprendizaje.</p>
-                        <button className={styles.botonpro} onClick={() => setIsSignUpMode(true)}>Registrarse</button>
+                        <h3>¿Olvidaste tu contraseña?</h3>
+                        <p>Ingresa tu correo electrónico para recuperar tu cuenta.</p>
+                        <br></br>
+                        <br></br>
                     </div>
-                    <img src={signinImage} className={styles.image} alt="Sign in" />
+                    <img src={forgotImage} className={styles.image} alt="Forgot Password" />
                 </div>
             </div>
         </div>

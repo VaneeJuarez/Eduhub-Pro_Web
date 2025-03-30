@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react"
 
 // Styles
-import styles from "../styles/general.module.css"
+import styles from "../../styles/general.module.css"
 
 // Components
-import ControlPanel from "../components/ControlPanel";
-import Header from "../components/Header";
+import ControlPanel from "../../components/ControlPanel";
+import Header from "../../components/Header";
 import Sidebar from "../components/Sidebar";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 import BankAccountList from "../components/BankAccountList";
 
 // Modals
-import BankAccountModal from "../components/modals/BankAccountModal";
+import BankAccountModal from "../../components/modals/BankAccountModal";
 
 import { useUserContext } from "../contexts/UserProvider";
 import { headers, sweetAlert } from "../utils/config/config";

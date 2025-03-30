@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Card, Badge, Button, Row, Col } from "react-bootstrap"
+import React, { useEffect, useState } from "react";
+import { Badge, Button, Card, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Star } from "react-bootstrap-icons"
-import { parseDisplayDate, normalizeDate } from "../utils/dateUtils"
+import { normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 // Components
-import ControlPanel from "../components/ControlPanel";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import Footer from "../components/Footer";
+import Sidebar from "../../components/admin/Sidebar";
+import ControlPanel from "../../components/ControlPanel";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
 
 // Styles
-import styles from "../styles/general.module.css";
-import style from "../styles/coursecard.module.css";
-import { useUserContext } from "../contexts/UserProvider";
+import { useUserContext } from "../../contexts/UserProvider";
+import style from "../../styles/coursecard.module.css";
+import styles from "../../styles/general.module.css";
 
 function Courses() {
 

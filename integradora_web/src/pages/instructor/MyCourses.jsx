@@ -14,11 +14,13 @@ import SidebarInstructor from "../../components/SidebarInstructor";
 import CourseModal from "../../components/modals/CourseModal";
 import { useUserContext } from "../../contexts/UserProvider";
 import { headers, sweetAlert } from "../../utils/config/config";
-import { base_api_url, course_management, create, instructor_path } from "../../utils/config/paths";
+import { all, base_api_url, course_management, create, instructor_path } from "../../utils/config/paths";
 
 const MyCourses = () => {
 
   const { user } = useUserContext();
+
+  const [courses, setCourses] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
@@ -37,12 +39,10 @@ const MyCourses = () => {
         price: course.price,
         size: course.size,
         instructorId: user.jwt,
-        categoriesId: []
+        categoriesId: course.tags
       }),
     }).then(response => response.json())
       .then((result) => {
-        console.log(result);
-
         if (result.type !== 'SUCCESS') {
           if (typeof result === 'object' && !result.text) {
             const errorMessages = Object.values(result).join("\n");
@@ -53,6 +53,7 @@ const MyCourses = () => {
           return;
         }
 
+        fetchAllCourses();
         setIsModalOpen(false);
 
       }).catch((error) => {
@@ -60,6 +61,26 @@ const MyCourses = () => {
         sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
       });
   }
+
+  const fetchAllCourses = async () => {
+    await fetch(`${base_api_url}${instructor_path}${course_management}${all}`, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(
+        {
+          instructorId: user?.jwt
+        }
+      )
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setCourses(response.result);
+      })
+      .catch((error) => {
+        console.log(error);
+        // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
+      });
+  };
 
   return (
     <>
@@ -78,7 +99,7 @@ const MyCourses = () => {
           toggleOptions={["Cursos", "En Curso", "Pendientes"]}
           onAddClick={() => setIsModalOpen(true)}
         />
-        <CourseList />
+        <CourseList setCourses={setCourses} courses={courses} refreshCourses={fetchAllCourses} />
         <CourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
       </section>
       <Footer />

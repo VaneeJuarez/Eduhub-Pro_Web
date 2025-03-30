@@ -2,13 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom"
 
 // Styles
-import styles from "../styles/menu.module.css";
+import styles from "../../styles/menu.module.css";
 
 // Images
-import img1 from "../assets/img/perfil.png";
-import img2 from "../assets/img/libro.png";
-import img3 from "../assets/img/credito.png";
-import img4 from "../assets/img/tarjeta-de-credito.png";
+import img1 from "../../assets/img/perfil.png";
+import img2 from "../../assets/img/libro.png";
+import img3 from "../../assets/img/credito.png";
+import img4 from "../../assets/img/tarjeta-de-credito.png";
 
 const Menu = () => {
   const navigate = useNavigate(); // Hook para navegación

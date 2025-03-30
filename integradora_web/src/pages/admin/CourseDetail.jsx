@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Badge, Toast, Modal } from "react-bootstrap"
-import { ArrowLeft, PeopleFill, ClockFill, CheckCircleFill, Calendar } from "react-bootstrap-icons"
-import { parseDisplayDate, normalizeDate, isTomorrow } from "../utils/dateUtils"
+import { useEffect, useState } from "react";
+import { Badge, Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
+import { ArrowLeft, Calendar, CheckCircleFill, PeopleFill } from "react-bootstrap-icons";
+import { useNavigate, useParams } from "react-router-dom";
+import { isTomorrow, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 // Components
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import StudentListModal from "../components/modals/StudentListModal"
-import LessonViewer from "../components/courses/LessonViewer";
-import ModuleAccordion from "../components/courses/ModuleAccordion";
+import Sidebar from "../../components/admin/Sidebar";
+import LessonViewer from "../../components/courses/LessonViewer";
+import ModuleAccordion from "../../components/courses/ModuleAccordion";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import StudentListModal from "../../components/modals/StudentListModal";
 
 // Styles
-import styles from "../styles/general.module.css";
-import style from "../styles/coursecard.module.css";;
+import style from "../../styles/coursecard.module.css";
+import styles from "../../styles/general.module.css";
+;
 
 function CourseDetail() {
   const { id } = useParams();

@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from "react";
 
 // Styles
-import styles from "../styles/general.module.css";
+import styles from "../../styles/general.module.css";
 
 // Components
-import ControlPanel from "../components/ControlPanel";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import UserList from "../components/UserList";
+import ControlPanel from "../../components/ControlPanel";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import Sidebar from "../../components/admin/Sidebar";
+import UserList from "../../components/admin/UserList";
 
 // Modals
-import UserModal from "../components/modals/UserModal";
+import UserModal from "../../components/modals/UserModal";
 
-import defaultProfile from "../assets/img/unknow.jpeg";
-import { useUserContext } from "../contexts/UserProvider";
-import { headers, sweetAlert } from "../utils/config/config";
-import { admin_path, all, base_api_url, create, user_management } from "../utils/config/paths";
+import { useUserContext } from "../../contexts/UserProvider";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { admin_path, all, base_api_url, create, user_management } from "../../utils/config/paths";
 
 const Users = () => {
 

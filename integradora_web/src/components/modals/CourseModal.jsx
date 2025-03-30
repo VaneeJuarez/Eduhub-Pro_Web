@@ -21,7 +21,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
-    image: initialData.image || "",
+    // image: initialData.image || "",
     bannerPath: "",
     startDate: initialData.startDate || "",
     endDate: initialData.endDate || "",
@@ -249,9 +249,9 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     const completeData = {
       ...initialData,
       ...formData,
-      instructor: initialData.instructor || "Usuario Actual",
+      //  instructor: initialData.instructor || "Usuario Actual",
       rating: initialData.rating !== undefined ? initialData.rating : 0,
-      status: initialData.status || "Pendiente",
+      status: initialData.status || "IN_EDITION",
       image: imagePreview, // Usar la URL de la imagen
       // Asegurarse de que las fechas estén en el formato correcto
       startDate: formData.startDate,
@@ -268,12 +268,9 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     })
       .then(response => response.json())
       .then(response => {
-        console.log(response);
-
         if (response.type === "SUCCESS") {
           const options = response.result.map(cat => ({
-            id: cat.id,
-            value: cat.name,     // UUID
+            value: cat.categoryId,     // UUID
             label: cat.name    // Nombre visible
           }));
           setCategoryOptions(options);
@@ -381,12 +378,11 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
           <CheckboxMultiSelect
             options={categoryOptions}
-            value={formData.categoriesId}
+            value={formData.tags}
             onChange={(newIds) =>
-              setFormData(prev => ({ ...prev, categoriesId: newIds }))
+              setFormData(prev => ({ ...prev, tags: newIds }))
             }
           />
-
 
           <Form.Group className="mb-3">
             <Form.Label>Imagen de Portada</Form.Label>

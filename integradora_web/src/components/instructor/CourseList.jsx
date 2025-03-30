@@ -2,26 +2,18 @@ import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, Col, Modal, Row, Toast } from "react-bootstrap";
-import { Star } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
-import { normalizeDate, parseDisplayDate } from "../utils/dateUtils";
+import { formatCourseDate, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 // styles
-import styles from "../styles/coursecard.module.css";
+import styles from "../../styles/coursecard.module.css";
 
 // modals
-import { all, base_api_url, course_management, instructor_path } from "../utils/config/paths";
-import CourseModal from "./modals/CourseModal";
-import { headers } from "../utils/config/config";
-import { useUserContext } from "../contexts/UserProvider";
+import CourseModal from "../modals/CourseModal";
 
-import defaultCourse from "../assets/svg/signup.svg";
+import defaultCourse from "../../assets/svg/signup.svg";
 
-function CourseList() {
-
-  const { user } = useUserContext();
-
-  const [courses, setCourses] = useState([]);
+function CourseList({ courses, setCourses, refreshCourses }) {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
@@ -33,7 +25,7 @@ function CourseList() {
 
   useEffect(() => {
 
-    fetchAllCourses();
+    refreshCourses();
 
     // Filtrar cursos pendientes de aprobación con fecha vencida
     const filteredCourses = courses.filter((course) => {
@@ -113,26 +105,6 @@ function CourseList() {
     }
   }
 
-  const fetchAllCourses = async () => {
-    await fetch(`${base_api_url}${instructor_path}${course_management}${all}`, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(
-        {
-          instructorId: user?.jwt
-        }
-      )
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setCourses(response.result);
-      })
-      .catch((error) => {
-        console.log(error);
-        // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
-      });
-  };
-
   const handleSaveEditedCourse = (updatedCourse) => {
     const updatedCourses = courses.map((course) =>
       course.courseId === updatedCourse.courseId ? { ...updatedCourse, courseId: course.courseId } : course,
@@ -188,7 +160,7 @@ function CourseList() {
                   {course.description}
                 </Card.Text>
                 <div className="mb-2">
-                  {course.category?.map((category, index) => (
+                  {course.categories?.map((category, index) => (
                     <Badge key={index} text="light" className={styles.cardTag}>
                       {category?.name}
                     </Badge>
@@ -202,7 +174,7 @@ function CourseList() {
                 </div>
                 <div className="mb-0">
                   <i className={`bi bi-calendar me-2 ${styles.cardIcons}`}></i>
-                  {course.startDate} - {course.endDate}
+                  {formatCourseDate(course.startDate)} - {formatCourseDate(course.endDate)}
                 </div>
               </Card.Body>
               <Card.Footer className="bg-white">

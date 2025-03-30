@@ -7,10 +7,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 // Styles 
-import styles from "../styles/card.module.css"
+import styles from "../../styles/card.module.css"
 
 // Modals
-import BankAccountModal from "./modals/BankAccountModal";
+import BankAccountModal from "../modals/BankAccountModal";
 
 import { admin_path, base_api_url, account_management, change_status } from "../utils/config/paths";
 import { headers, sweetAlert } from "../utils/config/config"
