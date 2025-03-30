@@ -1,6 +1,6 @@
 // App.jsx
 import { BrowserRouter } from 'react-router-dom';
-import AppRoutes from './utils/routes/AppRoutes';
+import AppRoutes from './routes/AppRoutes';
 
 // Contextos
 import { UserProvider } from './contexts/UserProvider';

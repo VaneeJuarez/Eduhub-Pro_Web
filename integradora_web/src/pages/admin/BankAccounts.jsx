@@ -6,9 +6,9 @@ import styles from "../../styles/general.module.css"
 // Components
 import ControlPanel from "../../components/ControlPanel";
 import Header from "../../components/Header";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../../components/admin/Sidebar";
 import Footer from "../../components/Footer";
-import BankAccountList from "../components/BankAccountList";
+import BankAccountList from "../../components/admin/BankAccountList";
 
 // Modals
 import BankAccountModal from "../../components/modals/BankAccountModal";
