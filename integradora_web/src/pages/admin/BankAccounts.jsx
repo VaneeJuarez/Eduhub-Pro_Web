@@ -13,9 +13,11 @@ import BankAccountList from "../../components/admin/BankAccountList";
 // Modals
 import BankAccountModal from "../../components/modals/BankAccountModal";
 
-import { useUserContext } from "../contexts/UserProvider";
-import { headers, sweetAlert } from "../utils/config/config";
-import { admin_path, all, base_api_url, create, account_management } from "../utils/config/paths";
+import { useUserContext } from "../../contexts/UserProvider";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { admin_path, all, base_api_url, save, account_management } from "../../utils/config/paths";
+
+
 
 const BankAccounts = () => {
   const { user } = useUserContext();
@@ -25,14 +27,14 @@ const BankAccounts = () => {
 
   const [response, setResponse] = useState(false);
 
-
   const handleSaveAccount = async (account) => {
-    await fetch(`${base_api_url}${admin_path}${account_management}${create}`, {
+    await fetch(`${base_api_url}${admin_path}${account_management}${save}`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({
-        bank_name: account.bank_name,
-        account_number: account.account_number,
+        adminId: user.jwt,
+        bankName: account.bankName, 
+        accountNumber: account.accountNumber,
         key: account.key
       }),
     }).then(response => response.json())
@@ -51,16 +53,14 @@ const BankAccounts = () => {
 
         setResponse(true);
         fetchAllAccounts();
+        setIsModalOpen(false);
+        setResponse(true);
 
       }).catch((error) => {
         console.log(error);
+        
         sweetAlert('error', "Error", "No pudimos crear la cuenta. Inténtalo nuevamente.", "", null);
       });
-
-      if (response) {
-        setIsModalOpen(false);
-        setResponse(true);
-      }
   };
 
   // Función para obtener usuarios
@@ -85,7 +85,7 @@ const BankAccounts = () => {
   return (
     <>
       <Sidebar />
-      <Header userName={"Vanessa Juárez"} />
+      <Header userName={user?.name} />
       <section className={styles.content}>
         <ControlPanel
           showAddButton={true} /* Muestra el botón de agregar */

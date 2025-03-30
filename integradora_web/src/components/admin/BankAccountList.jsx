@@ -12,8 +12,24 @@ import styles from "../../styles/card.module.css"
 // Modals
 import BankAccountModal from "../modals/BankAccountModal";
 
-import { admin_path, base_api_url, account_management, change_status } from "../utils/config/paths";
-import { headers, sweetAlert } from "../utils/config/config"
+import { admin_path, base_api_url, account_management, change_status } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config"
+
+import bbva from "../../assets/img/banks/bbva.png";
+import santander from "../../assets/img/banks/santander.png";
+import banorte from "../../assets/img/banks/banorte.png";
+import hsbc from "../../assets/img/banks/hsbc.png";
+import bancoAzteca from "../../assets/img/banks/banco-azteca.png";
+import citibanamex from "../../assets/img/banks/citi.png";
+
+const bankLogos = {
+  BBVA: bbva,
+  Santander: santander,
+  Banorte: banorte,
+  HSBC: hsbc,
+  "Banco Azteca": bancoAzteca,
+  Citibanamex: citibanamex
+};
 
 function BankAccountList({ accountList }) {
     const [accounts, setAccounts] = useState([]);
@@ -30,20 +46,6 @@ function BankAccountList({ accountList }) {
     const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Cargar cuentas desde localStorage
-        const storedAccounts = JSON.parse(localStorage.getItem("accounts") || "[]")
-        setAccounts(storedAccounts);
-
-        const handleStorageChange = () => {
-            const updatedAccounts = JSON.parse(localStorage.getItem("accounts") || "[]")
-            setAccounts(updatedAccounts)
-        }
-
-        window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
-    }, []);
-
     const showToastMessage = (title, body, variant = "success") => {
         setToastMessage({ title, body, variant });
         setShowToast(true);
@@ -51,8 +53,8 @@ function BankAccountList({ accountList }) {
 
     const formatAccountNumber = (number) => {
         return number.replace(/\s+/g, "") // eliminar espacios existentes
-        .replace(/(.{4})/g, "$1 ")     // cada 4 dígitos agrega espacio
-        .trim();                       // quitar espacio final
+            .replace(/(.{4})/g, "$1 ")     // cada 4 dígitos agrega espacio
+            .trim();                       // quitar espacio final
     }
 
     const handleEditAccount = (account, e) => {
@@ -62,28 +64,47 @@ function BankAccountList({ accountList }) {
         setIsEditModalOpen(true);
     }
 
-    const handleDeleteAccount = (accountId, e) => {
+    const handleDeleteAccount = (account, e) => {
         e.stopPropagation();
-
-        const accountToDelete = accounts.find((account) => account.id === accountId);
-
-        setAccountToDelete(accountId);
+        setAccountToDelete(account);
         setIsDeleteDialogOpen(true);
     };
 
-    const confirmDeleteAccount = () => {
-        if (accountToDelete) {
-            const updatedAccounts = accounts.filter((account) => account.id !== accountToDelete)
-            localStorage.setItem("accounts", JSON.stringify(updatedAccounts))
-            setAccounts(updatedAccounts)
-            setIsDeleteDialogOpen(false)
-            setAccountToDelete(null)
+    const confirmDeleteAccount = async () => {
+        if (!accountToDelete) return;
 
-            showToastMessage("Cuenta eliminada", "La cuenta bancaria ha sido eliminada con éxito", "danger")
+        const result = await handleChangeStatusAccount(accountToDelete);
 
-            window.dispatchEvent(new Event("storage"))
+        if (result?.type !== "SUCCESS") {
+            const message = result?.text || "Error al eliminar cuenta";
+            showToastMessage("Error", message, "danger");
+            setIsDeleteDialogOpen(false);
+            setAccountToDelete(null);
+            return;
         }
-    }
+
+        setAccounts((prev) => prev.filter((a) => a.id !== accountToDelete));
+        setIsDeleteDialogOpen(false);
+        setAccountToDelete(null);
+        showToastMessage("Cuenta eliminada", "La cuenta bancaria ha sido eliminada exitosamente", "danger");
+    };
+
+    const handleChangeStatusAccount = (account) => {
+        return fetch(`${base_api_url}${admin_path}${account_management}${change_status}`, {
+            method: "PUT",
+            headers: headers,
+            body: JSON.stringify({
+                accountId: account.accountId,
+                status: "INACTIVE"
+            })
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+                console.log(error);
+                return { type: "ERROR", text: "Error al eliminar la cuenta bancaria." };
+            });
+    };
+
 
     const handleSaveEditedAccount = (updatedAccount) => {
         const updatedAccounts = accounts.map((account) =>
@@ -121,22 +142,23 @@ function BankAccountList({ accountList }) {
                                     <Col xs="auto">
                                         <div>
                                             <img
-                                                src={account.logo}
-                                                alt={`Logo de ${account.name}`}
+                                                src={bankLogos[account.bankName] || ""}
+                                                alt={`Logo de ${account.bankName}`}
                                                 className={styles.ImgBank}
                                             />
+
                                         </div>
                                     </Col>
                                     <Col style={{ minWidth: 0 }}>
 
-                                        <h6 className={`mb-0 fw-bold ${styles.Title}`}>{account.name}</h6>
+                                        <h6 className={`mb-0 fw-bold ${styles.Title}`}>{account.bankname}</h6>
 
                                         <OverlayTrigger
                                             placement="top"
-                                            overlay={<Tooltip id={`tooltip-number-${account.id}`}>{account.number}</Tooltip>}
+                                            overlay={<Tooltip id={`tooltip-number-${account.id}`}>{account.accountNumber}</Tooltip>}
                                         >
                                             <p className={`text-muted mb-0 ${styles.Description}`}>
-                                               <strong>No.Cuenta:</strong> {formatAccountNumber(account.number)}
+                                                <strong>No.Cuenta:</strong> {formatAccountNumber(account.accountNumber)}
                                             </p>
                                         </OverlayTrigger>
                                         <OverlayTrigger
@@ -151,7 +173,7 @@ function BankAccountList({ accountList }) {
                                 </Row>
                                 <Row className="mt-0">
                                     <Col xs={12} className="d-flex justify-content-end gap-3">
-                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteAccount(account.id, e)}>
+                                        <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleDeleteAccount(account, e)}>
                                             <FontAwesomeIcon icon={faTrashCan} />
                                         </Button>
                                         <Button size="sm" className={`me-1 mr-2 ${styles.Icons}`} onClick={(e) => handleEditAccount(account, e)}>
@@ -181,8 +203,8 @@ function BankAccountList({ accountList }) {
                     </Button>
                 </Modal.Footer>
             </Modal>
-                        {/* Modal para editar una cuenta */}
-                        {accountToEdit && (
+            {/* Modal para editar una cuenta */}
+            {accountToEdit && (
                 <BankAccountModal
                     show={isEditModalOpen}
                     onHide={() => {

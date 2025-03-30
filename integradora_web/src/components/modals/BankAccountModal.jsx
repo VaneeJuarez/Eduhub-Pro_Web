@@ -17,39 +17,38 @@ const bankOptions = [
     { name: "Santander", logo: santander },
     { name: "Banorte", logo: banorte },
     { name: "HSBC", logo: hsbc },
-    { name: "Banco Azteca", logo: bancoAzteca},
-    { name: "Citibanamex", logo: citibanamex}  
-];
+    { name: "Banco Azteca", logo: bancoAzteca },
+    { name: "Citibanamex", logo: citibanamex }
+  ];
 
 const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
     const [formData, setFormData] = useState({
-        name: initialData.name || "",
-        number: initialData.number || "",
+        bankName: initialData.bankName || "",
+        accountNumber: initialData.accountNumber || "",
         key: initialData.key || "",
-        logo: initialData.logo || "",
     });
 
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (!show) return;
+        if (!show) return
 
         setFormData({
-            name: initialData.name || "",
-            number: initialData.number || "",
+            bankName: initialData.bankName || "",
+            accountNumber: initialData.accountNumber || "",
             key: initialData.key || "",
-            logo: initialData.logo || "",
         });
-    }, [show, initialData.id]);
+    }, [show, initialData.accountId]);
 
     const validate = () => {
         const newErrors = {};
-        if (!formData.name) newErrors.name = "Selecciona un banco";
-        if (!/^\d{10,18}$/.test(formData.number)) newErrors.number = "Número de cuenta inválido (10-18 dígitos)";
+        if (!formData.bankName) newErrors.bankName = "Selecciona un banco";
+        if (!/^\d{10,18}$/.test(formData.accountNumber)) newErrors.accountNumber = "Número de cuenta inválido (10-18 dígitos)";
         if (!/^\d{18}$/.test(formData.key)) newErrors.key = "CLABE debe tener 18 dígitos";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    }
+      };
+      
 
     const formatInBlocks = (value, blockSize = 4) => {
         return value
@@ -59,21 +58,18 @@ const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
       };
       
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
-
-        // Si cambia el banco, actualizamos el logo
-        if (name === "name") {
-            const selectedBank = bankOptions.find((bank) => bank.name === value);
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (name === "bankName") {
             setFormData((prev) => ({
-                ...prev,
-                name: value,
-                logo: selectedBank?.logo || "",
+              ...prev,
+              bankName: value
             }));
-        } else {
+          }
+           else {
             setFormData((prev) => ({
                 ...prev,
-                [name]: value,
+                [name]: value
             }));
         }
     };
@@ -104,11 +100,11 @@ const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Banco</Form.Label>
                         <Form.Select
-                            name="name"
-                            value={formData.name}
+                            name="bankName"
+                            value={formData.bankName}
                             onChange={handleChange}
                             required
-                            isInvalid={!!errors.name}
+                            isInvalid={!!errors.bankName}
                             className={styles.Select}
                         >
                             <option value="">Selecciona un banco</option>
@@ -118,29 +114,29 @@ const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
                                 </option>
                             ))}
                         </Form.Select>
-                        <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">{errors.bankName}</Form.Control.Feedback>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Número de Cuenta</Form.Label>
                         <Form.Control
                             type="text"
-                            name="number"
+                            name="accountNumber"
                             maxLength={23}
-                            value={formatInBlocks(formData.number)}
+                            value={formatInBlocks(formData.accountNumber)}
                             onChange={(e) => {
                               const rawValue = e.target.value.replace(/\s+/g, "");
                               if (/^\d{0,18}$/.test(rawValue)) {
                                 setFormData((prev) => ({
                                   ...prev,
-                                  number: rawValue,
+                                  accountNumber: rawValue,
                                 }));
                               }
                             }}
-                            isInvalid={!!errors.number}
+                            isInvalid={!!errors.accountNumber}
                             required
                         />
-                        <Form.Control.Feedback type="invalid">{errors.number}</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">{errors.accountNumber}</Form.Control.Feedback>
                     </Form.Group>
 
                     <Form.Group className="mb-3">

@@ -201,7 +201,7 @@ const Login = () => {
                 <form className={styles.sign_up_form}>
                     <h2 className={styles.title}>Restaurar Contraseña</h2>
                     <div className={styles.input_field}>
-                        <i class="bi bi-key-fill"></i>
+                        <i className="bi bi-key-fill"></i>
                         <input type="text" placeholder="Código de recuperación" onChange={(e) => setEmail(e.target.value)} />
                     </div>
                     <div className={styles.input_field}>
