@@ -39,8 +39,6 @@ const BankAccounts = () => {
       }),
     }).then(response => response.json())
       .then((result) => {
-        console.log(result);
-
         if (result.type !== 'SUCCESS') {
           if (typeof result === 'object' && !result.text) {
             const errorMessages = Object.values(result).join("\n");

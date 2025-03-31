@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Badge, Button, Card, Col, Container, Modal, Row, Toast } from "react-bootstrap";
-import { Plus } from "react-bootstrap-icons";
+import { ArrowLeft, Plus } from "react-bootstrap-icons";
 
 
 // Components
@@ -15,14 +15,21 @@ import ModuleModal from "../../components/modals/ModuleModal";
 import ModuleProgressModal from "../../components/modals/ModuleProgressModal";
 
 // Styles
+import { useUserContext } from "../../contexts/UserProvider";
 import style from "../../styles/coursecard.module.css";
 import styles from "../../styles/general.module.css";
-import { headers } from "../../utils/config/config";
-import { base_api_url, by_id, change_status, course_management, instructor_path } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { base_api_url, change_status, course_management, instructor_path } from "../../utils/config/paths";
+import { deleteModule, fetchCourseById, saveModule, updateModule } from "../../api/instructor/intructor";
+import { formatCourseDate } from "../../utils/dateUtils";
 
 function CourseDetailPage() {
+
+  const { user } = useUserContext();
+
   const { id } = useParams();
   const navigate = useNavigate();
+  const [reloadCourse, setReloadCourse] = useState(false);
 
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,9 +50,6 @@ function CourseDetailPage() {
         courseStatus: "INACTIVE"
       })
     }).then((response) => response.json())
-      .then((response) => {
-        console.log(response);
-      })
       .catch((error) => {
         console.log(error);
         sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
@@ -53,62 +57,64 @@ function CourseDetailPage() {
   };
 
   useEffect(() => {
-    console.log(id);
+    const loadCourse = async () => {
+      const result = await fetchCourseById(id);
 
-    fetch(`${base_api_url}${instructor_path}${course_management}${by_id}`, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({ courseId: id })
-    }).then((response) => response.json())
-      .then((response) => {
-        console.log(response);
-
-        if (response.type === "SUCCESS" && response.result.length > 0) {
-          const courseData = response.result.courseDetails;
-
-          console.log(courseData);
-
-          const mappedCourse = {
-            id: courseData.courseId,
-            title: courseData.title,
-            description: courseData.description,
-            image: courseData.bannerPath,
-            startDate: courseData.startDate,
-            endDate: courseData.endDate,
-            price: courseData.price,
-            size: courseData.size,
-            status: courseData.courseStatus,
-            modules: courseData.modules || [],
-            tags: courseData.categories,
-            instructor: courseData.instructor.name,
-          };
-          setCourse(mappedCourse);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
+      if (!result.success) {
         setCourse(null);
         setIsLoading(false);
-      });
-
-    // Validar si ya pasó la fecha sin aprobar
-    if (course.status === "TO_APPROVE") {
-      const courseStartDate = normalizeDate(parseDisplayDate(mappedCourse.startDate));
-      const today = normalizeDate(new Date());
-
-      if (today > courseStartDate) {
-        changeStatusCourse(mappedCourse.id);
-        showToastMessage(
-          "Curso eliminado",
-          "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
-          "danger"
-        );
-        setTimeout(() => navigate("/inst/courses"), 3000);
         return;
       }
-    }
 
-    setIsLoading(false);
+      const courseData = result.data.courseDetails;
+      
+      const mappedCourse = {
+        id: courseData.courseId,
+        title: courseData.title,
+        description: courseData.description,
+        image: courseData.bannerPath,
+        startDate: courseData.startDate,
+        endDate: courseData.endDate,
+        price: courseData.price,
+        size: courseData.size,
+        status: courseData.courseStatus,
+        modules: courseData.modules?.map((mod) => ({
+          moduleId: mod.moduleId,
+          title: mod.name,
+          order: mod.date,
+          description: mod?.description,
+          lessons: mod.sections?.map((lesson) => ({
+            title: lesson.name,
+            description: lesson.description,
+            url: lesson.contentUrl,
+            type: lesson.contentType,
+          })) || [],
+        })) || [],
+        tags: courseData.categories,
+        instructor: courseData.instructor.name,
+      };
+
+      if (mappedCourse.status === "TO_APPROVE") {
+        const courseStartDate = normalizeDate(parseDisplayDate(mappedCourse.startDate));
+        const today = normalizeDate(new Date());
+
+        if (today > courseStartDate) {
+          changeStatusCourse(mappedCourse.id);
+          showToastMessage(
+            "Curso eliminado",
+            "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
+            "danger"
+          );
+          setTimeout(() => navigate("/inst/courses"), 3000);
+          return;
+        }
+      }
+
+      setCourse(mappedCourse);
+      setIsLoading(false);
+    };
+
+    loadCourse();
   }, [id, navigate]);
 
   const showToastMessage = (title, body, variant = "success") => {
@@ -119,23 +125,12 @@ function CourseDetailPage() {
   const handlePublishCourse = () => {
     if (!course) return;
 
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]");
-    const courseIndex = courses.findIndex((c) => c.id === course.id);
-
-    if (courseIndex === -1) return;
-
     // Actualizar el estado del curso a "Pendiente de aprobar"
     const updatedCourse = { ...course, status: "TO_APPROVE" }
-    courses[courseIndex] = updatedCourse
-
-    localStorage.setItem("courses", JSON.stringify(courses))
-    setCourse(updatedCourse)
 
     // Mostrar notificación
     showToastMessage("Curso enviado", "El curso ha sido enviado para aprobación")
 
-    // Disparar evento para actualizar la lista de otras páginas
-    window.dispatch(new Event("storage"));
   };
 
   const handleDeleteCourse = () => {
@@ -152,48 +147,39 @@ function CourseDetailPage() {
     navigate("/");
   };
 
-  const handleSaveModule = (module) => {
+  const handleSaveModule = async (module) => {
     if (!course) return;
 
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]");
-    const courseIndex = courses.findIndex((c) => c.id === course.id);
+    const isEditing = !!currentModule;
 
-    if (courseIndex === -1) return;
+    console.log(currentModule);
 
-    // Si estamos editando un módulo existente
-    if (currentModule) {
-      const moduleIndex = course.modules?.findIndex((m) => m.title === currentModule.title) ?? -1
+    const body = {
+      moduleId: currentModule?.moduleId, // Solo para edición
+      name: module.title,
+      date: module.order || new Date().toISOString().split("T")[0],
+      courseId: id,
+    };
 
-      if (moduleIndex !== -1) {
-        const updatedModules = [...(course.modules || [])]
-        // Preservar las lecciones del módulo existente
-        updatedModules[moduleIndex] = {
-          ...module,
-          lessons: currentModule.lessons || [],
-        }
+    const result = isEditing ? await updateModule(body) : await saveModule(body);
 
-        const updatedCourse = { ...course, modules: updatedModules }
-        courses[courseIndex] = updatedCourse
-        setCourse(updatedCourse)
+    console.log(result);
 
-        showToastMessage("Módulo actualizado", "El módulo ha sido actualizado exitosamente")
-      }
-    } else {
-      // Si estamos agregando un nuevo módulo
-      const updatedModules = [...(course.modules || []), module]
-      const updatedCourse = { ...course, modules: updatedModules }
-      courses[courseIndex] = updatedCourse
-      setCourse(updatedCourse)
-
-      showToastMessage("Módulo agregado", "El módulo ha sido agregado exitosamente")
+    if (!result.success) {
+      sweetAlert("error", "Error", result.error, "", null);
+      return;
     }
 
-    localStorage.setItem("courses", JSON.stringify(courses));
+    showToastMessage(
+      isEditing ? "Módulo actualizado" : "Módulo agregado",
+      isEditing
+        ? "El módulo ha sido actualizado exitosamente"
+        : "El módulo ha sido agregado exitosamente"
+    );
+
     setIsModuleModalOpen(false);
     setCurrentModule(null);
-
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"));
+    setReloadCourse(true);
   };
 
   const handleEditModule = (module) => {
@@ -201,25 +187,19 @@ function CourseDetailPage() {
     setIsModuleModalOpen(true);
   };
 
-  const handleDeleteModule = (moduleTitle) => {
-    if (!course) return;
+  const handleDeleteModule = async (moduleId) => {
 
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]");
-    const courseIndex = courses.findIndex((c) => c.id === course.id);
+    console.log(moduleId);
 
-    if (courseIndex === -1) return;
+    const result = await deleteModule(moduleId);
 
-    const updatedModules = course.modules?.filter((m) => m.title !== moduleTitle) || []
-    const updatedCourse = { ...course, modules: updatedModules }
-    courses[courseIndex] = updatedCourse
+    if (!result.success) {
+      sweetAlert("error", "Error", result.error, "", null);
+      return;
+    }
 
-    localStorage.setItem("courses", JSON.stringify(courses));
-    setCourse(updatedCourse);
-
-    showToastMessage("Módulo eliminado", "El módulo ha sido eliminado exitosamente", "danger")
-
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"));
+    showToastMessage("Módulo eliminado", "El módulo ha sido eliminado exitosamente", "danger");
+    setReloadCourse(true);
   };
 
   // Generar progreso de módulos para la demostración
@@ -266,6 +246,55 @@ function CourseDetailPage() {
     return course.status === "IN_EDITION"
   }
 
+  useEffect(() => {
+    if (!reloadCourse) return;
+
+    const loadCourse = async () => {
+      const result = await fetchCourseById(id);
+
+      if (!result.success) {
+        setCourse(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const courseData = result.data.courseDetails;
+
+      const mappedCourse = {
+        id: courseData.courseId,
+        title: courseData.title,
+        description: courseData.description,
+        image: courseData.bannerPath,
+        startDate: courseData.startDate,
+        endDate: courseData.endDate,
+        price: courseData.price,
+        size: courseData.size,
+        status: courseData.courseStatus,
+        modules: courseData.modules?.map((mod) => ({
+          moduleId: mod.moduleId,
+          title: mod.name,
+          order: mod.date,
+          description: mod?.description,
+          lessons: mod.sections?.map((lesson) => ({
+            title: lesson.name,
+            description: lesson.description,
+            url: lesson.contentUrl,
+            type: lesson.contentType,
+          })) || [],
+        })) || [],
+        tags: courseData.categories,
+        instructor: courseData.instructor.name,
+      };
+
+      setCourse(mappedCourse);
+      setIsLoading(false);
+      setReloadCourse(false);
+    };
+
+    loadCourse();
+  }, [reloadCourse, id]);
+
+
   if (isLoading) {
     return (
       <Container className="py-4">
@@ -275,8 +304,6 @@ function CourseDetailPage() {
   }
 
   if (!course) {
-    console.log(course);
-
     return (
       <Container className="py-4">
         <p>Curso no encontrado</p>
@@ -290,11 +317,11 @@ function CourseDetailPage() {
   return (
     <>
       <SidebarInstructor />
-      <Header userName="Vanessa Juárez" />
+      <Header userName={user?.name} />
       <section className={styles.content} style={{ backgroundColor: "gray" }}>
-        {/* <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className={`m-5 ${style.btnBack}`}>
+        <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className={`m-5 ${style.btnBack}`}>
           <ArrowLeft className="me-2" /> Volver
-        </Button> */}
+        </Button>
         <Row className="row g-3 mb-4 mt-4 m-4">
           <Col lg={9}>
             <Card className={`mb-4 ${style.cardDetail}`}>
@@ -328,7 +355,7 @@ function CourseDetailPage() {
                       <i
                         className={`bi bi-calendar me-2 ${style.cardIcons}`}
                       ></i>
-                      {course.startDate} - {course.endDate}
+                      {formatCourseDate(course.startDate)} - {formatCourseDate(course.endDate)}
                     </div>
                     <div className="mb-2">
                       <i className={`bi bi-person me-2 ${style.cardIcons}`}></i>

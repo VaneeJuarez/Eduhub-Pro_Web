@@ -25,16 +25,16 @@ function CourseStatusCard({ course, onPublishCourse }) {
   }
 
   // Verificar si el curso está en espera de aprobación
-  const isPendingApproval = course.status === "Pendiente de aprobar";
+  const isPendingApproval = course.status === "TO_APPROVE";
 
   // Verificar si el curso está aprobado
-  const isApproved = course.status === "Aprobado"
+  const isApproved = course.status === "PUBLISHED"
 
   // Verificar si el curso está en curso
-  const isInProgress = course.status === "En Curso"
+  const isInProgress = course.status === "IN_PROGRESS"
 
   // Verificar si el curso ha finalizado
-  const isFinished = course.status === "Finalizado"
+  const isFinished = course.status === "FINALIZED"
 
   // Verificar si el curso comienza mañana
   const startsTomorrow = () => {
@@ -67,9 +67,9 @@ function CourseStatusCard({ course, onPublishCourse }) {
   // Determinar el estado actual del curso basado en las fechas
   const determineCurrentStatus = () => {
     if (hasEnded()) {
-      return "Finalizado"
+      return "FINALIZED"
     } else if (isCurrentlyInProgress()) {
-      return "En Curso"
+      return "IN_PROGRESS"
     } else if (startsTomorrow()) {
       return "Inicia Mañana"
     } else {
@@ -79,23 +79,19 @@ function CourseStatusCard({ course, onPublishCourse }) {
 
   // Actualizar el estado del curso si es necesario
   const updateCourseStatus = () => {
-    if (course.status === "Aprobado" || course.status === "En Curso") {
+    if (course.status === "PUBLISHED" || course.status === "IN_PROGRESS") {
       const currentStatus = determineCurrentStatus()
 
       // Si el estado actual no coincide con el estado almacenado, actualizarlo
       if (
-        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
-        (currentStatus === "En Curso" && course.status !== "En Curso")
+        (currentStatus === "FINALIZED" && course.status !== "FINALIZED") ||
+        (currentStatus === "IN_PROGRESS" && course.status !== "IN_PROGRESS")
       ) {
         const courses = JSON.parse(localStorage.getItem("courses") || "[]")
         const courseIndex = courses.findIndex((c) => c.id === course.id)
 
         if (courseIndex !== -1) {
           courses[courseIndex].status = currentStatus
-          localStorage.setItem("courses", JSON.stringify(courses))
-
-          // Disparar evento para actualizar la lista en otras páginas
-          window.dispatchEvent(new Event("storage"))
         }
       }
     }
@@ -150,7 +146,7 @@ function CourseStatusCard({ course, onPublishCourse }) {
           )}
 
           {/* Curso pendiente (no enviado) */}
-          {course.status === "Pendiente" && (
+          {course.status === "IN_EDITION" && (
             <div className="text-center py-3">
               <p className="mb-3">¿Deseas enviar tu curso?</p>
               <Button

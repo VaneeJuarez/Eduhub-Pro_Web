@@ -41,7 +41,6 @@ function CourseList({ courses, setCourses, refreshCourses }) {
 
     // Si se eliminaron cursos, actualizar localStorage
     if (filteredCourses.length < courses.length) {
-      localStorage.setItem("courses", JSON.stringify(filteredCourses))
       showToastMessage(
         "Cursos actualizados",
         "Se han eliminado cursos pendientes de aprobación con fecha de inicio vencida",
@@ -109,9 +108,6 @@ function CourseList({ courses, setCourses, refreshCourses }) {
     const updatedCourses = courses.map((course) =>
       course.courseId === updatedCourse.courseId ? { ...updatedCourse, courseId: course.courseId } : course,
     )
-
-    console.log(updatedCourse);
-
     editCourse(updatedCourse);
 
     setCourses(updatedCourses);
@@ -177,8 +173,6 @@ function CourseList({ courses, setCourses, refreshCourses }) {
       })
     }).then((response) => response.json())
       .then((response) => {
-        console.log(response);
-
         refreshCourses();
       })
       .catch((error) => {

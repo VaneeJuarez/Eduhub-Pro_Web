@@ -19,6 +19,8 @@ import LessonModal from "../modals/LessonModal";
 import styles from "../../styles/general.module.css"
 // styles
 import style from "../../styles/coursecard.module.css";
+import { createSection, deleteSection } from "../../api/instructor/intructor";
+import { sweetAlert } from "../../utils/config/config";
 
 function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false, onViewProgress, course, isAdmin = false }) {
   const [currentModuleIndex, setCurrentModuleIndex] = useState(null)
@@ -48,80 +50,65 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
     setShowDeleteLessonDialog(true)
   }
 
-  const confirmDeleteLesson = () => {
-    if (!lessonToDelete) return
+  const confirmDeleteLesson = async () => {
+    if (!lessonToDelete) return;
 
-    const { moduleIndex, lessonIndex } = lessonToDelete
-    const updatedModules = [...modules]
-    updatedModules[moduleIndex].lessons.splice(lessonIndex, 1)
+    const { moduleIndex, lessonIndex } = lessonToDelete;
+    const lessonId = modules[moduleIndex].lessons[lessonIndex].sectionId;
 
-    // Actualizar en localStorage
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const courseIndex = courses.findIndex(
-      (c) => c.modules && c.modules.some((m) => m.title === modules[moduleIndex].title),
-    )
+    const result = await deleteSection(lessonId);
 
-    if (courseIndex !== -1) {
-      const moduleIndexInCourse = courses[courseIndex].modules.findIndex((m) => m.title === modules[moduleIndex].title)
-
-      if (moduleIndexInCourse !== -1) {
-        courses[courseIndex].modules[moduleIndexInCourse] = updatedModules[moduleIndex]
-        localStorage.setItem("courses", JSON.stringify(courses))
-      }
+    if (!result.success) {
+      sweetAlert("error", "Error", result.error, "", null);
+      return;
     }
 
-    // Cerrar el diálogo y resetear los estados
-    setShowDeleteLessonDialog(false)
-    setLessonToDelete(null)
+    // sweetAlert('success', "Lección eliminada", "La lección ha sido eliminada exitosamente", "", null);
+    setShowDeleteLessonDialog(false);
+    setLessonToDelete(null);
+    setReloadCourse(true);
+  };
 
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"))
-  }
+  const handleSaveLesson = async (lesson) => {
+    if (currentModuleIndex === null) return;
 
-  const handleSaveLesson = (lesson) => {
-    if (currentModuleIndex === null) return
+    const module = modules[currentModuleIndex];
+    const isEditing = currentLessonIndex !== null;
+    const sectionBody = {
+      name: lesson.title,
+      description: lesson.description,
+      contentUrl: lesson.content,
+      contentType: lesson.type,
+      moduleId: module.moduleId,
+    };
 
-    const updatedModules = [...modules]
-
-    if (currentLessonIndex !== null) {
-      // Editar lección existente
-      updatedModules[currentModuleIndex].lessons[currentLessonIndex] = lesson
+    if (isEditing) {
+      sectionBody.sectionId = module.lessons[currentLessonIndex].sectionId;
+      const result = await updateSection(sectionBody);
+      if (!result.success) {
+        sweetAlert("error", "Error", result.error, "", null);
+        return;
+      }
     } else {
-      // Agregar nueva lección
-      if (!updatedModules[currentModuleIndex].lessons) {
-        updatedModules[currentModuleIndex].lessons = []
-      }
-      updatedModules[currentModuleIndex].lessons.push(lesson)
-    }
-
-    // Actualizar en localStorage
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const courseIndex = courses.findIndex(
-      (c) => c.modules && c.modules.some((m) => m.title === modules[currentModuleIndex].title),
-    )
-
-    if (courseIndex !== -1) {
-      const moduleIndexInCourse = courses[courseIndex].modules.findIndex(
-        (m) => m.title === modules[currentModuleIndex].title,
-      )
-
-      if (moduleIndexInCourse !== -1) {
-        courses[courseIndex].modules[moduleIndexInCourse] = updatedModules[currentModuleIndex]
-        localStorage.setItem("courses", JSON.stringify(courses))
+      const result = await createSection(sectionBody);
+      if (!result.success) {
+        sweetAlert("error", "Error", result.error, "", null);
+        return;
       }
     }
 
-    // Cerrar el modal y resetear los estados
-    setIsLessonModalOpen(false)
-    setCurrentLessonIndex(null)
-    setCurrentModuleIndex(null)
+    // sweetAlert("success", "Lección guardada", `La lección ha sido ${isEditing ? "actualizada" : "agregada"} exitosamente`, "", null);
 
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"))
-  }
+    setIsLessonModalOpen(false);
+    setCurrentLessonIndex(null);
+    setCurrentModuleIndex(null);
+    setReloadCourse(true);
+  };
 
-  const confirmDeleteModule = (moduleTitle) => {
-    setModuleToDelete(moduleTitle)
+  const confirmDeleteModule = (moduleId) => {
+    console.log(moduleId);
+
+    setModuleToDelete(moduleId)
     setIsDeleteDialogOpen(true)
   }
 
@@ -147,8 +134,8 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
   }
   return (
     <>
-    <Accordion defaultActiveKey="0" className={`ml-4 ${styles.Accordion}`}>
-    {modules.map((module, moduleIndex) => (
+      <Accordion defaultActiveKey="0" className={`ml-4 ${styles.Accordion}`}>
+        {modules.map((module, moduleIndex) => (
           <Accordion.Item key={moduleIndex} eventKey={moduleIndex.toString()}>
             <Accordion.Header>
               <div className="d-flex justify-content-between align-items-center w-100 pe-4">
@@ -167,13 +154,13 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
                       variant="link"
                       size="sm"
                       className={`p-0 mr-3 ${style.Icons}`}
-                      onClick={() => confirmDeleteModule(module.title)}
+                      onClick={() => confirmDeleteModule(module.moduleId)}
                     >
                       <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon>
                     </Button>
                   </div>
                 )}
-                                {!isAdmin && !isPublished && course && course.status === "En Curso" && (
+                {!isAdmin && !isPublished && course && course.status === "En Curso" && (
                   <div className="d-flex" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="link"
@@ -259,8 +246,8 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
         </Modal.Footer>
       </Modal>
 
-            {/* Modal de confirmación para eliminar lección */}
-            <Modal show={showDeleteLessonDialog} onHide={() => setShowDeleteLessonDialog(false)}>
+      {/* Modal de confirmación para eliminar lección */}
+      <Modal show={showDeleteLessonDialog} onHide={() => setShowDeleteLessonDialog(false)}>
         <Modal.Header closeButton>
           <Modal.Title>¿Estás seguro?</Modal.Title>
         </Modal.Header>

@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Modal, Button, Form } from "react-bootstrap"
+import { Modal, Button, Form, Spinner } from "react-bootstrap"
 
 // Styles
 import styles from "../../styles/modal.module.css"
+import { uploadFile } from "../../api/global/global"
 
 function LessonModal({ show, onHide, onSave, initialData = {} }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     description: initialData?.description || "",
   })
 
+  const [isUploading, setIsUploading] = useState(false);
   const [contentFile, setContentFile] = useState(null)
   const [contentPreview, setContentPreview] = useState(initialData?.content || "")
 
@@ -33,16 +35,26 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     }))
   }
 
-  const handleContentFileChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+  const handleContentFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-    // Crear una URL para el archivo
-    const contentUrl = URL.createObjectURL(file)
-    setContentFile(file)
-    setContentPreview(contentUrl)
-    setFormData((prev) => ({ ...prev, content: contentUrl }))
-  }
+    setIsUploading(true);
+
+    const result = await uploadFile(file);
+
+    if (!result.success) {
+      setIsUploading(false);
+      return;
+    }
+
+    const contentUrl = result.data;
+    setContentFile(file);
+    setContentPreview(contentUrl);
+    setFormData((prev) => ({ ...prev, content: contentUrl }));
+
+    setIsUploading(false);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -125,6 +137,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
           <Form.Group className="mb-3">
             <Form.Label>Descripción</Form.Label>
             <Form.Control
+              required
               as="textarea"
               rows={3}
               name="description"
@@ -137,8 +150,15 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
           <Button variant="secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="primary" type="submit">
-            Guardar
+          <Button variant="primary" type="submit" disabled={isUploading || !formData.content}>
+            {isUploading ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Subiendo...
+              </>
+            ) : (
+              "Guardar"
+            )}
           </Button>
         </Modal.Footer>
       </Form>
