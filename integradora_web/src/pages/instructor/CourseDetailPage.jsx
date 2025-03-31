@@ -1,23 +1,24 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { Container, Row, Col, Button, Badge, Card, Toast, Modal } from "react-bootstrap"
-import { ArrowLeft, Plus } from "react-bootstrap-icons";
+import { Badge, Button, Card, Col, Container, Modal, Row, Toast } from "react-bootstrap";
+import { Plus } from "react-bootstrap-icons";
 
 
 // Components
-import SidebarInstructor from "../../components/instructor/SidebarInstructor";
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import CourseStatusCard from "../../components/card/CourseStatusCard";
 import ModuleAccordion from "../../components/courses/ModuleAccordion";
+import SidebarInstructor from "../../components/instructor/SidebarInstructor";
 import ModuleModal from "../../components/modals/ModuleModal";
-import CourseStatusCard from "../../components/card/CourseStatusCard"
-import ModuleProgressModal from "../../components/modals/ModuleProgressModal"
-import { parseDisplayDate, normalizeDate } from "../../utils/dateUtils";
+import ModuleProgressModal from "../../components/modals/ModuleProgressModal";
 
 // Styles
-import styles from "../../styles/general.module.css";
 import style from "../../styles/coursecard.module.css";
+import styles from "../../styles/general.module.css";
+import { headers } from "../../utils/config/config";
+import { base_api_url, by_id, change_status, course_management, instructor_path } from "../../utils/config/paths";
 
 function CourseDetailPage() {
   const { id } = useParams();
@@ -33,36 +34,78 @@ function CourseDetailPage() {
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
+  const changeStatusCourse = (courseId) => {
+    return fetch(`${base_api_url}${instructor_path}${course_management}${change_status}`, {
+      method: "PUT",
+      headers: headers,
+      body: JSON.stringify({
+        courseId: courseId,
+        courseStatus: "INACTIVE"
+      })
+    }).then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+        sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
+      });
+  };
+
   useEffect(() => {
-    window.scrollTo(0, 0);
+    console.log(id);
 
-    // Cargar el curso desde localStorage
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]");
-    const foundCourse = courses.find((c) => c.id === id);
+    fetch(`${base_api_url}${instructor_path}${course_management}${by_id}`, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({ courseId: id })
+    }).then((response) => response.json())
+      .then((response) => {
+        console.log(response);
 
-    if (foundCourse) {
-      // Verificar si el curso está pendiente de aprobación y ya pasó su fecha de inicio
-      if (foundCourse.status === "Pendiente de aprobar") {
-        const courseStartDate = normalizeDate(parseDisplayDate(foundCourse.startDate))
-        const today = normalizeDate(new Date())
+        if (response.type === "SUCCESS" && response.result.length > 0) {
+          const courseData = response.result.courseDetails;
 
-        if (today > courseStartDate) {
-          // Eliminar el curso
-          const updatedCourses = courses.filter((c) => c.id !== id)
-          localStorage.setItem("courses", JSON.stringify(updatedCourses))
+          console.log(courseData);
 
-          // Mostrar notificación y redirigir
-          showToastMessage(
-            "Curso eliminado",
-            "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
-            "danger",
-          )
-          setTimeout(() => navigate("/"), 3000)
-          return
+          const mappedCourse = {
+            id: courseData.courseId,
+            title: courseData.title,
+            description: courseData.description,
+            image: courseData.bannerPath,
+            startDate: courseData.startDate,
+            endDate: courseData.endDate,
+            price: courseData.price,
+            size: courseData.size,
+            status: courseData.courseStatus,
+            modules: courseData.modules || [],
+            tags: courseData.categories,
+            instructor: courseData.instructor.name,
+          };
+          setCourse(mappedCourse);
         }
-      }
+      })
+      .catch((error) => {
+        console.log(error);
+        setCourse(null);
+        setIsLoading(false);
+      });
 
-      setCourse(foundCourse)
+    // Validar si ya pasó la fecha sin aprobar
+    if (course.status === "TO_APPROVE") {
+      const courseStartDate = normalizeDate(parseDisplayDate(mappedCourse.startDate));
+      const today = normalizeDate(new Date());
+
+      if (today > courseStartDate) {
+        changeStatusCourse(mappedCourse.id);
+        showToastMessage(
+          "Curso eliminado",
+          "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
+          "danger"
+        );
+        setTimeout(() => navigate("/inst/courses"), 3000);
+        return;
+      }
     }
 
     setIsLoading(false);
@@ -82,7 +125,7 @@ function CourseDetailPage() {
     if (courseIndex === -1) return;
 
     // Actualizar el estado del curso a "Pendiente de aprobar"
-    const updatedCourse = { ...course, status: "Pendiente de aprobar" }
+    const updatedCourse = { ...course, status: "TO_APPROVE" }
     courses[courseIndex] = updatedCourse
 
     localStorage.setItem("courses", JSON.stringify(courses))
@@ -220,7 +263,7 @@ function CourseDetailPage() {
   // Verificar si el curso está en un estado editable
   const isEditable = () => {
     if (!course) return false
-    return course.status === "Pendiente"
+    return course.status === "IN_EDITION"
   }
 
   if (isLoading) {
@@ -232,6 +275,8 @@ function CourseDetailPage() {
   }
 
   if (!course) {
+    console.log(course);
+
     return (
       <Container className="py-4">
         <p>Curso no encontrado</p>
@@ -242,39 +287,6 @@ function CourseDetailPage() {
     )
   }
 
-  const fetchCoursebyId = async () => {
-    await fetch(`${base_api_url}${instructor_path}${course_management}/find/${id}`, {
-      method: "GET",
-      headers,
-    }).then(response => response.json())
-      .then(response => {
-        if (response.type === "SUCCESS" && response.result.length > 0) {
-          const courseData = response.result[0];
-
-          const mappedCourse = {
-            ...courseData,
-            id: courseData.courseId,
-            title: courseData.title,
-            description: courseData.description,
-            image: courseData.bannerPath,
-            startDate: courseData.startDate,
-            endDate: courseData.endDate,
-            price: courseData.price,
-            size: courseData.size,
-            status: courseData.courseStatus,
-            modules: courseData.modules || [],
-            tags: courseData.categories.map(c => c.name),
-            categoriesId: courseData.categories.map(c => c.categoryId),
-            instructor: courseData.instructor.name,
-          };
-
-          setCourse(mappedCourse);
-        } else {
-          setCourse(null);
-        }
-        setIsLoading(false);
-      });
-  }
   return (
     <>
       <SidebarInstructor />
@@ -308,7 +320,7 @@ function CourseDetailPage() {
                           text="light"
                           className={`py-1 px-2 ${style.cardTag}`}
                         >
-                          {tag}
+                          {tag.name}
                         </Badge>
                       ))}
                     </div>
