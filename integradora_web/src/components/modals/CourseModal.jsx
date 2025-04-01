@@ -237,8 +237,6 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     // Extraer la URL de la imagen (respuesta como string plano)
     const url = await res.text();
 
-    console.log(url);
-
     setFormData((prev) => ({ ...prev, bannerPath: url }));
     setIsUploading(false);
   };

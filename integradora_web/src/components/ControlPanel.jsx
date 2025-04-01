@@ -2,7 +2,6 @@ import React from "react";
 
 import styles from '../styles/panel.module.css'
 
-
 const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [], onAddClick }) => (
   <div className="container mt-5">
     <div className="row align-items-center">

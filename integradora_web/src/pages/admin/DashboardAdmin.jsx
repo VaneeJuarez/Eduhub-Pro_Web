@@ -39,9 +39,6 @@ const DashboardAdmin = () => {
       headers: headers,
     }).then(response => response.json())
       .then(response => {
-
-        // console.log(response);
-
         if (response.type !== 'SUCCESS') {
           if (typeof response === 'object' && !response.text) {
             const errorMessages = Object.values(response).join("\n");
