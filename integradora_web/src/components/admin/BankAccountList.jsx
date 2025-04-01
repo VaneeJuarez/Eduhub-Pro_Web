@@ -12,7 +12,7 @@ import styles from "../../styles/card.module.css"
 // Modals
 import BankAccountModal from "../modals/BankAccountModal";
 
-import { admin_path, base_api_url, account_management, change_status } from "../../utils/config/paths";
+import { admin_path, base_api_url, account_management, change_status, course_management, update } from "../../utils/config/paths";
 import { headers, sweetAlert } from "../../utils/config/config"
 
 import bbva from "../../assets/img/banks/bbva.png";
@@ -31,10 +31,11 @@ const bankLogos = {
   Citibanamex: citibanamex
 };
 
-function BankAccountList({ accountList }) {
-    const [accounts, setAccounts] = useState([]);
+function BankAccountList({ accountList, refreshAccounts }) {
+    const [accounts, setAccounts] = useState(accountList);
 
     useEffect(() => {
+        refreshAccounts();
         setAccounts(accountList);
     }, [accountList]);
 
@@ -44,18 +45,13 @@ function BankAccountList({ accountList }) {
     const [accountToEdit, setAccountToEdit] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
-    const navigate = useNavigate();
 
     const showToastMessage = (title, body, variant = "success") => {
         setToastMessage({ title, body, variant });
         setShowToast(true);
     };
 
-    const formatAccountNumber = (number) => {
-        return number.replace(/\s+/g, "") // eliminar espacios existentes
-            .replace(/(.{4})/g, "$1 ")     // cada 4 dígitos agrega espacio
-            .trim();                       // quitar espacio final
-    }
+    const formatAccountNumber = (number) => number;
 
     const handleEditAccount = (account, e) => {
         e.stopPropagation();
@@ -83,7 +79,7 @@ function BankAccountList({ accountList }) {
             return;
         }
 
-        setAccounts((prev) => prev.filter((a) => a.id !== accountToDelete));
+        setAccounts((prev) => prev.filter((a) => a.accountId !== accountToDelete.accountId));
         setIsDeleteDialogOpen(false);
         setAccountToDelete(null);
         showToastMessage("Cuenta eliminada", "La cuenta bancaria ha sido eliminada exitosamente", "danger");
@@ -108,19 +104,51 @@ function BankAccountList({ accountList }) {
 
     const handleSaveEditedAccount = (updatedAccount) => {
         const updatedAccounts = accounts.map((account) =>
-            account.id === updatedAccount.id ? { ...updatedAccount, id: account.id } : account,
-        )
+            account.accountId === updatedAccount.accountId ? { ...updatedAccount, accountId: account.accountId } : account,
+        );
 
-        localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
+        console.log(updatedAccount);
+
+        editAccount(updatedAccount);
+
         setAccounts(updatedAccounts);
         setIsEditModalOpen(false);
         setAccountToEdit(null);
 
         showToastMessage("Cuenta actualizada", "La cuenta bancaria ha sido actualizada exitosamente")
 
-        window.dispatchEvent(new Event("storage"));
     };
 
+    const editAccount = async (account) => {
+        await fetch(`${base_api_url}${admin_path}${account_management}${update}`, {
+            method: "PUT",
+            headers: headers,
+            body: JSON.stringify({
+                accountId: account.accountId,
+                bankName: account.bankName,
+                accountNumber: account.accountNumber,
+                key: account.key
+            }),
+        }).then(response => response.json())
+        .then((result) => {
+            if (result.type !== 'SUCCESS') {
+                if (typeof result === 'object' && !result.text) {
+                  const errorMessages = Object.values(result).join("\n");
+                  sweetAlert('error', 'Error', errorMessages, '');
+                } else if (result.text) {
+                  sweetAlert('error', 'Error', result.text, '');
+                }
+                return;
+              }
+
+              refreshAccounts();
+              setIsEditModalOpen(false);
+        }).catch((error) => {
+            console.log(error);
+            sweetAlert('error', "Error", "No pudimos editar la cuenta. Intentálo nuevamente.", "", null);
+        });
+    }
+    
     if (accounts.length === 0) {
         return (
             <div className="text-center py-5">

@@ -26,6 +26,31 @@ const MyCourses = () => {
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const filteredCourses = courses.length > 0 ? courses.filter((course) => {
+    const status = course.courseStatus?.toUpperCase();
+
+    if (selectedFilter === "Cursos") {
+      return ["PUBLISHED", "IN_EDITION", "FINALIZED"].includes(status);
+    } else if (selectedFilter === "En Curso") {
+      return status === "IN_PROGRESS";
+    } else if (selectedFilter === "Pendientes") {
+      return status === "TO_APPROVE";
+    }
+    return true;
+  }).filter((course) => {
+    // Filtro por búsqueda
+    if (!searchTerm) return true;
+    const lowerSearch = searchTerm.toLowerCase();
+
+    const titleMatch = course.title?.toLowerCase().includes(lowerSearch);
+    const instructorMatch = course.instructor?.name?.toLowerCase().includes(lowerSearch);
+    const categoryMatch = course.categories?.some(cat =>
+      cat.name?.toLowerCase().includes(lowerSearch)
+    );
+
+    return titleMatch || instructorMatch || categoryMatch;
+  }) : [];
+
   const handleSaveCourse = async (course) => {
     await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
       method: "POST",
@@ -99,7 +124,7 @@ const MyCourses = () => {
           toggleOptions={["Cursos", "En Curso", "Pendientes"]}
           onAddClick={() => setIsModalOpen(true)}
         />
-        <CourseList setCourses={setCourses} courses={courses} refreshCourses={fetchAllCourses} />
+        <CourseList setCourses={setCourses} courses={filteredCourses} refreshCourses={fetchAllCourses} />
         <CourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
       </section>
       <Footer />

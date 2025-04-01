@@ -43,36 +43,29 @@ const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
     const validate = () => {
         const newErrors = {};
         if (!formData.bankName) newErrors.bankName = "Selecciona un banco";
-        if (!/^\d{10,18}$/.test(formData.accountNumber)) newErrors.accountNumber = "Número de cuenta inválido (10-18 dígitos)";
+        if (!/^\d{10,11}$/.test(formData.accountNumber)) {
+            newErrors.accountNumber = "Número de cuenta inválido (10-11 dígitos)";
+          }          
         if (!/^\d{18}$/.test(formData.key)) newErrors.key = "CLABE debe tener 18 dígitos";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
       };
       
-
-    const formatInBlocks = (value, blockSize = 4) => {
-        return value
-          .replace(/\s+/g, "") // quitar espacios
-          .match(new RegExp(`.{1,${blockSize}}`, "g")) // agrupar
-          ?.join(" ") || ""; // unir con espacio
-      };
-      
-
       const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "bankName") {
-            setFormData((prev) => ({
-              ...prev,
-              bankName: value
-            }));
+    
+        if (name === "accountNumber") {
+          if (/^\d{0,11}$/.test(value)) {
+            setFormData((prev) => ({ ...prev, accountNumber: value }));
           }
-           else {
-            setFormData((prev) => ({
-                ...prev,
-                [name]: value
-            }));
+        } else if (name === "key") {
+          if (/^\d{0,18}$/.test(value)) {
+            setFormData((prev) => ({ ...prev, key: value }));
+          }
+        } else {
+          setFormData((prev) => ({ ...prev, [name]: value }));
         }
-    };
+      };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -122,17 +115,9 @@ const BankAccountModal = ({ show, onHide, onSave, initialData = {} }) => {
                         <Form.Control
                             type="text"
                             name="accountNumber"
-                            maxLength={23}
-                            value={formatInBlocks(formData.accountNumber)}
-                            onChange={(e) => {
-                              const rawValue = e.target.value.replace(/\s+/g, "");
-                              if (/^\d{0,18}$/.test(rawValue)) {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  accountNumber: rawValue,
-                                }));
-                              }
-                            }}
+                            maxLength={11}
+                            value={formData.accountNumber}
+                            onChange={handleChange}
                             isInvalid={!!errors.accountNumber}
                             required
                         />

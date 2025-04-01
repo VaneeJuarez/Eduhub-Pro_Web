@@ -28,6 +28,8 @@ const BankAccounts = () => {
   const [response, setResponse] = useState(false);
 
   const handleSaveAccount = async (account) => {
+    console.log(account);
+    
     await fetch(`${base_api_url}${admin_path}${account_management}${save}`, {
       method: "POST",
       headers: headers,
@@ -92,7 +94,7 @@ const BankAccounts = () => {
           onAddClick={() => setIsModalOpen(true)}
           modalId="addAccountModal" // Pasar el id del modal
         />
-        <BankAccountList accountList={accountList} />
+        <BankAccountList accountList={accountList} refreshAccounts={fetchAllAccounts} />
         <BankAccountModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveAccount} />
       </section>
       <Footer />
