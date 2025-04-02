@@ -9,9 +9,9 @@ import { USER_ACTIONS } from "../../utils/config/enums";
 import { auth_path, base_api_url, logout } from "../../utils/config/paths";
 
 const menuItems = [
-  { label: "Mis Cursos", link: "#", icon: "bi bi-book" },
-  { label: "Mi Perfil", link: "#", icon: "bi bi-person" },
-  { label: "Soporte Técnico", link: "#", icon: "bi bi-wrench" },
+  { label: "Mis Cursos", link: "/inst/courses", icon: "bi bi-book" },
+  { label: "Mi Perfil", link: "/inst/profile", icon: "bi bi-person" },
+  { label: "Soporte Técnico", link: "/inst/support", icon: "bi bi-wrench" },
 ];
 
 const SidebarInstructor = () => {
