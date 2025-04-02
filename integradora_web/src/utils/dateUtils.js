@@ -1,33 +1,16 @@
-// src/utils/dateUtils.js
-
-/* export function parseDisplayDate(displayDate) {
-  if (!displayDate) return null;
-  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-  const [month, day] = displayDate.split(" ");
-  const monthIndex = months.indexOf(month);
-  if (monthIndex === -1) return null;
-
-  const currentYear = new Date().getFullYear();
-  return new Date(currentYear, monthIndex, parseInt(day, 10), 0, 0, 0); // Local time
-} */
-
 export const parseDisplayDate = (dateString) => {
   if (!dateString || typeof dateString !== "string") return null;
 
-  const parsed = new Date(dateString);
+  const parsed = new Date(dateString + "T00:00:00");
 
-  // Verificar que la fecha sea válida
-  if (isNaN(parsed.getTime())) return null;
-
-  return parsed;
+  return isNaN(parsed.getTime()) ? null : parsed;
 };
 
-
 export function normalizeDate(date) {
-  if (!date) return null;
-  const normalized = new Date(date);
-  normalized.setHours(0, 0, 0, 0);
-  return normalized;
+  // Soporta tanto string como objeto Date
+  const parsed = typeof date === "string" ? new Date(date + "T00:00:00") : new Date(date);
+  parsed.setHours(0, 0, 0, 0);
+  return parsed;
 }
 
 export function isSameDay(dateA, dateB) {
@@ -39,15 +22,16 @@ export function isSameDay(dateA, dateB) {
 }
 
 export function isTomorrow(date) {
+  if (!date) return false;
+
+  const inputDate = normalizeDate(date); // puede ser string o Date
   const today = normalizeDate(new Date());
   const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setDate(today.getDate() + 1);
 
-  const inputDate = normalizeDate(date);
   return isSameDay(inputDate, tomorrow);
 }
 
-// dateUtils.js
 export function formatCourseDate(dateString) {
   const date = new Date(dateString + "T00:00:00");
   if (isNaN(date.getTime())) return "Fecha inválida";
@@ -61,7 +45,6 @@ export function formatCourseDate(dateString) {
   let month = parts.find(p => p.type === 'month').value;
   const day = parts.find(p => p.type === 'day').value;
 
-  // Capitaliza la primera letra del mes
   month = month.charAt(0).toUpperCase() + month.slice(1);
 
   return `${month} ${day}`;

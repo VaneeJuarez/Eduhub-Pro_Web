@@ -1,121 +1,117 @@
 "use client"
 
-import { Modal, Button, Form, Row, Col, Card, Badge, ButtonGroup } from "react-bootstrap"
+import { Modal, Button, Form, Row, Col, Card, Badge, ButtonGroup, ProgressBar } from "react-bootstrap"
 import { useState } from "react"
-import { CheckCircleFill, XCircleFill, PersonFill } from "react-bootstrap-icons"
+import { CheckCircleFill, XCircleFill, PersonFill, Search } from "react-bootstrap-icons"
 
-function ModuleProgressModal({ show, onHide, module }) {
+function ModuleProgressModal({ show, onHide, module, course }) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [filter, setFilter] = useState("all") // 'all', 'completed', 'pending'
+  const [filter, setFilter] = useState("Completado") // 'Completado', 'Pendiente'
 
-  if (!module) return null
+  if (!module || !course) return null
 
   // Filtrar estudiantes según el término de búsqueda y el filtro seleccionado
-  const filteredStudents = module.progress.filter((student) => {
-    const matchesSearch =
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = module.progress
+    ? module.progress.filter((student) => {
+        const matchesSearch =
+          student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          student.email.toLowerCase().includes(searchTerm.toLowerCase())
 
-    if (filter === "all") return matchesSearch
-    if (filter === "completed") return matchesSearch && student.completed
-    if (filter === "pending") return matchesSearch && !student.completed
-
-    return matchesSearch
-  })
+        if (filter === "Completado") return matchesSearch && student.completed
+        if (filter === "Pendiente") return matchesSearch && !student.completed
+        return matchesSearch
+      })
+    : []
 
   // Calcular estadísticas
-  const completedCount = module.progress.filter((student) => student.completed).length
-  const completionRate = Math.round((completedCount / module.progress.length) * 100)
+  const completedCount = module.progress ? module.progress.filter((student) => student.completed).length : 0
+  const totalStudents = module.progress ? module.progress.length : 0
+  const completionRate = totalStudents > 0 ? Math.round((completedCount / totalStudents) * 100) : 0
+  const averageProgress =
+    totalStudents > 0
+      ? Math.round(module.progress.reduce((sum, student) => sum + student.progress, 0) / totalStudents)
+      : 0
 
   return (
-    <Modal show={show} onHide={onHide} size="lg">
+    <Modal show={show} onHide={onHide} size="lg" dialogClassName="modal-90w">
       <Modal.Header closeButton>
         <Modal.Title>Progreso del Módulo: {module.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="mb-3 p-3 bg-light rounded">
-          <div className="d-flex justify-content-between mb-2">
-            <div>
-              <strong>Total de estudiantes:</strong> {module.progress.length}
-            </div>
-            <div>
-              <strong>Completado por:</strong> {completedCount} estudiantes ({completionRate}%)
-            </div>
-          </div>
-          <div className="progress">
-            <div
-              className="progress-bar bg-success"
-              role="progressbar"
-              style={{ width: `${completionRate}%` }}
-              aria-valuenow={completionRate}
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              {completionRate}%
-            </div>
-          </div>
-        </div>
+        
 
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <Form.Control
-            placeholder="Buscar estudiantes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="me-2"
-            style={{ maxWidth: "300px" }}
-          />
+          <div className="d-flex align-items-center">
+            <Form.Control
+              placeholder="Buscar por nombre o correo..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="me-2"
+              style={{ width: "300px" }}
+              aria-label="Buscar estudiantes"
+            />
+            <Search className="text-muted position-relative" style={{ right: "30px" }} />
+          </div>
 
           <ButtonGroup>
-            <Button variant={filter === "all" ? "primary" : "outline-primary"} onClick={() => setFilter("all")}>
-              Todos
-            </Button>
             <Button
-              variant={filter === "completed" ? "success" : "outline-success"}
-              onClick={() => setFilter("completed")}
+              variant={filter === "Completado" ? "success" : "outline-success"}
+              onClick={() => setFilter("Completado")}
             >
               Completados
             </Button>
-            <Button variant={filter === "pending" ? "warning" : "outline-warning"} onClick={() => setFilter("pending")}>
+            <Button
+              variant={filter === "Pendiente" ? "warning" : "outline-warning"}
+              onClick={() => setFilter("Pendiente")}
+            >
               Pendientes
             </Button>
           </ButtonGroup>
         </div>
 
         {filteredStudents.length > 0 ? (
-          <Row xs={1} md={2} className="g-3">
+          <div className="student-list">
             {filteredStudents.map((student) => (
-              <Col key={student.id}>
-                <Card className={student.completed ? "border-success" : "border-warning"}>
-                  <Card.Body>
-                    <div className="d-flex align-items-center mb-2">
-                      <div className="bg-light rounded-circle p-2 me-2">
-                        <PersonFill size={24} />
+              <Card key={student.id} className={`mb-3 ${student.completed ? "border-success" : "border-warning"}`}>
+                <Card.Body>
+                  <Row>
+                    <Col md={6}>
+                      <div className="d-flex align-items-center">
+                        <div className="bg-light rounded-circle p-2 me-3">
+                          <PersonFill size={24} />
+                        </div>
+                        <div>
+                          <h5 className="mb-0">{student.name}</h5>
+                          <p className="text-muted mb-0">{student.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <Card.Title className="mb-0 fs-5">{student.name}</Card.Title>
-                        <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
+                    </Col>
+                    <Col md={6}>
+                      <div className="d-flex flex-column align-items-end h-100">
+                        <Badge bg={student.completed ? "success" : "warning"} className="mb-2 py-2 px-3">
+                          {student.completed ? (
+                            <>
+                              <CheckCircleFill className="me-1" /> Completado
+                            </>
+                          ) : (
+                            <>
+                              <XCircleFill className="me-1" /> En progreso
+                            </>
+                          )}
+                        </Badge>
+
+                        
                       </div>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <Badge bg={student.completed ? "success" : "warning"} className="py-2 px-3">
-                        {student.completed ? (
-                          <>
-                            <CheckCircleFill className="me-1" /> Completado
-                          </>
-                        ) : (
-                          <>
-                            <XCircleFill className="me-1" /> Pendiente
-                          </>
-                        )}
-                      </Badge>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
             ))}
-          </Row>
+          </div>
         ) : (
-          <p className="text-center py-3">No se encontraron estudiantes con ese criterio de búsqueda.</p>
+          <div className="text-center py-5">
+            <p className="mb-0">No se encontraron estudiantes con ese criterio de búsqueda.</p>
+          </div>
         )}
       </Modal.Body>
       <Modal.Footer>
