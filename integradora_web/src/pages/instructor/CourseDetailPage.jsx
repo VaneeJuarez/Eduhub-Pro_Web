@@ -350,7 +350,7 @@ function CourseDetailPage() {
       <SidebarInstructor />
       <Header userName={user?.name} />
       <section className={styles.content} style={{ backgroundColor: "gray" }}>
-        <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className={`m-5 ${style.btnBack}`}>
+        <Button variant="outline-primary" onClick={() => navigate("/inst/courses")} className={`ml-5 ${style.btnBack}`}>
           <ArrowLeft className="me-2" /> Volver
         </Button>
         <Row className="row g-3 mb-4 mt-4 m-4">
