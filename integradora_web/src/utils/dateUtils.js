@@ -1,6 +1,6 @@
 // src/utils/dateUtils.js
 
-export function parseDisplayDate(displayDate) {
+/* export function parseDisplayDate(displayDate) {
   if (!displayDate) return null;
   const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
   const [month, day] = displayDate.split(" ");
@@ -9,7 +9,19 @@ export function parseDisplayDate(displayDate) {
 
   const currentYear = new Date().getFullYear();
   return new Date(currentYear, monthIndex, parseInt(day, 10), 0, 0, 0); // Local time
-}
+} */
+
+export const parseDisplayDate = (dateString) => {
+  if (!dateString || typeof dateString !== "string") return null;
+
+  const parsed = new Date(dateString);
+
+  // Verificar que la fecha sea válida
+  if (isNaN(parsed.getTime())) return null;
+
+  return parsed;
+};
+
 
 export function normalizeDate(date) {
   if (!date) return null;

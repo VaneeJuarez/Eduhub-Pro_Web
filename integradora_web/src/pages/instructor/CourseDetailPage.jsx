@@ -68,6 +68,11 @@ function CourseDetailPage() {
 
       const courseData = result.data.courseDetails;
 
+      console.log("effect uno");
+      
+      console.log(result.data);
+      
+
       const mappedCourse = {
         id: courseData.courseId,
         title: courseData.title,
@@ -95,18 +100,21 @@ function CourseDetailPage() {
         instructor: courseData.instructor.name,
       };
 
-      if (mappedCourse.status === "TO_APPROVE") {
-        const courseStartDate = normalizeDate(parseDisplayDate(mappedCourse.startDate));
-        const today = normalizeDate(new Date());
+      if (mappedCourse.status === "TO_APPROVE" && mappedCourse.startDate) {
+        const courseStartDate = new Date(mappedCourse.startDate + "T00:00:00"); // día completo
+        const today = new Date(); // tiene hora incluida
 
-        if (today > courseStartDate) {
+        if (today.setHours(0, 0, 0, 0) > courseStartDate.getTime()) {
+          console.log("hoy", today, "inicio", courseStartDate);
           console.log("eliminando curso por la fecha");
-          
-          changeStatusCourse(mappedCourse.id);
-          showToastMessage(
+
+          await changeStatusCourse(mappedCourse.id);
+          sweetAlert(
+            "warning",
             "Curso eliminado",
             "El curso ha sido eliminado porque pasó su fecha de inicio sin ser aprobado",
-            "danger"
+            "",
+            null
           );
           setTimeout(() => navigate("/inst/courses"), 3000);
           return;
@@ -259,7 +267,7 @@ function CourseDetailPage() {
     if (!course) return false
     return course.status === "IN_EDITION"
   }
-  
+
   useEffect(() => {
     if (!reloadCourse) return;
 
@@ -273,6 +281,10 @@ function CourseDetailPage() {
       }
 
       const courseData = result.data.courseDetails;
+
+      console.log("effect de recargar");
+      
+      console.log(courseData);
 
       const mappedCourse = {
         id: courseData.courseId,
@@ -397,7 +409,7 @@ function CourseDetailPage() {
           <h5 className={`mb-3 g-3 ${style.contentCourse}`}>
             Contenido del curso
           </h5>
-          {isEditable && (
+          {isEditable() && (
             <Button
               className={`mr-2 ${style.btnAdd}`}
               onClick={() => {
