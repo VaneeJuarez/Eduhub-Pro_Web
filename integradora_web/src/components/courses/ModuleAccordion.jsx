@@ -218,7 +218,7 @@ function ModuleAccordion({
                     <Button
                       variant="link"
                       size="sm"
-                      className="p-0 ms-3 text-primary"
+                      className="p-0 ms-3 mr-3 text-primary"
                       onClick={() => handleViewProgress(moduleIndex)}
                       title="Ver progreso de estudiantes"
                     >

@@ -80,9 +80,9 @@ function ModuleProgressModal({ show, onHide, module, course }) {
                         <div className="bg-light rounded-circle p-2 me-3">
                           <PersonFill size={24} />
                         </div>
-                        <div>
-                          <h5 className="mb-0">{student.name}</h5>
-                          <p className="text-muted mb-0">{student.email}</p>
+                        <div className="ml-2">
+                        <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
+                        <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
                         </div>
                       </div>
                     </Col>
