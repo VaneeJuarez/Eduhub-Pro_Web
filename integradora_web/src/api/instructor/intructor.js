@@ -114,12 +114,14 @@ export const createSection = async (body) => {
 
 // Editar sección
 export const updateSection = async (body) => {
+
     return await fetch(`${base_api_url}${instructor_path}${section_management}${update}`, {
         method: "PUT",
         headers: headers,
         body: JSON.stringify(body),
     }).then((res) => res.json())
         .then((result) => {
+            console.log(result);
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -139,13 +141,43 @@ export const updateSection = async (body) => {
 
 // Eliminar sección
 export const deleteSection = async (sectionId) => {
-    return await fetch(`${base_api_url}${instructor_path$}${section_management}${change_status}`, {
+    return await fetch(`${base_api_url}${instructor_path}${section_management}${change_status}`, {
         method: "PUT",
         headers: headers,
         body: JSON.stringify({ sectionId: sectionId, status: "INACTIVE" }),
     })
         .then((res) => res.json())
         .then((result) => {
+            console.log(result);
+
+            if (result.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: result.text || global_error_message,
+                };
+            }
+            return { success: true };
+        })
+        .catch((error) => {
+            console.error(error);
+            return {
+                success: false,
+                error: global_error_message,
+            };
+        });
+};
+
+// Por aprobar un curso
+export const changeStatusCourses = async (courseId) => {
+    return await fetch(`${base_api_url}${instructor_path}${course_management}${change_status}`, {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify({ courseId: courseId, courseStatus: "TO_APPROVE" }),
+    })
+        .then((res) => res.json())
+        .then((result) => {
+            console.log(result);
+
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,

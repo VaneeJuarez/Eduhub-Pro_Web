@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import styles from "../../styles/modal.module.css";
 import { headers, headersUpload, sweetAlert } from "../../utils/config/config";
 import { all, base_api_url, category_management, instructor_path, storage_path, upload } from "../../utils/config/paths";
@@ -20,10 +20,11 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
-    // image: initialData.image || "",
     bannerPath: "",
     startDate: initialData.startDate || "",
     endDate: initialData.endDate || "",
+    startDateISO: initialData.startDate || "",
+    endDateISO: initialData.endDate || "",
     price: initialData.price || 0.0,
     size: initialData.size || 1,
     tags: initialData.tags || [],
@@ -103,8 +104,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
         size: initialData.size || 1,
         startDate: initialData.startDate || "",
         endDate: initialData.endDate || "",
-        //startDateISO: parseDisplayDate(initialData.startDate),
-        //endDateISO: parseDisplayDate(initialData.endDate),
+        startDateISO: initialData.startDate,
+        endDateISO: initialData.endDate,
         tags: initialData.categories?.map(cat => cat.categoryId) || [], // fix
       });
       setImagePreview(initialData.bannerPath || "");
@@ -115,9 +116,10 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     // Inicializar las fechas en formato ISO para los inputs date
     setFormData((prev) => ({
       ...prev,
-      startDateISO: parseDisplayDate(prev.startDate),
-      endDateISO: parseDisplayDate(prev.endDate),
+      startDateISO: prev.startDate,
+      endDateISO: prev.endDate,
     }));
+
     fetchAllCategories();
   }, []);
 
@@ -200,9 +202,10 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     // Actualizar tanto la fecha ISO como la fecha formateada
     setFormData((prev) => ({
       ...prev,
-      [name === "startDateISO" ? "startDate" : "endDate"]: formattedDate,
       [name]: value,
-    }))
+      ...(name === "startDateISO" && { startDate: formattedDate }),
+      ...(name === "endDateISO" && { endDate: formattedDate }),
+    }));
   }
 
   const handleImageChange = async (e) => {
@@ -245,19 +248,19 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     e.preventDefault();
 
     // Validar que ambas fechas estén establecidas
-    if (!formData.startDate || !formData.endDate) {
-      if (!formData.startDate) setStartDateError("La fecha de inicio es obligatoria")
-      if (!formData.endDate) setEndDateError("La fecha de fin es obligatoria")
-      return
+    if (!formData.startDateISO || !formData.endDateISO) {
+      if (!formData.startDateISO) setStartDateError("La fecha de inicio es obligatoria");
+      if (!formData.endDateISO) setEndDateError("La fecha de fin es obligatoria");
+      return;
     }
 
     // Validar que la fecha de fin sea posterior a la fecha de inicio
-    const startDate = new Date(parseDisplayDate(formData.startDate))
-    const endDate = new Date(parseDisplayDate(formData.endDate))
+    const startDate = new Date(formData.startDateISO + "T00:00:00");
+    const endDate = new Date(formData.endDateISO + "T00:00:00");
 
     if (endDate <= startDate) {
-      setEndDateError("La fecha de fin debe ser posterior a la fecha de inicio")
-      return
+      setEndDateError("La fecha de fin debe ser posterior a la fecha de inicio");
+      return;
     }
 
     // Mantener los campos que no se editan si es una edición
@@ -269,8 +272,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       status: initialData.status || "IN_EDITION",
       image: imagePreview, // Usar la URL de la imagen
       // Asegurarse de que las fechas estén en el formato correcto
-      startDate: formData.startDate,
-      endDate: formData.endDate,
+      startDate: formData.startDateISO,
+      endDate: formData.endDateISO,
     };
 
     onSave(completeData);
@@ -334,7 +337,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                 <Form.Control
                   type="date"
                   name="startDateISO"
-                  value={formData.startDateISO || ""}
+                  value={formData?.startDateISO}
                   onChange={handleDateChange}
                   min={getTomorrowDate()} // Usar la fecha de mañana como mínimo
                   required
@@ -349,7 +352,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
                 <Form.Control
                   type="date"
                   name="endDateISO"
-                  value={formData.endDateISO || ""}
+                  value={formData?.endDateISO}
                   onChange={handleDateChange}
                   min={getMinEndDate()} // Usar un día después de la fecha de inicio como mínimo
                   required
@@ -423,7 +426,14 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
             Cancelar
           </Button>
           <Button variant="primary" type="submit" disabled={isUploading}>
-            {isUploading ? "Subiendo imagen..." : "Guardar"}
+            {isUploading ? (
+              <>
+                Subiendo
+                <Spinner animation="border" size="sm" className="me-2" />
+              </>
+            ) : (
+              "Guardar"
+            )}
           </Button>
         </Modal.Footer>
       </Form>

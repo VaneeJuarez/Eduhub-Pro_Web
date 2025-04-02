@@ -20,8 +20,8 @@ import style from "../../styles/coursecard.module.css";
 import styles from "../../styles/general.module.css";
 import { headers, sweetAlert } from "../../utils/config/config";
 import { base_api_url, change_status, course_management, instructor_path } from "../../utils/config/paths";
-import { deleteModule, fetchCourseById, saveModule, updateModule } from "../../api/instructor/intructor";
-import { formatCourseDate } from "../../utils/dateUtils";
+import { changeStatusCourses, deleteModule, fetchCourseById, saveModule, updateModule } from "../../api/instructor/intructor";
+import { formatCourseDate, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 function CourseDetailPage() {
 
@@ -67,7 +67,7 @@ function CourseDetailPage() {
       }
 
       const courseData = result.data.courseDetails;
-      
+
       const mappedCourse = {
         id: courseData.courseId,
         title: courseData.title,
@@ -84,6 +84,7 @@ function CourseDetailPage() {
           order: mod.date,
           description: mod?.description,
           lessons: mod.sections?.map((lesson) => ({
+            sectionId: lesson.sectionId,
             title: lesson.name,
             description: lesson.description,
             url: lesson.contentUrl,
@@ -99,6 +100,8 @@ function CourseDetailPage() {
         const today = normalizeDate(new Date());
 
         if (today > courseStartDate) {
+          console.log("eliminando curso por la fecha");
+          
           changeStatusCourse(mappedCourse.id);
           showToastMessage(
             "Curso eliminado",
@@ -122,16 +125,27 @@ function CourseDetailPage() {
     setShowToast(true)
   }
 
-  const handlePublishCourse = () => {
-    if (!course) return;
+  const handlePublishCourse = async () => {
+    if (!course || !course.id) return;
 
-    // Actualizar el estado del curso a "Pendiente de aprobar"
-    const updatedCourse = { ...course, status: "TO_APPROVE" }
+    const result = await changeStatusCourses(course.id);
 
-    // Mostrar notificación
-    showToastMessage("Curso enviado", "El curso ha sido enviado para aprobación")
+    if (!result.success) {
+      sweetAlert("error", "Error", result.error, "", null);
+      return;
+    }
 
+    showToastMessage("Curso enviado", "El curso ha sido enviado para aprobación");
+
+    // Cambiar estado local para bloquear edición
+    setCourse((prev) => ({
+      ...prev,
+      status: "TO_APPROVE",
+    }));
+
+    setReloadCourse(true);
   };
+
 
   const handleDeleteCourse = () => {
     if (!course) return;
@@ -245,7 +259,7 @@ function CourseDetailPage() {
     if (!course) return false
     return course.status === "IN_EDITION"
   }
-
+  
   useEffect(() => {
     if (!reloadCourse) return;
 
@@ -276,6 +290,7 @@ function CourseDetailPage() {
           order: mod.date,
           description: mod?.description,
           lessons: mod.sections?.map((lesson) => ({
+            sectionId: lesson.sectionId,
             title: lesson.name,
             description: lesson.description,
             url: lesson.contentUrl,
@@ -403,6 +418,7 @@ function CourseDetailPage() {
               isPublished={!isEditable()}
               onViewProgress={handleViewModuleProgress}
               course={course}
+              setReloadCourse={setReloadCourse}
             />
           ) : (
             <p className="text-muted text-center py-4">No hay módulos disponibles. ¡Agrega uno nuevo!</p>

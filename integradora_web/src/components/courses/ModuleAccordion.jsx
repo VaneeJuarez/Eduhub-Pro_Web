@@ -19,10 +19,10 @@ import LessonModal from "../modals/LessonModal";
 import styles from "../../styles/general.module.css"
 // styles
 import style from "../../styles/coursecard.module.css";
-import { createSection, deleteSection } from "../../api/instructor/intructor";
+import { createSection, deleteSection, updateSection } from "../../api/instructor/intructor";
 import { sweetAlert } from "../../utils/config/config";
 
-function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false, onViewProgress, course, isAdmin = false }) {
+function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false, onViewProgress, course, isAdmin = false, setReloadCourse }) {
   const [currentModuleIndex, setCurrentModuleIndex] = useState(null)
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(null)
@@ -70,11 +70,16 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
   };
 
   const handleSaveLesson = async (lesson) => {
+
     if (currentModuleIndex === null) return;
 
     const module = modules[currentModuleIndex];
     const isEditing = currentLessonIndex !== null;
+    console.log("lesson del metodo");
+    
+    console.log(lesson);
     const sectionBody = {
+      sectionId: lesson.sectionId,
       name: lesson.title,
       description: lesson.description,
       contentUrl: lesson.content,
@@ -83,6 +88,10 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
     };
 
     if (isEditing) {
+      console.log("Current lesson:");
+      
+      console.log(module.lessons[currentLessonIndex]);
+
       sectionBody.sectionId = module.lessons[currentLessonIndex].sectionId;
       const result = await updateSection(sectionBody);
       if (!result.success) {
@@ -132,6 +141,7 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
         return <FiletypePdf className="me-2 mr-2" />
     }
   }
+
   return (
     <>
       <Accordion defaultActiveKey="0" className={`ml-4 ${styles.Accordion}`}>
@@ -160,7 +170,7 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
                     </Button>
                   </div>
                 )}
-                {!isAdmin && !isPublished && course && course.status === "En Curso" && (
+                {!isAdmin && !isPublished && course && course.status === "IN_PROGRESS" && (
                   <div className="d-flex" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="link"

@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { Modal, Button, Spinner } from "react-bootstrap"
+import { useState } from "react";
+import { Button, Modal, Spinner } from "react-bootstrap";
+
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
 
 function LessonViewer({ show, onHide, lesson }) {
   const [isLoading, setIsLoading] = useState(true)
@@ -23,7 +26,7 @@ function LessonViewer({ show, onHide, lesson }) {
               </div>
             )}
             <video
-              src={lesson.content}
+              src={lesson.url}
               controls
               className="w-100"
               style={{ maxHeight: "70vh" }}
@@ -41,7 +44,13 @@ function LessonViewer({ show, onHide, lesson }) {
                 </Spinner>
               </div>
             )}
-            <iframe src={lesson.content} className="w-100 h-100 border-0" onLoad={handleLoad} title={lesson.title} />
+            {/* <iframe src={lesson.url} className="w-100 h-100 border-0" onLoad={handleLoad} title={lesson.title} /> */}
+            <iframe
+              src={`https://docs.google.com/gview?url=${lesson.url}&embedded=true`}
+              className="w-100 h-100 border-0"
+              onLoad={handleLoad}
+              title={lesson.title}
+            />
           </div>
         )
       case "image":
@@ -51,12 +60,12 @@ function LessonViewer({ show, onHide, lesson }) {
               <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "300px" }}>
                 <Spinner animation="border" role="status">
                 </Spinner>
-                
+
                 <span className="visually-hidden">Cargando imagen...</span>
               </div>
             )}
             <img
-              src={lesson.content || "/placeholder.svg"}
+              src={lesson.url || "/placeholder.svg"}
               alt={lesson.title}
               className="img-fluid mx-auto d-block"
               style={{ maxHeight: "70vh" }}

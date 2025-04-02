@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Modal, Button, Form, Spinner } from "react-bootstrap"
 
 // Styles
@@ -9,15 +9,29 @@ import { uploadFile } from "../../api/global/global"
 
 function LessonModal({ show, onHide, onSave, initialData = {} }) {
   const [formData, setFormData] = useState({
+    sectionId: initialData?.sectionId || "",
     title: initialData?.title || "",
     type: initialData?.type || "video",
-    content: initialData?.content || "",
+    content: initialData?.url || "",
     description: initialData?.description || "",
   })
 
   const [isUploading, setIsUploading] = useState(false);
   const [contentFile, setContentFile] = useState(null)
   const [contentPreview, setContentPreview] = useState(initialData?.content || "")
+
+  useEffect(() => {
+    if (show) {
+      setFormData({
+        sectionId: initialData?.sectionId || "",
+        title: initialData?.title || "",
+        type: initialData?.type || "video",
+        content: initialData?.url || "",
+        description: initialData?.description || "",
+      });
+      setContentPreview(initialData?.url || "");
+    }
+  }, [show]);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -105,9 +119,11 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
               type="file"
               accept={getAcceptedFileTypes()}
               onChange={handleContentFileChange}
-              required={!initialData?.content}
+              required={!initialData?.url}
             />
+
             {contentPreview && formData.type === "image" && (
+
               <div className="mt-2">
                 <img
                   src={contentPreview || "/placeholder.svg"}
@@ -153,8 +169,8 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
           <Button variant="primary" type="submit" disabled={isUploading || !formData.content}>
             {isUploading ? (
               <>
+                Subiendo
                 <Spinner animation="border" size="sm" className="me-2" />
-                Subiendo...
               </>
             ) : (
               "Guardar"
