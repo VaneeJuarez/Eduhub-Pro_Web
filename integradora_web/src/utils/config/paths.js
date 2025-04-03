@@ -41,7 +41,7 @@ export const reset = "reset";
 // User
 export const count = "count";
 export const profile = "profile";
-export const upload_photo = "upload_photo";
+export const upload_photo = "upload-photo";
 export const update_profile = "update-profile";
 export const change_status_instructor = "change-status-instructor";
 export const change_status_student = "change-status-student";
