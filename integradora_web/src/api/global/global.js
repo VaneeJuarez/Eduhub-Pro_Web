@@ -1,5 +1,5 @@
-import { headersUpload } from "../../utils/config/config";
-import { base_api_url, storage_path, upload } from "../../utils/config/paths";
+import { headersUpload, unlogin } from "../../utils/config/config";
+import { auth_path, base_api_url, request_reset, reset, storage_path, upload } from "../../utils/config/paths";
 
 // Subir contenido multimedia (video, imagen o pdf)
 export const uploadFile = (file) => {
@@ -29,5 +29,49 @@ export const uploadFile = (file) => {
                 success: false,
                 error: "No se pudo subir el archivo al servidor.",
             };
+        });
+};
+
+// Enviar código de recuperación
+export const sendRecoveryCode = async (email) => {
+    return await fetch(`${base_api_url}${auth_path}${request_reset}`, {
+        method: "POST",
+        headers: unlogin,
+        body: JSON.stringify({ email: email })
+    }).then(res => res.json())
+        .then(response => {
+            if (response.type !== "SUCCESS") {
+                return { success: false, error: response.text || global_error_message };
+            }
+            return { success: true };
+        })
+        .catch(error => {
+            console.error("Error al enviar el código:", error);
+            return { success: false, error: global_error_message };
+        });
+};
+
+// Restaurar contraseña
+export const restorePassword = async (email, newPassword, recoveryCode) => {
+    return await fetch(`${base_api_url}${auth_path}${reset}`, {
+        method: "PUT",
+        headers: unlogin,
+        body: JSON.stringify(
+            {
+                email: email,
+                password: newPassword,
+                code: recoveryCode
+            }
+        )
+    }).then(res => res.json())
+        .then(response => {
+            if (response.type !== "SUCCESS") {
+                return { success: false, error: response.text || global_error_message };
+            }
+            return { success: true };
+        })
+        .catch(error => {
+            console.error("Error al restaurar contraseña:", error);
+            return { success: false, error: global_error_message };
         });
 };

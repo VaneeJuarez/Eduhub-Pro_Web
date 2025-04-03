@@ -82,7 +82,7 @@ const Login = () => {
 
                 if (response.role.includes("ADMIN")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/dashboard');
+                    navigate('/admin/courses');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
                     navigate('/inst/courses');
@@ -128,7 +128,7 @@ const Login = () => {
 
                 if (response.role.includes("ADMIN")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/dashboard');
+                    navigate('/admin/courses');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
                     navigate('/inst/courses');
@@ -196,8 +196,6 @@ const Login = () => {
                     <p className={styles.social_text}>
                         <a href="#" onClick={() => navigate('/forgot-password')}>¿Olvidaste tu contraseña?</a>
                     </p>
-
-
                     <p className={styles.account_text}>¿No tienes una cuenta?
                         <a href="#" onClick={() => setIsSignUpMode(true)}>Regístrate</a>
                     </p>

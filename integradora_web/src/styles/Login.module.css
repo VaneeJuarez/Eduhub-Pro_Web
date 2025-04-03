@@ -1,5 +1,3 @@
-
-
 /* all: unset; -> Reinicia los estilos quitando bootstrap*/
 
 .loginBody {
@@ -236,9 +234,16 @@ a {
     transform: translateX(0);
 }
 
-.account_text {
-    display: none;
+.account_text a {
+    color: #aa39ad;
+    font-weight: bold;
+    margin-left: 5px;
 }
+
+.account_text a:hover {
+    text-decoration: underline;
+}
+
 
 /* Animation */
 

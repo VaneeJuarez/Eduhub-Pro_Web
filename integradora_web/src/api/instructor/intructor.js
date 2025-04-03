@@ -194,3 +194,23 @@ export const changeStatusCourses = async (courseId) => {
             };
         });
 };
+// api/userApi.js
+
+export const uploadProfilePhoto = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return await fetch(`${base_api_url}${}${}`, {
+        method: "POST",
+        body: formData
+    }).then(res => res.json())
+        .then(response => {
+            if (response.type !== "SUCCESS" || !response.result?.url) {
+                return { success: false, error: response.text || "No se pudo subir la imagen." };
+            }
+            return { success: true, url: response.result.url };
+        })
+        .catch(() => {
+            return { success: false, error: "Error inesperado al subir imagen." };
+        });
+};

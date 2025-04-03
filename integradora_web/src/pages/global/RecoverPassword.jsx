@@ -7,177 +7,54 @@ import recoverImage from '../../assets/svg/recover_password.svg';
 
 import styles from '../../styles/login.module.css';
 
-import { sweetAlert, unlogin } from '../../utils/config/config.js';
-import { USER_ACTIONS } from '../../utils/config/enums.js';
+import { sweetAlert } from '../../utils/config/config.js';
+import { restorePassword, sendRecoveryCode } from '../../api/global/global.js';
 
-import { useUserContext } from '../../contexts/UserProvider.jsx';
-
-import {
-    auth_path,
-    base_api_url,
-    login,
-    register
-} from '../../utils/config/paths.js';
-
-const Login = () => {
-
+const RecoverPassword = () => {
     const navigate = useNavigate();
 
-    const { dispatch } = useUserContext();
-
-    // Animation
     const [isSignUpMode, setIsSignUpMode] = useState(false);
 
-    // Login
-    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('');
+    const [repeatPassword, setRepeatPassword] = useState('');
+    const [recoveryCode, setRecoveryCode] = useState('');
 
     useEffect(() => {
-        document.body.className = ''; // Limpia todas las clases previas
+        document.body.className = '';
         document.body.classList.add(styles.fade_in, styles.loginBody);
-
         return () => {
-            document.body.classList.remove(styles.fade_in, styles.loginBody); // Limpia cuando se desmonta
+            document.body.classList.remove(styles.fade_in, styles.loginBody);
         };
     }, []);
 
-    const loginRequest = async () => {
+    const handleSendCode = async () => {
+        if (!email) {
+            sweetAlert("error", "Error", "No se ha proporcionado un correo.", "", null);
+            return;
+        }
+        const response = await sendRecoveryCode(email);
+        if (!response.success) {
+            sweetAlert("error", "Error", response.error, "", null);
+            return;
+        }
+        setIsSignUpMode(true);
+    };
 
-        if (email === '' && password === '') {
-            sweetAlert('error', 'Error', 'El correo y la contraseña no pueden estar vacíos.', '', null);
+    const handleRestorePassword = async () => {
+        if (password !== repeatPassword) {
+            sweetAlert("error", "Error", "Las contraseñas no coinciden.", "", null);
             return;
         }
 
-        if (email === '') {
-            sweetAlert('error', 'Error', 'El correo no puede estar vacío.', '', null);
-            return;
-        }
-        if (password === '') {
-            sweetAlert('error', 'Error', 'La contraseña no puede estar vacía.', '', null);
+        const response = await restorePassword(email, password, recoveryCode);
+        if (!response.success) {
+            sweetAlert("error", "Error", response.error, "", null);
             return;
         }
 
-        await fetch(`${base_api_url}${auth_path}${login}`, {
-            method: "POST",
-            headers: unlogin,
-            body: JSON.stringify(
-                {
-                    email: email,
-                    password: password
-                }
-            )
-        }).then(response => response.json())
-            .then(response => {
-
-                dispatch({
-                    type: USER_ACTIONS.LOGIN,
-                    value: {
-                        jwt: response.jwt,
-                        role: response.role,
-                        name: response.name
-                    }
-                });
-
-                if (response.role.includes("ADMIN")) {
-                    // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/dashboard');
-                } else if (response.role.includes("INSTRUCTOR")) {
-                    // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
-                    navigate('/inst/courses');
-                } else if (response.role.includes("STUDENT")) {
-                    sweetAlert('question', 'Aviso', 'Tu cuenta es de estudiante. Inicia sesión en nuestra app móvil.', '', navigate);
-                    dispatch({ type: USER_ACTIONS.LOGOUT });
-                    return;
-                }
-
-            }).catch((error) => {
-                console.log(error);
-                sweetAlert('error', 'Error', 'Hubo un error al iniciar sesión, por favor revisa tus creenciales o inténtalo de nuevo más tarde', '', null);
-            });
-    }
-
-    const loginRequestR = async (email, password) => {
-        await fetch(`${base_api_url}${auth_path}${login}`, {
-            method: "POST",
-            headers: unlogin,
-            body: JSON.stringify(
-                {
-                    email: email,
-                    password: password
-                }
-            )
-        }).then(response => response.json())
-            .then(response => {
-
-                dispatch({
-                    type: USER_ACTIONS.LOGIN,
-                    value: {
-                        jwt: response.jwt,
-                        role: response.role,
-                        name: response.name
-                    }
-                });
-
-                if (role === 'STUDENT') {
-                    sweetAlert('success', 'Éxito', `Registro exitoso. Inicia sesión en nuestra app móvil`, '', navigate);
-                    dispatch({ type: USER_ACTIONS.LOGOUT });
-                    return;
-                }
-
-                if (response.role.includes("ADMIN")) {
-                    // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/dashboard');
-                } else if (response.role.includes("INSTRUCTOR")) {
-                    // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
-                    navigate('/inst/courses');
-                }
-
-            }).catch((error) => {
-                console.log(error);
-                sweetAlert('error', 'Error', 'Hubo un error al iniciar sesión, por favor revisa tus creenciales o inténtalo de nuevo más tarde.', '', null);
-            });
-    }
-
-    const registerRequest = async () => {
-        await fetch(`${base_api_url}${auth_path}${register}`, {
-            method: "POST",
-            headers: unlogin,
-            body: JSON.stringify(
-                {
-                    name: name,
-                    email: email,
-                    password: password,
-                    role: role
-                }
-            )
-        }).then(response => response.json())
-            .then(response => {
-
-                if (response.type !== 'SUCCESS') {
-                    if (typeof response === 'object' && !response.text) {
-                        const errorMessages = Object.values(response).join("\n");
-                        sweetAlert('error', 'Error', errorMessages, '', null);
-                    } else if (response.text) {
-                        sweetAlert('error', 'Error', response.text, '', null);
-                    }
-                    return;
-                }
-
-                loginRequestR(email, password);
-
-
-                /* 
-                setTimeout(() => {
-                window.location.reload();
-                }, 4000); 
-                */
-            }).catch((error) => {
-                console.log(error);
-                sweetAlert('error', 'Error', 'No pudimos hacer el registro, vuelve a intentarlo.', '', null);
-            });
-    }
+        sweetAlert("success", "Éxito", "Contraseña actualizada. Ya puedes iniciar sesión.", "/", navigate);
+    };
 
     return (
         <div className={`${styles.owncontainer} ${isSignUpMode ? styles.sign_up_mode : ''}`}>
@@ -188,21 +65,26 @@ const Login = () => {
                         <i className="bi bi-envelope-fill"></i>
                         <input type="text" placeholder="Correo electrónico" onChange={(e) => setEmail(e.target.value)} />
                     </div>
-                    <input type='button' value="Enviar código" onClick={() => setIsSignUpMode(true)} className={styles.botonpro} />
+                    <input type='button' value="Enviar código" onClick={handleSendCode} className={styles.botonpro} />
+
                     <p className={styles.social_text}>
-                        <a href="#" onClick={() => navigate('/')}><i class="bi bi-arrow-left"></i> Volver al inicio de sesión</a>
+                        <a href="#" onClick={() => navigate('/')}><i className="bi bi-arrow-left"></i> Volver al inicio de sesión</a>
                     </p>
 
-
-                    <p className={styles.account_text}>¿No tienes una cuenta?
-                        <a href="#" onClick={() => setIsSignUpMode(true)}>Regístrate</a>
+                    <p className={styles.account_text} style={{ marginTop: "1rem" }}>
+                        ¿Ya tienes un código?
+                        <a href="#" onClick={() => setIsSignUpMode(true)} style={{ color: "#bb86fc", marginLeft: "5px" }}>
+                            Ingresar código
+                        </a>
                     </p>
+
                 </form>
+
                 <form className={styles.sign_up_form}>
                     <h2 className={styles.title}>Restaurar Contraseña</h2>
                     <div className={styles.input_field}>
                         <i className="bi bi-key-fill"></i>
-                        <input type="text" placeholder="Código de recuperación" onChange={(e) => setEmail(e.target.value)} />
+                        <input type="text" placeholder="Código de recuperación" onChange={(e) => setRecoveryCode(e.target.value)} />
                     </div>
                     <div className={styles.input_field}>
                         <i className="bi bi-lock-fill"></i>
@@ -210,15 +92,16 @@ const Login = () => {
                     </div>
                     <div className={styles.input_field}>
                         <i className="bi bi-lock-fill"></i>
-                        <input type="password" placeholder="Repetir contraseña" onChange={(e) => setPassword(e.target.value)} />
+                        <input type="password" placeholder="Repetir contraseña" onChange={(e) => setRepeatPassword(e.target.value)} />
                     </div>
-                    <input type="button" value="Restaurar" className={styles.botonpro} onClick={async () => await registerRequest()} />
+                    <input type="button" value="Restaurar" className={styles.botonpro} onClick={handleRestorePassword} />
 
-                    <p className={styles.account_text}>¿Ya tienes una cuenta?
-                        <a href="#" onClick={() => setIsSignUpMode(false)}>Inicia sesión</a>
+                    <p className={styles.account_text}>¿No tienes un código?
+                        <a href="#" onClick={() => setIsSignUpMode(false)}>Solicitar código</a>
                     </p>
                 </form>
             </div>
+
             <div className={styles.panels_container}>
                 <div className={`${styles.panel} ${styles.left_panel}`}>
                     <div className={styles.content_panel}>
@@ -232,8 +115,7 @@ const Login = () => {
                     <div className={styles.content_panel}>
                         <h3>¿Olvidaste tu contraseña?</h3>
                         <p>Ingresa tu correo electrónico para recuperar tu cuenta.</p>
-                        <br></br>
-                        <br></br>
+                        <br /><br />
                     </div>
                     <img src={forgotImage} className={styles.image} alt="Forgot Password" />
                 </div>
@@ -242,4 +124,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default RecoverPassword;
