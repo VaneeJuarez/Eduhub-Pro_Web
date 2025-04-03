@@ -131,7 +131,7 @@ const Login = () => {
                     navigate('/admin/courses');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
-                    navigate('/inst/courses');
+                    navigate('/inst/profile/photo');
                 }
 
             }).catch((error) => {

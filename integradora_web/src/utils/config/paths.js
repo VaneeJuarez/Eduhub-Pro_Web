@@ -37,14 +37,15 @@ export const logout = "logout";
 export const register = "register";
 export const request_reset = "request-reset";
 export const reset = "reset";
-T
+
 // User
 export const count = "count";
 export const profile = "profile";
-export const upload_photo = "upload-photo";
+export const upload_photo = "upload_photo";
 export const update_profile = "update-profile";
 export const change_status_instructor = "change-status-instructor";
 export const change_status_student = "change-status-student";
+export const support = "support";
 
 // Course
 export const by_name = "by-name";

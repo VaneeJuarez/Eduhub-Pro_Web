@@ -41,7 +41,7 @@ function CourseStatusCard({ course, onPublishCourse }) {
     if (!course) return false
     console.log("hola " + new Date(course.startDate));
     
-    return isTomorrow(new Date(course.startDate));
+    return isTomorrow(course.startDate);
   }
 
   // Verificar si el curso ya finalizó

@@ -1,5 +1,5 @@
-import { headers } from "../../utils/config/config";
-import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, section_management, update } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, section_management, storage_path, support, update, upload, user_management } from "../../utils/config/paths";
 
 const global_error_message = "Ocurrió un error inesperado al intentar realizar la acción.";
 
@@ -200,7 +200,7 @@ export const uploadProfilePhoto = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    return await fetch(`${base_api_url}${}${}`, {
+    return await fetch(`${base_api_url}${storage_path}${upload}`, {
         method: "POST",
         body: formData
     }).then(res => res.json())
@@ -212,5 +212,42 @@ export const uploadProfilePhoto = async (file) => {
         })
         .catch(() => {
             return { success: false, error: "Error inesperado al subir imagen." };
+        });
+};
+
+// Soporte
+export const sendSupportMessage = async (fullName, email, comment) => {
+    const params = new URLSearchParams({
+        fullName,
+        email,
+        description: comment
+    });
+    console.log(`${base_api_url}${instructor_path}${user_management}${support}?${params.toString()}`);
+
+    return await fetch(`${base_api_url}${instructor_path}${user_management}${support}?${params.toString()}`, {
+        method: "POST",
+        headers: headers
+    }).then((response) => response.json())
+        .then((response) => {
+            if (response.type !== "SUCCESS") {
+                if (typeof response === "object" && !response.text) {
+                    const errorMessages = Object.values(response).join("\n");
+                    return {
+                        success: false,
+                        error: errorMessages,
+                    };
+                }
+
+                if (response.text) {
+                    return { success: false, error: response.text };
+                }
+
+                return { success: false, error: global_error_message, };
+            }
+            return { success: true, data: response, };
+        })
+        .catch((error) => {
+            console.log(error);
+            return { success: false, error: error?.text || global_error_message, };
         });
 };

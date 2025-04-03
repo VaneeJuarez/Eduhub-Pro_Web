@@ -1,28 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Accordion, Button, Modal } from "react-bootstrap";
-import {
-  Plus,
-  FiletypePdf,
-  Image,
-  PlayBtn,
-} from "react-bootstrap-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react"
+import { Accordion, Button, Modal } from "react-bootstrap"
+import { Plus, FiletypePdf, Image, PlayBtn, BarChartFill } from "react-bootstrap-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons"
+import ModuleProgressModal from "../modals/ModuleProgressModal"
 
 // Components
-import LessonItem from "./LessonItem";
-import LessonModal from "../modals/LessonModal";
+import LessonItem from "./LessonItem"
+import LessonModal from "../modals/LessonModal"
 
 // Styles
 import styles from "../../styles/general.module.css"
 // styles
-import style from "../../styles/coursecard.module.css";
-import { createSection, deleteSection, updateSection } from "../../api/instructor/intructor";
-import { sweetAlert } from "../../utils/config/config";
+import style from "../../styles/coursecard.module.css"
+import { createSection, deleteSection, updateSection } from "../../api/instructor/intructor"
+import { sweetAlert } from "../../utils/config/config"
 
-function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = false, onViewProgress, course, isAdmin = false, setReloadCourse }) {
+function ModuleAccordion({
+  modules,
+  onEditModule,
+  onDeleteModule,
+  isPublished = false,
+  onViewProgress,
+  course,
+  isAdmin = false,
+  setReloadCourse,
+}) {
   const [currentModuleIndex, setCurrentModuleIndex] = useState(null)
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(null)
@@ -30,6 +35,8 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
   const [moduleToDelete, setModuleToDelete] = useState(null)
   const [lessonToDelete, setLessonToDelete] = useState(null)
   const [showDeleteLessonDialog, setShowDeleteLessonDialog] = useState(false)
+  const [showProgressModal, setShowProgressModal] = useState(false)
+  const [selectedModuleForProgress, setSelectedModuleForProgress] = useState(null)
 
   const handleAddLesson = (moduleIndex, e) => {
     e.stopPropagation() // Evitar que el evento se propague al acordeón
@@ -51,33 +58,32 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
   }
 
   const confirmDeleteLesson = async () => {
-    if (!lessonToDelete) return;
+    if (!lessonToDelete) return
 
-    const { moduleIndex, lessonIndex } = lessonToDelete;
-    const lessonId = modules[moduleIndex].lessons[lessonIndex].sectionId;
+    const { moduleIndex, lessonIndex } = lessonToDelete
+    const lessonId = modules[moduleIndex].lessons[lessonIndex].sectionId
 
-    const result = await deleteSection(lessonId);
+    const result = await deleteSection(lessonId)
 
     if (!result.success) {
-      sweetAlert("error", "Error", result.error, "", null);
-      return;
+      sweetAlert("error", "Error", result.error, "", null)
+      return
     }
 
     // sweetAlert('success', "Lección eliminada", "La lección ha sido eliminada exitosamente", "", null);
-    setShowDeleteLessonDialog(false);
-    setLessonToDelete(null);
-    setReloadCourse(true);
-  };
+    setShowDeleteLessonDialog(false)
+    setLessonToDelete(null)
+    setReloadCourse(true)
+  }
 
   const handleSaveLesson = async (lesson) => {
+    if (currentModuleIndex === null) return
 
-    if (currentModuleIndex === null) return;
+    const module = modules[currentModuleIndex]
+    const isEditing = currentLessonIndex !== null
+    console.log("lesson del metodo")
 
-    const module = modules[currentModuleIndex];
-    const isEditing = currentLessonIndex !== null;
-    console.log("lesson del metodo");
-    
-    console.log(lesson);
+    console.log(lesson)
     const sectionBody = {
       sectionId: lesson.sectionId,
       name: lesson.title,
@@ -85,37 +91,37 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
       contentUrl: lesson.content,
       contentType: lesson.type,
       moduleId: module.moduleId,
-    };
+    }
 
     if (isEditing) {
-      console.log("Current lesson:");
-      
-      console.log(module.lessons[currentLessonIndex]);
+      console.log("Current lesson:")
 
-      sectionBody.sectionId = module.lessons[currentLessonIndex].sectionId;
-      const result = await updateSection(sectionBody);
+      console.log(module.lessons[currentLessonIndex])
+
+      sectionBody.sectionId = module.lessons[currentLessonIndex].sectionId
+      const result = await updateSection(sectionBody)
       if (!result.success) {
-        sweetAlert("error", "Error", result.error, "", null);
-        return;
+        sweetAlert("error", "Error", result.error, "", null)
+        return
       }
     } else {
-      const result = await createSection(sectionBody);
+      const result = await createSection(sectionBody)
       if (!result.success) {
-        sweetAlert("error", "Error", result.error, "", null);
-        return;
+        sweetAlert("error", "Error", result.error, "", null)
+        return
       }
     }
 
     // sweetAlert("success", "Lección guardada", `La lección ha sido ${isEditing ? "actualizada" : "agregada"} exitosamente`, "", null);
 
-    setIsLessonModalOpen(false);
-    setCurrentLessonIndex(null);
-    setCurrentModuleIndex(null);
-    setReloadCourse(true);
-  };
+    setIsLessonModalOpen(false)
+    setCurrentLessonIndex(null)
+    setCurrentModuleIndex(null)
+    setReloadCourse(true)
+  }
 
   const confirmDeleteModule = (moduleId) => {
-    console.log(moduleId);
+    console.log(moduleId)
 
     setModuleToDelete(moduleId)
     setIsDeleteDialogOpen(true)
@@ -142,6 +148,43 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
     }
   }
 
+  const handleViewProgress = (moduleIndex) => {
+    // Generar datos de progreso para este módulo específico
+    const moduleProgress = generateModuleProgress(moduleIndex)
+
+    setSelectedModuleForProgress({
+      ...modules[moduleIndex],
+      index: moduleIndex,
+      progress: moduleProgress,
+    })
+    setShowProgressModal(true)
+  }
+
+  // Generar datos de progreso simulados para un módulo
+  const generateModuleProgress = (moduleIndex) => {
+    if (!course || !modules[moduleIndex]) return []
+
+    const mockStudents = []
+    // Usar el límite de estudiantes del curso o un valor predeterminado
+    const numStudents = Math.floor(Math.random() * (course.size || 20)) + 5 // Al menos 5 estudiantes
+
+    for (let i = 1; i <= numStudents; i++) {
+      const completed = Math.random() > 0.3 // 70% de probabilidad de completar
+      mockStudents.push({
+        id: i,
+        name: `Estudiante ${i}`,
+        email: `estudiante${i}@ejemplo.com`,
+        completed,
+        progress: completed ? 100 : Math.floor(Math.random() * 80), // Progreso aleatorio para los que no han completado
+      })
+    }
+
+    return mockStudents
+  }
+
+  // Verificar si el curso esta en estado "En Curso"
+  const isCourseInProgress = course && course.status === "IN_PROGRESS"
+
   return (
     <>
       <Accordion defaultActiveKey="0" className={`ml-4 ${styles.Accordion}`}>
@@ -150,39 +193,39 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
             <Accordion.Header>
               <div className="d-flex justify-content-between align-items-center w-100 pe-4">
                 <span>{module.title}</span>
-                {!isPublished && (
-                  <div className="d-flex" onClick={(e) => e.stopPropagation()}>
+                <div className="d-flex" onClick={(e) => e.stopPropagation()}>
+                  {!isPublished && (
+                    <>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className={`p-0 me-3 mr-3 ${style.Icons}`}
+                        onClick={() => onEditModule(module)}
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare}></FontAwesomeIcon>
+                      </Button>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className={`p-0 mr-3 ${style.Icons}`}
+                        onClick={() => confirmDeleteModule(module.moduleId)}
+                      >
+                        <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon>
+                      </Button>
+                    </>
+                  )}
+                  {!isAdmin && isCourseInProgress && (
                     <Button
                       variant="link"
                       size="sm"
-                      className={`p-0 me-3 mr-3 ${style.Icons}`}
-                      onClick={() => onEditModule(module)}
-                    >
-                      <FontAwesomeIcon icon={faPenToSquare}></FontAwesomeIcon>
-                    </Button>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className={`p-0 mr-3 ${style.Icons}`}
-                      onClick={() => confirmDeleteModule(module.moduleId)}
-                    >
-                      <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon>
-                    </Button>
-                  </div>
-                )}
-                {!isAdmin && !isPublished && course && course.status === "IN_PROGRESS" && (
-                  <div className="d-flex" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="p-0 text-primary"
-                      onClick={() => onViewProgress(moduleIndex)}
+                      className="p-0 ms-3 mr-3 text-primary"
+                      onClick={() => handleViewProgress(moduleIndex)}
                       title="Ver progreso de estudiantes"
                     >
                       <BarChartFill />
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </Accordion.Header>
             <Accordion.Body>
@@ -271,8 +314,22 @@ function ModuleAccordion({ modules, onEditModule, onDeleteModule, isPublished = 
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal para ver el progreso de los estudiantes en el módulo */}
+      {selectedModuleForProgress && (
+        <ModuleProgressModal
+          show={showProgressModal}
+          onHide={() => {
+            setShowProgressModal(false)
+            setSelectedModuleForProgress(null)
+          }}
+          module={selectedModuleForProgress}
+          course={course}
+        />
+      )}
     </>
   )
 }
 
-export default ModuleAccordion;
+export default ModuleAccordion
+

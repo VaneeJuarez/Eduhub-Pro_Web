@@ -41,8 +41,8 @@ function StudentListModal({ show, onHide, students, course }) {
                       <div className="bg-light rounded-circle p-2 me-3">
                         <PersonFill size={24} />
                       </div>
-                      <div>
-                        <Card.Title className="mb-0 fs-5">{student.name}</Card.Title>
+                      <div className="ml-2">
+                        <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
                         <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
                       </div>
                     </div>
