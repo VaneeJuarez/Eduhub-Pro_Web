@@ -1,5 +1,5 @@
 import { headers, sweetAlert } from "../../utils/config/config";
-import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, section_management, storage_path, support, update, upload, user_management } from "../../utils/config/paths";
+import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, profile, section_management, storage_path, support, update, update_profile, upload, upload_photo, user_management } from "../../utils/config/paths";
 
 const global_error_message = "Ocurrió un error inesperado al intentar realizar la acción.";
 
@@ -249,5 +249,57 @@ export const sendSupportMessage = async (fullName, email, comment) => {
         .catch((error) => {
             console.log(error);
             return { success: false, error: error?.text || global_error_message, };
+        });
+};
+
+/**
+ * 1. Obtener perfil del instructor (UserDto.Consult)
+ *    - body: { userId: "token decodificado" }
+ */
+export const getInstructorProfile = async (userId) => {
+    return await fetch(`${base_api_url}${instructor_path}${user_management}${profile}`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({ userId: userId }),
+    }).then((res) => res.json())
+        .then((response) => {
+            // Verificamos que response.type sea SUCCESS
+            if (response.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: response.text || global_error_message,
+                };
+            }
+            // Retornamos el response completo o solo una parte
+            return { success: true, data: response };
+        })
+        .catch((error) => {
+            console.error("Error al obtener perfil:", error);
+            return { success: false, error: global_error_message };
+        });
+};
+
+/**
+ * 2. Actualizar perfil (UserDto.Modify)
+ *    - body: { userId, name, email, password, profilePhotoPath }
+ */
+export const updateInstructorProfile = async (body) => {
+    return await fetch(`${base_api_url}${instructor_path}${user_management}${update_profile}`, {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify(body),
+    }).then((res) => res.json())
+        .then((response) => {
+            if (response.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: response.text || global_error_message,
+                };
+            }
+            return { success: true, data: response };
+        })
+        .catch((error) => {
+            console.error("Error al actualizar perfil:", error);
+            return { success: false, error: global_error_message };
         });
 };
