@@ -40,8 +40,9 @@ function LessonViewer({ show, onHide, lesson }) {
             {isLoading && (
               <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-light">
                 <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Cargando PDF...</span>
                 </Spinner>
+                <span className="visually-hidden">Cargando PDF...</span>
+
               </div>
             )}
             {/* <iframe src={lesson.url} className="w-100 h-100 border-0" onLoad={handleLoad} title={lesson.title} /> */}

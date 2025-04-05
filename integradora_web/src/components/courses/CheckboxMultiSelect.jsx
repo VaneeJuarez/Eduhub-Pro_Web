@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+// Styles
+import styles from '../../styles/modal.module.css';
 
 export default function CheckboxMultiSelect({ options, value = [], onChange }) {
 
@@ -25,6 +27,11 @@ export default function CheckboxMultiSelect({ options, value = [], onChange }) {
 
   const handleOptionClick = (option) => {
     const isSelected = value.includes(option.value);
+
+    if (!isSelected && value.length >= 3) {
+      return;
+    }
+
     const newValue = isSelected
       ? value.filter((val) => val !== option.value)
       : [...value, option.value];
@@ -48,7 +55,7 @@ export default function CheckboxMultiSelect({ options, value = [], onChange }) {
               value.map((val) => {
                 const label = options.find((opt) => opt.value === val)?.label || val;
                 return (
-                  <div key={val} className="badge bg-secondary d-flex align-items-center gap-1">
+                  <div key={val} className={`badge d-flex align-items-center gap-1 ${styles.Tag}`}>
                     {label}
                     <i
                       className="bi bi-x ms-1"

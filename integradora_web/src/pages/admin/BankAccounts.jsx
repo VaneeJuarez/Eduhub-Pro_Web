@@ -26,6 +26,7 @@ const BankAccounts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [response, setResponse] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   const handleSaveAccount = async (account) => {
     console.log(account);

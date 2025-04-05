@@ -35,7 +35,6 @@ function BankAccountList({ accountList, refreshAccounts }) {
     const [accounts, setAccounts] = useState(accountList);
 
     useEffect(() => {
-        refreshAccounts();
         setAccounts(accountList);
     }, [accountList]);
 

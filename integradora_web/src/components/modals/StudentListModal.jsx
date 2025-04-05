@@ -35,7 +35,7 @@ function StudentListModal({ show, onHide, students, course }) {
           <Row xs={1} md={2} className="g-3">
             {filteredStudents.map((student) => (
               <Col key={student.id}>
-                <Card>
+                <Card className="mb-2">
                   <Card.Body>
                     <div className="d-flex align-items-center">
                       <div className="bg-light rounded-circle p-2 me-3">
@@ -50,6 +50,10 @@ function StudentListModal({ show, onHide, students, course }) {
                 </Card>
               </Col>
             ))}
+            {/* Espacio vacío para centrar si hay número impar */}
+            {filteredStudents.length % 2 !== 0 && (
+              <Col className="d-none d-md-block" />
+            )}
           </Row>
         ) : (
           <p className="text-center py-3">No se encontraron estudiantes con ese criterio de búsqueda.</p>
