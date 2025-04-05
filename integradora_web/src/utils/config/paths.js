@@ -51,6 +51,8 @@ export const support = "support";
 export const by_name = "by-name";
 export const by_date = "by-date";
 export const by_category = "by-category";
+export const to_approve = "to-approve";
+export const registered_students = "registered-students";
 
 // Payment
 export const by_student = "by-student";
@@ -58,13 +60,11 @@ export const by_student = "by-student";
 // Category
 export const get_actives = "get-actives";
 
-// Course
-export const to_approve = "to-approve";
-export const registered_students = "registered-students";
+// Review 
+export const by_course = "by-course";
 
 // Registration
 export const pending_payment = "pending-payment";
-export const to_approve_reg = "to-approve"; // si necesitas diferenciar un "to-approve" distinto
 
 // CloudFare
 export const object_list = "object-list";

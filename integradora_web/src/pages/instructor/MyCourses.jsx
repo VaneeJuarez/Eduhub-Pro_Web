@@ -99,6 +99,8 @@ const MyCourses = () => {
     })
       .then((response) => response.json())
       .then((response) => {
+        console.log(response);
+        
         setCourses(response.result);
       })
       .catch((error) => {
