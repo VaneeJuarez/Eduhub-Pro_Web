@@ -12,7 +12,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     sectionId: initialData?.sectionId || "",
     title: initialData?.title || "",
     type: initialData?.type || "video",
-    content: initialData?.url || "",
+    content: initialData?.content || "",
     description: initialData?.description || "",
   })
 
@@ -26,10 +26,10 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
         sectionId: initialData?.sectionId || "",
         title: initialData?.title || "",
         type: initialData?.type || "video",
-        content: initialData?.url || "",
+        content: initialData?.content || "",
         description: initialData?.description || "",
       });
-      setContentPreview(initialData?.url || "");
+      setContentPreview(initialData?.content || "");
     }
   }, [show]);
 
@@ -119,7 +119,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
               type="file"
               accept={getAcceptedFileTypes()}
               onChange={handleContentFileChange}
-              required={!initialData?.url}
+              required={!initialData?.content}
             />
 
             {contentPreview && formData.type === "image" && (

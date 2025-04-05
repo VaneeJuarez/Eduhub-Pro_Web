@@ -7,6 +7,7 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
 function LessonViewer({ show, onHide, lesson }) {
+  
   const [isLoading, setIsLoading] = useState(true)
 
   const handleLoad = () => {
@@ -26,7 +27,7 @@ function LessonViewer({ show, onHide, lesson }) {
               </div>
             )}
             <video
-              src={lesson.url}
+              src={lesson.content}
               controls
               className="w-100"
               style={{ maxHeight: "70vh" }}
@@ -47,7 +48,7 @@ function LessonViewer({ show, onHide, lesson }) {
             )}
             {/* <iframe src={lesson.url} className="w-100 h-100 border-0" onLoad={handleLoad} title={lesson.title} /> */}
             <iframe
-              src={`https://docs.google.com/gview?url=${lesson.url}&embedded=true`}
+              src={`https://docs.google.com/gview?url=${lesson.content}&embedded=true`}
               className="w-100 h-100 border-0"
               onLoad={handleLoad}
               title={lesson.title}
@@ -66,7 +67,7 @@ function LessonViewer({ show, onHide, lesson }) {
               </div>
             )}
             <img
-              src={lesson.url || "/placeholder.svg"}
+              src={lesson.content || "/placeholder.svg"}
               alt={lesson.title}
               className="img-fluid mx-auto d-block"
               style={{ maxHeight: "70vh" }}
