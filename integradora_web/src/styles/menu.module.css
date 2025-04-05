@@ -132,4 +132,55 @@
   .btnOutlineSecondary:hover {
     background: #8592c0;
   }
+
+  /* Courses */
+  .miniCourses {
+    min-height: 260px;
+    overflow: hidden;
+    position: relative;
+    padding-top: 100px; /**/
+    padding-bottom: 250px; /**/
+  }
   
+  .miniCourses:before {
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    opacity: .95;
+    background-repeat: no-repeat;
+    background-color: #fff; /* Fondo sección menú*/
+    background-size: cover;
+    background-position: center center;
+    z-index: 2;
+    top: -10%;
+    left: -20%;
+  }
+
+  .miniCourses .miniContentCourse {
+    position: relative;
+    z-index: 3;
+  }
+  
+  .miniCourses .miniContentCourse .infoCourses {
+    text-align: center;
+    color: #fff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .miniCourses .miniContentCourse .infoCourses h1 {
+    color: #604274;
+    font-weight: 501;
+    font-size: 30px;
+    letter-spacing: 0.25px;
+    margin-bottom: 50px;
+  }
+  
+  .Subtitle {
+    color: #65739F;
+    font-weight: 501;
+    font-size: 25px;
+    letter-spacing: 0.25px;
+    
+  }

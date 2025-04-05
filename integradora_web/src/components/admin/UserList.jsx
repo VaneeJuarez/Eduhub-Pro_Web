@@ -10,8 +10,8 @@ import defaultProfile from "../../assets/img/unknow.jpeg";
 import styles from "../../styles/card.module.css";
 
 // Modals 
-import { headers } from "../../utils/config/config";
-import { admin_path, base_api_url, change_status_instructor, change_status_student, user_management } from "../../utils/config/paths";
+import { headers, sweetAlert } from "../../utils/config/config";
+import { admin_path, base_api_url, change_status_instructor, change_status_student, user_management, update } from "../../utils/config/paths";
 import UserModal from "../modals/UserModal";
 
 function UserList({ userList }) {
@@ -108,6 +108,41 @@ function UserList({ userList }) {
                 return { type: "ERROR", text: "Error al eliminar el estudiante." };
             });
     };
+
+    const handleSaveEditedUser = async (updatedUser) => {
+        await fetch(`${base_api_url}${admin_path}${user_management}${update}`, {
+            method: "PUT",
+            headers: headers,
+            body: JSON.stringify({
+                userId: updatedUser.userId,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                password: updatedUser.password,
+            }),
+        })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.type !== "SUCCESS") {
+                sweetAlert("error", "Error", result.text || "No se pudo actualizar el usuario.");
+                return;
+            }
+
+            setUsers((prev) =>
+                prev.map((user) =>
+                  user.userId === updatedUser.userId
+                    ? { ...user, name: updatedUser.name, email: updatedUser.email }
+                    : user
+                )
+              );
+
+              setIsEditModalOpen(false);
+              setUserToEdit(null);
+        })
+        .catch((error) => {
+            console.log(error);
+            sweetAlert("error", "Error", "No pudimos editar el usuario. Inténtalo nuevamente.");
+          });
+    }
 
     if (users.length === 0) {
 

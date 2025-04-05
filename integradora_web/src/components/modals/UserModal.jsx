@@ -73,7 +73,7 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             type="password"
                             name="password"
                             maxLength={30}
-                            value={formData.password}
+                            
                             onChange={handleChange}
                             required
                         />
@@ -88,7 +88,7 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             className={styles.Select}
                         >
                             <option value="">Selecciona un rol</option>
-                            <option value="INSTRUCTOR">Intructor</option>
+                            <option value="INSTRUCTOR">Instructor</option>
                             <option value="STUDENT">Estudiante</option>
                         </Form.Select>
                     </Form.Group>

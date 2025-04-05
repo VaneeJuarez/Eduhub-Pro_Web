@@ -6,6 +6,7 @@ import Header from "../../components/Header";
 import Analytics from "../../components/admin/Analytics";
 import Menu from "../../components/admin/Menu";
 import Sidebar from "../../components/admin/Sidebar";
+import AnalyticsCourses from "../../components/admin/AnalyticsCourses";
 
 // Styles
 import styles from "../../styles/dashboard.module.css";
@@ -72,6 +73,7 @@ const DashboardAdmin = () => {
         totalInstructors={totalInstructors}
         totalCourses={totalCourses}
       />
+      <AnalyticsCourses />
       <Footer />
     </>
   );
