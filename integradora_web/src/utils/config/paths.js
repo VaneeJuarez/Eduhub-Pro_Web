@@ -21,6 +21,7 @@ export const payment_management = "payment/";
 export const module_management = "module/";
 export const section_management = "section/";
 export const attendance_management = "attendance/";
+export const review_management = "review/";
 
 // 4. Common Actions
 export const all = "all";

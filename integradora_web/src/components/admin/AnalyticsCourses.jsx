@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Badge, Tabs, Tab, Table, Image } from "react-bootstrap"
 import { Link } from "react-router-dom"
 
@@ -6,58 +6,91 @@ import { Link } from "react-router-dom"
 import styles from "../../styles/menu.module.css";
 import style from '../../styles/coursecard.module.css'
 
+// Config
+import { base_api_url, admin_path, review_management, all } from "../../utils/config/paths";
+import { headers } from "../../utils/config/config";
+
 const AnalyticsCourses = () => {
-    const [courses, setCourses] = useState([
-        {
-            id: 1,
-            title: "JavaScript Fundamentals",
-            description: "Curso de JavaScript muy pro",
-            "categories": [
-                { "name": "Programación" },
-                { "name": "Tecnología" }
-            ],
-            instructor: { "name": "María González" },
-            startDate: "Mar 20",
-            endDate: "Abr 05",
-            price: 109.50,
-            rating: 4.9,
-            bannerPath: "/placeholder.svg",
-        },
-        {
-            id: 2,
-            title: "React for Beginners",
-            description: "Curso de React muy pro",
-            "categories": [
-                { "name": "Programación" },
-                { "name": "Tecnología" }
-            ],
-            instructor: { "name": "María González" },
-            startDate: "Mar 20",
-            endDate: "Abr 05",
-            price: 109.50,
-            rating: 4.8,
-            bannerPath: "/placeholder.svg",
-        },
-        {
-            id: 3,
-            title: "Advanced CSS Techniques",
-            description: "Curso de JavaScript muy pro",
-            "categories": [
-                { "name": "Programación" },
-                { "name": "Tecnología" }
-            ],
-            instructor: { "name": "María González" },
-            startDate: "Mar 20",
-            endDate: "Abr 05",
-            price: 109.50,
-            rating: 4.7,
-            bannerPath: "/placeholder.svg",
-        },
-    ])
+    const [reviews, setReviews] = useState([]);
+    const [bestCourse, setBestCourse] = useState(null);
+    const [worstCourse, setWorstCourse] = useState(null);
+
+    // Cargar todas las reseñas
+    useEffect(() => {
+    
+        fetch(`${base_api_url}${admin_path}${review_management}${all}`, {
+            method: "GET",
+            headers: headers,
+        })
+        .then((res) => {
+            if (!res.ok) {
+                // Manejar error HTTP
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((data) => {
+            if (data.type === "SUCCESS") {
+                setReviews(data.result);
+            } else {
+                console.error("Error al obtener reseñas:", data?.text || "Mensaje no disponible");
+            }
+        })
+        .catch((error) => console.error("Error al hacer fetch de reseñas", error));
+    }, []);
+
+    // Calcular promedios y determinar mejor / peor
+    useEffect(() => {
+        if (reviews.length > 0) {
+            // Mapeo para agrupar reseñas por ID de curso
+            const courseMap = {};
+
+            // Recorremos cada review
+            reviews.forEach((review) => {
+                const courseObj = review.course; 
+                if (!courseObj) return; 
+
+                const cId = courseObj.courseId; 
+                if (!courseMap[cId]) {
+                    courseMap[cId] = {
+                        course: courseObj, // Guardamos info del curso
+                        sum: 0, // Suma de scores
+                        count: 0 // Número de reseñas
+                    };
+                }
+                courseMap[cId].sum += review.score;
+                courseMap[cId].count += 1;
+            });
+
+            // Convertir a array para poder calcular y buscar máximos y mínimos
+            let courseRatings = Object.values(courseMap).map((item) => {
+                const avg = item.count > 0 ? item.sum / item.count : 0;
+                return {
+                    ...item.course, 
+                    averageScore: avg
+                };
+            });
+
+            if (courseRatings.length === 0) {
+                setBestCourse(null);
+                setWorstCourse(null);
+                return;
+            }
+
+            // Ordenar desc por promedio
+            courseRatings.sort((a, b) => b.averageScore - a.averageScore);
+
+            const best = courseRatings[0];
+            const worst = courseRatings[courseRatings.length - 1];
+
+            setBestCourse(best);
+            setWorstCourse(worst);
+        }
+    }, [reviews]);
 
     // Función para renderizar las cards
     const CourseCard = ({ course }) => (
-        <Card className={`h-100 shadow-sm d-flex flex-column ${style.cardCourse}`}>
+        <Card className={`h-90 shadow-sm d-flex flex-column ${style.cardCourse}`}>
             <Image
                 src={course.bannerPath || "/placeholder.svg"} className="card-img-top" alt={course.title}
                 style={{ height: "250px", objectFit: "cover" }}
@@ -67,7 +100,7 @@ const AnalyticsCourses = () => {
                     <h5 className={`card-title ${style.cardTitle}`}>{course.title}</h5>
                     <div className={`d-flex align-items-center ${style.cardRating}`}>
                         <i className="bi bi-star-fill text-warning me-1"></i>
-                        {course.rating}
+                        {course.averageScore?.toFixed(1) ?? "0.0"}
                     </div>
                 </div>
                 <p className={`card-text text-muted mb-2 ${style.cardText}`}>{course.description}</p>
@@ -90,7 +123,7 @@ const AnalyticsCourses = () => {
                 </div>
                 <div className="mt-auto d-flex justify-content-between align-items-center">
                     <div className={`fw-bold ${style.cardPrice}`}>${course.price.toFixed(2)} mx</div>
-                    <Link to={`/course/${course.courseId}`} className={`btn btn-primary ${style.cardButton} `}>Ver Curso</Link>
+                    <Link to={`/admin/courses/${course.courseId}`} className={`btn btn-primary ${style.cardButton} `}>Ver Curso</Link>
                     
                 </div>
             </Card.Body>
@@ -111,12 +144,20 @@ const AnalyticsCourses = () => {
                     <Row className="mb-4 g-4 justify-content-between">
                         <Col md={5}>
                             <h4 className={`fs-4 fw-semibold mb-3 ${styles.Subtitle}`}>Mejor Calificado</h4>
-                            <CourseCard course={courses[0]} />
+                            {bestCourse ? (
+                                <CourseCard course={bestCourse} />
+                                ): ( 
+                                    <p>No hay datos</p>
+                                )}
                         </Col>
                         
                         <Col md={5}>
                             <h4 className={`fs-4 fw-semibold mb-3 ${styles.Subtitle}`}>Peor Calificado</h4>
-                            <CourseCard course={courses[2]} />
+                            {worstCourse ? (
+                                <CourseCard course={worstCourse} />
+                                ) : (
+                                    <p>No hay datos</p>
+                                )}
                         </Col>
                     </Row>
                 </Container>
