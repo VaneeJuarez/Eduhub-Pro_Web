@@ -10,8 +10,9 @@ import StudentListModal from "../modals/StudentListModal";
 
 // Styles
 import styles from "../../styles/coursecard.module.css";
+import { registered_students } from "../../utils/config/paths";
 
-function CourseStatusCard({ course, onPublishCourse }) {
+function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) {
   const [showStudentList, setShowStudentList] = useState(false);
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState("")
@@ -101,26 +102,7 @@ function CourseStatusCard({ course, onPublishCourse }) {
   // Ejecutar la actualización del estado
   updateCourseStatus()
 
-  // Generar estudiantes de ejemplo para la demostración
-  const generateMockStudents = () => {
-    const mockStudents = [];
-    const numStudents = Math.floor(Math.random() * course.size) + 1;
-
-    for (let i = 1; i <= numStudents; i++) {
-      mockStudents.push({
-        id: i,
-        name: `Estudiante ${i}`,
-        email: `estudiante${i}@ejemplo.com`,
-        enrollmentDate: new Date(
-          Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
-      });
-    }
-
-    return mockStudents;
-  };
-
-  const mockStudents = generateMockStudents();
+  const handleShowStudents = () => setShowStudentList(true)
 
   const handlePublishCourse = () => {
     // Verificar que todos los módulos tengan lecciones
@@ -200,14 +182,14 @@ function CourseStatusCard({ course, onPublishCourse }) {
           )}
 
           {/* Curso en curso */}
-          {(isInProgress || (isApproved && isCurrentlyInProgress())) && (
+          {(course.status === "IN_PROGRESS" || (isApproved && isCurrentlyInProgress())) && (
             <div className="text-center py-3">
               <Badge bg="success" className="mb-3 py-2 px-3">
                 <CheckCircleFill className="me-2" /> En Curso
               </Badge>
               <div className="d-flex align-items-center justify-content-center mb-3">
                 <PeopleFill className="me-2" />
-                <span>{mockStudents.length} estudiantes inscritos</span>
+                <span>{registeredStudents.length} estudiantes inscritos</span>
               </div>
               <Button variant="outline-primary" onClick={() => setShowStudentList(true)} className="w-100">
                 Ver Estudiantes
@@ -230,7 +212,7 @@ function CourseStatusCard({ course, onPublishCourse }) {
           <StudentListModal
             show={showStudentList}
             onHide={() => setShowStudentList(false)}
-            students={mockStudents}
+            students={registeredStudents}
             course={course}
           />
         </Card.Body>

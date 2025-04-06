@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Styles
 import styles from "../../styles/general.module.css";
@@ -14,7 +14,7 @@ import SidebarInstructor from "../../components/instructor/SidebarInstructor";
 import CourseModal from "../../components/modals/CourseModal";
 import { useUserContext } from "../../contexts/UserProvider";
 import { headers, sweetAlert } from "../../utils/config/config";
-import { all, base_api_url, course_management, create, instructor_path } from "../../utils/config/paths";
+import { all, base_api_url, course_management, create, instructor_path, review_management, by_id } from "../../utils/config/paths";
 
 const MyCourses = () => {
 
@@ -87,27 +87,78 @@ const MyCourses = () => {
       });
   }
 
-  const fetchAllCourses = async () => {
-    await fetch(`${base_api_url}${instructor_path}${course_management}${all}`, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(
-        {
-          instructorId: user?.jwt
+    // Obtiene el promedio de reseñas de un curso
+    async function fetchCourseRating(courseId) {
+      try {
+        const response = await fetch(`${base_api_url}${instructor_path}${review_management}${by_id}`, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ courseId: courseId }), // Ajustar nombre de campo si difiere
+        });
+        const data = await response.json();
+  
+        if (data.type === "SUCCESS") {
+          const reviews = data.result;
+          if (!reviews || reviews.length === 0) return 0; // sin reseñas
+          const sum = reviews.reduce((acc, r) => acc + r.score, 0);
+          return sum / reviews.length;
         }
-      )
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        console.log(response);
-        
-        setCourses(response.result);
-      })
-      .catch((error) => {
-        console.log(error);
-        // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
-      });
-  };
+  
+        // Si el backend no devolvió SUCCESS, devolvemos 0
+        return 0;
+      } catch (error) {
+        console.error("Error al obtener reseñas del curso", error);
+        return 0;
+      }
+    }
+  
+    // Cargar los cursos del instructor y sus ratings si están finalizados
+    const fetchAllCourses = async () => {
+      try {
+        const response = await fetch(
+          `${base_api_url}${instructor_path}${course_management}${all}`,
+          {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+              instructorId: user?.jwt,
+            }),
+          }
+        );
+        const data = await response.json();
+  
+        // asumiendo que data.type === "SUCCESS" cuando todo va bien
+        if (data.type !== "SUCCESS") {
+          console.error("Error al cargar cursos:", data.text || "Desconocido");
+          return;
+        }
+  
+        // su lista de cursos vendrá en data.result
+        let loadedCourses = data.result || [];
+  
+        // para cada curso FINALIZED, calculamos rating
+        for (let c of loadedCourses) {
+          if (c.courseStatus === "FINALIZED") {
+            c.rating = await fetchCourseRating(c.courseId);
+          } else {
+            c.rating = 0;
+          }
+        }
+  
+        setCourses(loadedCourses);
+      } catch (error) {
+        console.error("Error al cargar cursos:", error);
+        // sweetAlert('error', "Error", "No pudimos cargar la lista de cursos...", "", null);
+      }
+    };
+  
+    // Llama a fetchAllCourses apenas carga el componente
+    useEffect(() => {
+      fetchAllCourses();
+      // eslint-disable-next-line
+    }, []);
+
+
 
   return (
     <>
