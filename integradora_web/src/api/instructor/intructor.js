@@ -194,8 +194,8 @@ export const changeStatusCourses = async (courseId) => {
             };
         });
 };
-// api/userApi.js
 
+// Subir foto de perfil
 export const uploadProfilePhoto = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -252,10 +252,7 @@ export const sendSupportMessage = async (fullName, email, comment) => {
         });
 };
 
-/**
- * 1. Obtener perfil del instructor (UserDto.Consult)
- *    - body: { userId: "token decodificado" }
- */
+// Obtener perfil del instructor
 export const getInstructorProfile = async (userId) => {
     return await fetch(`${base_api_url}${instructor_path}${user_management}${profile}`, {
         method: "POST",
@@ -279,10 +276,7 @@ export const getInstructorProfile = async (userId) => {
         });
 };
 
-/**
- * 2. Actualizar perfil (UserDto.Modify)
- *    - body: { userId, name, email, password, profilePhotoPath }
- */
+// Actualizar perfil
 export const updateInstructorProfile = async (body) => {
     return await fetch(`${base_api_url}${instructor_path}${user_management}${update_profile}`, {
         method: "PUT",

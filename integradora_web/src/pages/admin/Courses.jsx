@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Badge, Button, Card, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
+import { formatCourseDate, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
+import { fetchAllCourses } from "../../api/admin/admin";
 
 // Components
 import Sidebar from "../../components/admin/Sidebar";
@@ -13,134 +14,78 @@ import Header from "../../components/Header";
 import { useUserContext } from "../../contexts/UserProvider";
 import style from "../../styles/coursecard.module.css";
 import styles from "../../styles/general.module.css";
+import { sweetAlert } from "../../utils/config/config";
 
 function Courses() {
 
   const { user } = useUserContext();
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [courses, setCourses] = useState([])
-  const [filter, setFilter] = useState("all")
+  const [filter, setFilter] = useState("Pendientes")
   const navigate = useNavigate()
 
-  useEffect(() => {
-    // Cargar cursos desde localStorage
-    loadCourses()
-
-    // Suscribirse a cambios en localStorage
-    window.addEventListener("storage", loadCourses)
-    return () => window.removeEventListener("storage", loadCourses)
-  }, [])
-
-  const loadCourses = () => {
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-
-    // Filtrar cursos: excluir los que están en estado "Pendiente" y los pendientes de aprobación con fecha vencida
-    const filteredCourses = courses.filter((course) => {
-      // Excluir cursos en estado "Pendiente" (que el docente no ha enviado aún)
-      if (course.status === "Pendiente") {
-        return false
-      }
-
-      // Verificar si es un curso pendiente de aprobación con fecha vencida
-      if (course.status === "Pendiente de aprobar") {
-        // Convertir fecha de inicio a formato de fecha
-        const courseStartDate = normalizeDate(parseDisplayDate(course.startDate));
-        const today = normalizeDate(new Date());
-
-        return today < courseStartDate;
-
-      }
-
-      // Actualizar el estado del curso basado en las fechas actuales
-      updateCourseStatus(course)
-
-      return true
-    })
-
-    // Si se eliminaron cursos, actualizar localStorage
-    if (filteredCourses.length < courses.length) {
-      localStorage.setItem(
-        "courses",
-        JSON.stringify(
-          courses.filter(
-            (course) =>
-              course.status !== "Pendiente" &&
-              !(
-                course.status === "Pendiente de aprobar" &&
-                new Date().setHours(0, 0, 0, 0) >= new Date(parseDisplayDate(course.startDate)).setHours(0, 0, 0, 0)
-              ),
-          ),
-        ),
-      )
-    }
-
-    setCourses(filteredCourses)
-  }
-
-  // Función para actualizar el estado del curso basado en las fechas
-  const updateCourseStatus = (course) => {
-    if (course.status === "Aprobado" || course.status === "En Curso") {
-      const currentStatus = determineCurrentStatus(course)
-
-      // Si el estado actual no coincide con el estado almacenado, actualizarlo
-      if (
-        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
-        (currentStatus === "En Curso" && course.status !== "En Curso")
-      ) {
-        const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-        const courseIndex = courses.findIndex((c) => c.id === course.id)
-
-        if (courseIndex !== -1) {
-          courses[courseIndex].status = currentStatus
-          localStorage.setItem("courses", JSON.stringify(courses))
-        }
-      }
-    }
-  }
-
-  // Determinar el estado actual del curso basado en las fechas
-  const determineCurrentStatus = (course) => {
-    if (hasEnded(course)) {
-      return "Finalizado"
-    } else if (isCurrentlyInProgress(course)) {
-      return "En Curso"
-    } else {
-      return course.status
-    }
-  }
-
-  // Verificar si el curso ya finalizó
-  const hasEnded = (course) => {
-    if (!course) return false
-
-    const today = normalizeDate(new Date());
-    const endDate = normalizeDate(parseDisplayDate(course.endDate));
-
-    return today > endDate
-  }
-
-  // Verificar si el curso está actualmente en curso
-  const isCurrentlyInProgress = (course) => {
-    if (!course) return false
-
-    const today = normalizeDate(new Date());
-    const startDate = normalizeDate(parseDisplayDate(course.startDate));
-    const endDate = normalizeDate(parseDisplayDate(course.endDate));
-
-    return today >= startDate && today <= endDate
-  }
-
   const handleViewCourse = (courseId) => {
-    navigate(`/admin/courses/${courseId}`)
+    navigate(`/admin/courses/detail/${courseId}`)
   }
+
+  useEffect(() => {
+    fetchAllCourses().then(({ success, data, error }) => {
+      if (!success) {
+        sweetAlertF("error", "Error", error, "", null);
+        return;
+      }
+
+      const mappedCourses = data.map((course) => ({
+        courseId: course.courseId,
+        title: course.title,
+        description: course.description,
+        banner_path: course.bannerPath,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        price: course.price,
+        size: course.size,
+        status: course.courseStatus, // enum original
+        categories: course.categories.map((c) => c.name),
+        instructor: { name: course.instructor?.name || "" },
+        modules: course.modules.map((m) => ({
+          moduleId: m.moduleId,
+          name: m.name,
+          date: m.date,
+          status: m.status,
+          lessons: m.sections.map((s) => ({
+            sectionId: s.sectionId,
+            title: s.name,
+            description: s.description,
+            content: s.contentUrl,
+            type: s.contentType,
+            status: s.status,
+          })),
+        })),
+      }));
+
+      setCourses(mappedCourses);
+    });
+  }, []);
 
   // Filtrar cursos según el filtro seleccionado
-  const filteredCourses = courses.filter((course) => {
-    if (filter === "all") return true
-    if (filter === "pending") return course.status === "Pendiente de aprobar"
-    if (filter === "approved") return ["Aprobado", "En Curso", "Finalizado"].includes(course.status)
-    return true
-  })
+  const filteredCourses = courses
+    // 1️⃣  Oculta cursos que no debe ver el admin
+    .filter((c) => !["IN_EDITION", "INACTIVE"].includes(c.status))
+    // 2️⃣  Búsqueda por texto
+    .filter((course) => {
+      const matchSearch =
+        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchFilter =
+        filter === "all" ||
+        (filter === "Pendientes" && course.status === "TO_APPROVE") ||
+        (filter === "Aprobados" &&
+          ["PUBLISHED", "IN_PROGRESS", "FINALIZED"].includes(course.status));
+
+      return matchSearch && matchFilter;
+    });
 
   return (
     <>
@@ -150,10 +95,10 @@ function Courses() {
         <ControlPanel
           showSearch={true}
           showToggle={true}
-          // searchTerm={searchTerm}
-          // setSearchTerm={setSearchTerm}
-          // selectedFilter={selectedFilter}
-          // setSelectedFilter={setSelectedFilter}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedFilter={filter}
+          setSelectedFilter={setFilter}
           toggleOptions={[
             "Aprobados",
             "Pendientes"
@@ -177,7 +122,7 @@ function Courses() {
                       <Card.Title className={`mb-2 ${style.cardTitle}`}>
                         {course.title}
                       </Card.Title>
-                     {/*  <div className="d-flex align-items-center text-muted">
+                      {/*  <div className="d-flex align-items-center text-muted">
                         <Star className="me-2 text-warning" size={14} />
                         <small>{course.rating}</small>
                       </div> */}
@@ -200,7 +145,7 @@ function Courses() {
                     </div>
                     <div className="mb-0">
                       <i className={`bi bi-calendar me-2 ${style.cardIcons}`}></i>
-                      {course.startDate} - {course.endDate}
+                      {formatCourseDate(course.startDate)} - {formatCourseDate(course.endDate)}
                     </div>
                   </Card.Body>
                   <Card.Footer className="bg-white">

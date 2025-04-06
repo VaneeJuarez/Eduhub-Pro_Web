@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Badge, Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import { ArrowLeft, Calendar, CheckCircleFill, PeopleFill } from "react-bootstrap-icons";
 import { useNavigate, useParams } from "react-router-dom";
-import { isTomorrow, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
+import { formatCourseDate, isTomorrow, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
 // Components
 import Sidebar from "../../components/admin/Sidebar";
@@ -15,10 +15,13 @@ import StudentListModal from "../../components/modals/StudentListModal";
 // Styles
 import style from "../../styles/coursecard.module.css";
 import styles from "../../styles/general.module.css";
-;
+import { useUserContext } from "../../contexts/UserProvider";
+import { sweetAlert } from "../../utils/config/config";
+import { changeStatusCourses, fetchCourseById } from "../../api/admin/admin";
 
 function CourseDetail() {
   const { id } = useParams();
+  const { user } = useUserContext();
   const navigate = useNavigate()
 
   const [course, setCourse] = useState(null)
@@ -31,136 +34,22 @@ function CourseDetail() {
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    // Cargar el curso desde localStorage
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const foundCourse = courses.find((c) => c.id === id)
+    const load = async () => {
+      const { success, data, error } = await fetchCourseById(id);
 
-    if (foundCourse) {
-      // Verificar si el curso está pendiente de aprobación y ya pasó su fecha de inicio
-      if (foundCourse.status === "Pendiente de aprobar") {
-        const courseStartDate = normalizeDate(parseDisplayDate(foundCourse.startDate));
-        const today = normalizeDate(new Date());
+      console.log(data.courseDetails);
 
-        if (today >= courseStartDate.getTime()) {
-          // Eliminar el curso
-          const updatedCourses = courses.filter((c) => c.id !== id)
-          localStorage.setItem("courses", JSON.stringify(updatedCourses))
-
-          // Mostrar notificación y redirigir
-          showToastMessage(
-            "Curso eliminado",
-            "El curso ha sido eliminado porque llegó a su fecha de inicio sin ser aprobado",
-            "danger",
-          )
-          setTimeout(() => navigate("/admin/courses"), 3000)
-          return
-        }
+      if (!success) {
+        sweetAlert("error", "Error", error, "", null);
+        navigate("/admin/courses");
+        return;
       }
 
-      // Actualizar el estado del curso basado en las fechas actuales
-      const updatedCourse = updateCourseStatus(foundCourse)
-      setCourse(updatedCourse)
-    }
-
-    setIsLoading(false)
-
-    // Suscribirse a cambios en localStorage
-    const handleStorageChange = () => {
-      const updatedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-      const updatedCourse = updatedCourses.find((c) => c.id === id)
-      if (updatedCourse) {
-        setCourse(updatedCourse)
-      }
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-    return () => window.removeEventListener("storage", handleStorageChange)
-  }, [id, navigate])
-
-  // Función para actualizar el estado del curso basado en las fechas
-  const updateCourseStatus = (course) => {
-    if (course.status === "Aprobado" || course.status === "En Curso") {
-      const currentStatus = determineCurrentStatus(course)
-
-      // Si el estado actual no coincide con el estado almacenado, actualizarlo
-      if (
-        (currentStatus === "Finalizado" && course.status !== "Finalizado") ||
-        (currentStatus === "En Curso" && course.status !== "En Curso")
-      ) {
-        const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-        const courseIndex = courses.findIndex((c) => c.id === course.id)
-
-        if (courseIndex !== -1) {
-          courses[courseIndex].status = currentStatus
-          localStorage.setItem("courses", JSON.stringify(courses))
-
-          // Actualizar el curso local
-          return { ...course, status: currentStatus }
-        }
-      }
-    }
-
-    return course
-  }
-
-  // Determinar el estado actual del curso basado en las fechas
-  const determineCurrentStatus = (course) => {
-    if (hasEnded(course)) {
-      return "Finalizado"
-    } else if (isCurrentlyInProgress(course)) {
-      return "En Curso"
-    } else {
-      return course.status
-    }
-  }
-
-  const showToastMessage = (title, body, variant = "success") => {
-    setToastMessage({ title, body, variant })
-    setShowToast(true)
-  }
-
-  const handleApproveCourse = () => {
-    if (!course) return
-
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const courseIndex = courses.findIndex((c) => c.id === course.id)
-
-    if (courseIndex === -1) return
-
-    // Actualizar el estado del curso a "Aprobado"
-    const updatedCourse = { ...course, status: "Aprobado" }
-    courses[courseIndex] = updatedCourse
-
-    localStorage.setItem("courses", JSON.stringify(courses))
-    setCourse(updatedCourse)
-
-    // Mostrar notificación
-    showToastMessage("Curso aprobado", "El curso ha sido aprobado exitosamente")
-
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"))
-  }
-
-  const handleRejectCourse = () => {
-    if (!course) return
-
-    const courses = JSON.parse(localStorage.getItem("courses") || "[]")
-    const updatedCourses = courses.filter((c) => c.id !== course.id)
-
-    localStorage.setItem("courses", JSON.stringify(updatedCourses))
-
-    // Cerrar modal y mostrar notificación
-    setShowRejectModal(false)
-    showToastMessage("Curso rechazado", "El curso ha sido rechazado y eliminado", "danger")
-
-    // Disparar evento para actualizar la lista en otras páginas
-    window.dispatchEvent(new Event("storage"))
-
-    // Redirigir al panel de administración
-    navigate("/admin/courses")
-  }
-
+      setCourse(mapCourse(data.courseDetails));
+      setIsLoading(false);
+    };
+    load();
+  }, [id, navigate]);
 
   // Verificar si el curso comienza mañana
   const startsTomorrow = (course) => {
@@ -221,6 +110,63 @@ function CourseDetail() {
 
     setShowModuleProgress(true)
   }
+
+  const mapCourse = (c) => ({
+    id: c.courseId,
+    title: c.title,
+    description: c.description,
+    image: c.bannerPath,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    price: c.price,
+    size: c.size,
+    status: c.courseStatus, // enum real
+    modules: c.modules.map((m) => ({
+      moduleId: m.moduleId,
+      title: m.name,
+      order: m.date,
+      status: m.status,
+      lessons: m.sections.map((s) => ({
+        sectionId: s.sectionId,
+        title: s.name,
+        description: s.description,
+        content: s.contentUrl,
+        type: s.contentType,
+      })),
+    })),
+    tags: c.categories,
+    instructor: c.instructor.name,
+  });
+
+  /* ────────────────────────────────  Actions  ──────────────────────────────── */
+  const handleApprove = async () => {
+    const body = { courseId: course.id, courseStatus: "PUBLISHED" };
+
+    const { success, error } = await changeStatusCourses(body);
+    if (!success) return sweetAlert("error", "Error", error, "", null);
+    sweetAlert("success", "Curso aprobado", "El curso ha sido aprobado exitosamente", "", null);
+    setCourse((prev) => ({ ...prev, status: "PUBLISHED" }));
+  };
+
+  const handleReject = async () => {
+    const body = { courseId: course.id, courseStatus: "NOT_APPROVED" };
+
+    const { success, error } = await changeStatusCourses(body);
+    if (!success) return sweetAlert("error", "Error", error, "", null);
+    sweetAlert("danger", "Curso rechazado", "El curso ha sido rechazado y eliminado", "", null);
+    navigate("/admin/courses");
+  };
+
+  /* ────────────────────────────────  Render guards  ────────────────────────── */
+  if (isLoading) return <Container className="py-4 text-center">Cargando…</Container>;
+  if (!course) return <Container className="py-4 text-center">Curso no encontrado</Container>;
+
+  /* ────────────────────────────────  UI flags  ─────────────────────────────── */
+  const isApproved = course.status === "PUBLISHED";
+  const isInProgress = course.status === "IN_PROGRESS";
+  const isFinished = course.status === "FINALIZED";
+  const isPendingApproval = course.status === "TO_APPROVE"
+
   if (isLoading) {
     return (
       <Container className="py-4">
@@ -240,23 +186,14 @@ function CourseDetail() {
     )
   }
 
-  // Verificar si el curso está pendiente de aprobación
-  const isPendingApproval = course.status === "Pendiente de aprobar"
-
-  // Verificar si el curso está aprobado pero aún no ha iniciado
-  const isApproved = course.status === "Aprobado"
-
-  // Verificar si el curso está en curso
-  const isInProgress = course.status === "En Curso"
-
-  // Verificar si el curso ha finalizado
-  const isFinished = course.status === "Finalizado"
-
   return (
     <>
       <Sidebar />
-      <Header userName="Vanessa Juárez" />
+      <Header userName={user?.name} />
       <section className={styles.content} style={{ backgroundColor: "gray" }}>
+        <Button variant="outline-primary" onClick={() => navigate("/admin/courses")} className={`ml-5 ${style.btnBack}`}>
+          <ArrowLeft className="me-2" /> Volver
+        </Button>
         <Row className="row g-3 mb-4 mt-4 m-4">
           <Col lg={9}>
             <Card className={`mb-4 ${style.cardDetail}`}>
@@ -282,7 +219,7 @@ function CourseDetail() {
                           text="light"
                           className={`py-1 px-2 ${style.cardTag}`}
                         >
-                          {tag}
+                          {tag.name}
                         </Badge>
                       ))}
                     </div>
@@ -290,7 +227,7 @@ function CourseDetail() {
                       <i
                         className={`bi bi-calendar me-2 ${style.cardIcons}`}
                       ></i>
-                      {course.startDate} - {course.endDate}
+                      {formatCourseDate(course.startDate)} - {formatCourseDate(course.endDate)}
                     </div>
                     <div className="mb-2">
                       <i className={`bi bi-person me-2 ${style.cardIcons}`}></i>
@@ -315,7 +252,7 @@ function CourseDetail() {
                   <div className="text-center py-3">
                     <Button
                       variant="success"
-                      onClick={handleApproveCourse}
+                      onClick={handleApprove}
                       className="mb-2 w-100"
                     >
                       Aprobar Curso
@@ -348,7 +285,18 @@ function CourseDetail() {
                       <CheckCircleFill className="me-2" /> Aprobado
                     </Badge>
                     <p className="mb-0">El curso iniciará pronto</p>
-                    <small className="text-muted d-block mt-2">El curso comenzará el {course.startDate}</small>
+                    <small className="text-muted d-block mt-2">El curso comenzará el {formatCourseDate(course.startDate)}</small>
+                  </div>
+                )}
+
+                {/* Curso aprobado sin condición especial (fallback) */}
+                {isApproved && /* !startsTomorrow(course) && !isCurrentlyInProgress(course) && !hasEnded(course) && */ (
+                  <div className="text-center py-3">
+                    <Badge bg="info" className="mb-3 py-2 px-3">
+                      <CheckCircleFill className="me-2" /> Aprobado
+                    </Badge>
+                    <p className="mb-0">El curso fue aprobado</p>
+                    <small className="text-muted d-block mt-2">Se ha aprobado el curso</small>
                   </div>
                 )}
 
@@ -412,7 +360,7 @@ function CourseDetail() {
             <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
               Cancelar
             </Button>
-            <Button variant="danger" onClick={handleRejectCourse}>
+            <Button variant="danger" onClick={handleReject}>
               Rechazar y Eliminar
             </Button>
           </Modal.Footer>
