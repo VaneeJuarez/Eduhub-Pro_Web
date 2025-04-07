@@ -13,6 +13,18 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
         role: initialData.role || ""
     });
 
+    useEffect (() => {
+        if (!show) {
+            // Limpiar campos al cerrar el modal
+            setFormData({
+                name: "",
+                email: "",
+                password: "",
+                role: ""
+            });
+        }
+    }, [show])
+
     const handleChange = (e) => {
         const { name, value } = e.target
         setFormData((prev) => ({

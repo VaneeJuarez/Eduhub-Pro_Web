@@ -73,6 +73,7 @@ const Users = () => {
 
         setResponse(true);
         fetchAllUsers();
+        setIsModalOpen(false);  // <--- cerrar el modal directo aquí
 
         /*   setName("");
           setEmail("");
@@ -83,11 +84,7 @@ const Users = () => {
         sweetAlert('error', "Error", "No pudimos crear el usuario. Inténtalo nuevamente.", "", null);
       });
 
-    // Cerramos el modal
-    if (response) {
-      setIsModalOpen(false);
-      setResponse(true);
-    }
+
   }
 
   // Función para obtener usuarios de la API
