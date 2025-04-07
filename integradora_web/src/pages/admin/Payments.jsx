@@ -30,7 +30,7 @@ const Payments = () => {
               startDate: "2024-05-10",
               endDate: "2024-06-10",
               profileUser: defaultProfile,
-              voucher: "https://example.com/comprobante-erick.jpeg"
+              voucher: "https://pub-c3312bde490a4f4e8e5d3ce1606e7208.r2.dev/09b44eac-ef81-4750-b685-cb6cbb238e4e-Manual virtualizacion Laura.pdf"
             }
 
             localStorage.setItem("payments", JSON.stringify([mockPayment]))

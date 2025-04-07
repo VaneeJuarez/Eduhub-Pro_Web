@@ -6,11 +6,13 @@ const VoucherViewer = ({ show, onHide, voucher }) => {
 
     const extension = voucher.split(".").pop().toLowerCase()
 
+    console.log(voucher);
+    
     const renderContent = () => {
         if (extension === "pdf") {
             return (
                 <iframe
-                    src={voucher}
+                src={`https://docs.google.com/gview?url=${voucher}&embedded=true`}
                     className="w-100"
                     style={{ height: "70vh" }}
                     onLoad={() => setLoading(false)}

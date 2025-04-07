@@ -155,7 +155,7 @@ function Profile() {
   return (
     <>
       <SidebarInstructor />
-      <Header />
+      <Header userName={user?.name} />
       <section className={style.content}>
         <div className="py-5">
 
