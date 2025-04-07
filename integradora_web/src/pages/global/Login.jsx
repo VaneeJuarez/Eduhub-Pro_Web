@@ -82,7 +82,7 @@ const Login = () => {
 
                 if (response.role.includes("ADMIN")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/courses');
+                    navigate('/admin/dashboard');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
                     navigate('/inst/courses');
@@ -128,7 +128,7 @@ const Login = () => {
 
                 if (response.role.includes("ADMIN")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '/admin/dashboard', navigate);
-                    navigate('/admin/courses');
+                    navigate('/admin/dashboard');
                 } else if (response.role.includes("INSTRUCTOR")) {
                     // sweetAlert('success', 'Éxito', 'Inicio de sesión exitoso', '', navigate);
                     navigate('/inst/profile/photo');
