@@ -20,7 +20,7 @@ import { useUserContext } from "../../contexts/UserProvider"
 import style from "../../styles/coursecard.module.css"
 import styles from "../../styles/general.module.css"
 import { headers, sweetAlert } from "../../utils/config/config"
-import { base_api_url, change_status, course_management, instructor_path } from "../../utils/config/paths"
+import { base_api_url, change_status, course_management, instructor_path, registered_students } from "../../utils/config/paths"
 import {
   changeStatusCourses,
   deleteModule,
@@ -46,6 +46,7 @@ function CourseDetailPage() {
   const [selectedModule, setSelectedModule] = useState(null)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
+  const [registeredStudents, setRegisteredStudents] = useState([])
 
   const changeStatusCourse = (courseId) => {
     return fetch(`${base_api_url}${instructor_path}${course_management}${change_status}`, {
@@ -74,6 +75,7 @@ function CourseDetailPage() {
       }
 
       const courseData = result.data.courseDetails
+      const studentsCount = result.data.students
 
       console.log("effect uno")
 
@@ -106,6 +108,7 @@ function CourseDetailPage() {
           })) || [],
         tags: courseData.categories,
         instructor: courseData.instructor.name,
+        studentsCount: studentsCount,
       }
 
       if (mappedCourse.status === "TO_APPROVE" && mappedCourse.startDate) {
@@ -133,7 +136,27 @@ function CourseDetailPage() {
       setIsLoading(false)
     }
 
+    const loadRegisteredStudents = async () => {
+      try {
+        const body = { courseId: id }
+        const response = await fetch(`${base_api_url}${instructor_path}${course_management}${registered_students}`, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(body),
+        })
+        const data = await response.json()
+        if (data.type === "SUCCESS") {
+          setRegisteredStudents(data.data)
+        } else {
+          console.log(data.message)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     loadCourse()
+    loadRegisteredStudents()
   }, [id, navigate])
 
   const showToastMessage = (title, body, variant = "success") => {
@@ -398,7 +421,7 @@ function CourseDetailPage() {
           </Col>
           <div className="col-lg-3">
             {/* Card de estado del curso */}
-            <CourseStatusCard course={course} onPublishCourse={handlePublishCourse} />
+            <CourseStatusCard course={course} onPublishCourse={handlePublishCourse} registeredStudents={registeredStudents} />
           </div>
         </Row>
 

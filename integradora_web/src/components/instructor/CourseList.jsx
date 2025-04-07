@@ -5,6 +5,7 @@ import { Badge, Button, Card, Col, Modal, Row, Toast } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { formatCourseDate, normalizeDate, parseDisplayDate } from "../../utils/dateUtils";
 
+
 // styles
 import styles from "../../styles/coursecard.module.css";
 
@@ -201,10 +202,12 @@ function CourseList({ courses, setCourses, refreshCourses }) {
                   <Card.Title className={`mb-2 ${styles.cardTitle}`}>
                     {course.title}
                   </Card.Title>
-                  {/*      <div className="d-flex align-items-center text-muted">
-                    <Star className="me-2 text-warning" size={14} />
-                    <small>{course.rating}</small>
-                  </div> */}
+                  {course.courseStatus === "FINALIZED" && (
+                    <div className="d-flex align-items-center text-muted">
+                      <i className="bi bi-star-fill text-warning me-1"></i>
+                      <small>{(course.rating || 0).toFixed(1)}</small>
+                    </div>
+                  )}
                 </div>
                 <Card.Text className={`text-muted mb-2 ${styles.cardText}`}>
                   {course.description}

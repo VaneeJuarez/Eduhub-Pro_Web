@@ -4,7 +4,7 @@ import { Modal, Button, Form, Row, Col, Card, InputGroup } from "react-bootstrap
 import { useState } from "react"
 import { Search, PersonFill } from "react-bootstrap-icons"
 
-function StudentListModal({ show, onHide, students, course }) {
+function StudentListModal({ show, onHide, students = [], course }) {
   const [searchTerm, setSearchTerm] = useState("")
 
   // Filtrar estudiantes según el término de búsqueda
