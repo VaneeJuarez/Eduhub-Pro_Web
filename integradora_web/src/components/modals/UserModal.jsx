@@ -50,7 +50,7 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
         <Modal show={show} onHide={onHide} size="medium">
             <Modal.Header closeButton>
                 <Modal.Title className={styles.ModalTitle}>
-                    {initialData.id ? "Editar Usuario" : "Agregar Nuevo Usuario"}
+                    {initialData.userId ? "Editar Usuario" : "Agregar Usuario"}
                 </Modal.Title>
             </Modal.Header>
             <Form className={styles.Form} onSubmit={handleSubmit}>
@@ -62,7 +62,10 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             name="name"
                             maxLength={40}
                             value={formData.name}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                const letters = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÜüÑñ\s]/g, "");
+                                setFormData({ ...formData, name: letters});
+                            }}
                             required
                         />
                     </Form.Group>
@@ -76,6 +79,8 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             value={formData.email}
                             onChange={handleChange}
                             required
+                            // Si existe el userId, deshabilitar el input
+                            disabled = {Boolean(initialData.userId)}
                         />
                     </Form.Group>
 
@@ -98,6 +103,7 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             onChange={handleChange}
                             required
                             className={styles.Select}
+                            disabled={Boolean(initialData.userId)}
                         >
                             <option value="">Selecciona un rol</option>
                             <option value="INSTRUCTOR">Instructor</option>
@@ -106,10 +112,10 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
+                    <Button variant="secondary" className={styles.btnPrimary} onClick={onHide}>
                         Cancelar
                     </Button>
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" type="submit" className={styles.btnSecondary} >
                         Guardar
                     </Button>
                 </Modal.Footer>

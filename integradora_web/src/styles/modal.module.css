@@ -37,3 +37,25 @@
   font-weight: 600;
   color: #fff;
 }
+
+.btnPrimary {
+  background-color: #C8C7D0;
+  border-color: #C8C7D0;
+  color: #333434;
+}
+
+.btnPrimary:hover {
+  background-color: #a5a4ad;
+  border-color: #a5a4ad;
+  color:#333434;
+}
+
+.btnSecondary {
+  background-color: #8493c4;
+  color:#242424;
+}
+
+.btnSecondary:hover {
+  color: #242424;
+  background-color: #8c99c2;
+}

@@ -23,7 +23,7 @@ const Users = () => {
   const [userList, setUserList] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState(""); /* Almacena el término de búsqueda y lo actualiza */
-  const [selectedFilter, setSelectedFilter] = useState("Instructores"); /* Guarda la opción seleccionada y la actualiza */
+  const [selectedFilter, setSelectedFilter] = useState(null); /* Guarda la opción seleccionada y la actualiza */
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredUsers = userList.length > 0 ? userList.filter((user) => {
