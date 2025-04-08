@@ -3,10 +3,10 @@ import React from "react";
 import styles from '../styles/panel.module.css'
 
 const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [], onAddClick }) => (
-  <div className="container mt-5">
-    <div className="row align-items-center">
+  <div className="container mt-5 mb-4">
+    <div className="row align-items-center justify-content-center">
       {showAddButton && (
-        <div className={`col-12 col-md-auto mb-2 ${styles.button}`}>
+        <div className={`col-auto ${styles.button}`}>
           <button className={`btn btn-primary ${styles.buttonAdd}`}
           onClick={() => {
             console.log(`Abriendo modal con id: ${modalId}`)
@@ -19,7 +19,7 @@ const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTe
       )}
 
       {showSearch && (
-        <div className={styles.searchContainer}>
+        <div className={`${styles.searchContainer} mx-3`}>
           <div className={styles.inputGroup}>
             <div className={styles.iconContainer}>
               <i className={`bi bi-search ${styles.searchIcon}`}></i>
@@ -36,7 +36,7 @@ const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTe
       )}
 
       {showToggle && toggleOptions.length > 0 && (
-        <div className={`btn-group ${styles.btnToggleGroup} ${styles.filtro}`} role="group">
+        <div className={`btn-group ${styles.btnToggleGroup} ${styles.filtro} mx-3`} role="group">
           {toggleOptions.map((option, index) => (
             <button
               key={index}

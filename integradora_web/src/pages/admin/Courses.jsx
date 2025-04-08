@@ -22,7 +22,7 @@ function Courses() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [courses, setCourses] = useState([])
-  const [filter, setFilter] = useState("Pendientes")
+  const [filter, setFilter] = useState("Aprobados")
   const navigate = useNavigate()
 
   const handleViewCourse = (courseId) => {

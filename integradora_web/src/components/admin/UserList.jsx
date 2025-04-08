@@ -25,14 +25,7 @@ function UserList({ userList }) {
     const [userToDelete, setUserToDelete] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [userToEdit, setUserToEdit] = useState(null)
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
-
-    const showToastMessage = (title, body, variant = "success") => {
-        setToastMessage({ title, body, variant });
-        setShowToast(true);
-    };
-
+    
     const handleEditUser = (user, e) => {
         e.stopPropagation();
 
@@ -58,7 +51,7 @@ function UserList({ userList }) {
         handler(userToDelete).then((result) => {
             if (result?.type !== "SUCCESS") {
                 const message = result?.text || "Error al eliminar el usuario.";
-                showToastMessage("Error", message, "danger");
+                sweetAlert('error', 'Error', message, '', null);
                 setIsDeleteDialogOpen(false);
                 setUserToDelete(null);
                 return;
@@ -67,7 +60,7 @@ function UserList({ userList }) {
             setUsers((prev) => prev.filter((u) => u.userId !== userToDelete.userId));
             setIsDeleteDialogOpen(false);
             setUserToDelete(null);
-            showToastMessage("Usuario eliminado", "El usuario ha sido eliminado exitosamente", "danger");
+            sweetAlert('success', 'Éxito', 'El usuario ha sido eliminado exitosamente', '', null);
         });
     };
 
@@ -86,7 +79,7 @@ function UserList({ userList }) {
             .then((response) => response.json())
             .catch((error) => {
                 console.log(error);
-                showToastMessage("Error", "No pudimos eliminar el instructor. Inténtalo nuevamente.", "danger");
+                sweetAlert('error', 'Error', 'No pudimos eliminar el instructor. Inténtalo nuevamente.', '', null);
                 return { type: "ERROR" }; // ⬅️ asegura que siempre retorne algo
             });
     };
@@ -105,6 +98,7 @@ function UserList({ userList }) {
             .then((response) => response.json())
             .catch((error) => {
                 console.log(error);
+                sweetAlert('error', 'Error', 'No pudimos eliminar el estudiante. Inténtalo nuevamente.', '', null);
                 return { type: "ERROR", text: "Error al eliminar el estudiante." };
             });
     };
@@ -127,6 +121,7 @@ function UserList({ userList }) {
                 return;
             }
 
+            // Update the users list with the updated user data
             setUsers((prev) =>
                 prev.map((user) =>
                   user.userId === updatedUser.userId
@@ -135,8 +130,12 @@ function UserList({ userList }) {
                 )
               );
 
-              setIsEditModalOpen(false);
-              setUserToEdit(null);
+            // Show success alert
+            sweetAlert("success", "Éxito", "El usuario ha sido actualizado exitosamente");
+              
+            // Close the modal and clear the edit state
+            setIsEditModalOpen(false);
+            setUserToEdit(null);
         })
         .catch((error) => {
             console.log(error);

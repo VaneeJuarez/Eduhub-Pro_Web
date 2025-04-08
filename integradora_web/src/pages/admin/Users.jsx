@@ -69,7 +69,8 @@ const Users = () => {
           return;
         }
 
-        // sweetAlert('success', 'Éxito', result.text, '', null);
+        // Show success message with SweetAlert
+        sweetAlert('success', 'Éxito', 'Usuario creado exitosamente', '', null);
 
         setResponse(true);
         fetchAllUsers();
