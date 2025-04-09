@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import styles from "../../styles/sidebar.module.css";
 
@@ -14,17 +15,48 @@ const menuItems = [
   { label: "Cursos", link: `/admin/courses`, icon: "bi bi-book" },
   { label: "Finanzas", link: `/admin/payments`, icon: "bi bi-coin" },
   { label: "Cuentas bancarias", link: `/admin/accounts`, icon: "bi bi-credit-card" },
-  { label: "Analíticas", link: `/admin/dashboard#analytics`, icon: "bi bi-bar-chart-line" },
+  { label: "Analíticas", link: `/admin/dashboard#analytics`, icon: "bi bi-bar-chart-line", scrollToId: "analytics" },
 ];
 
 const Sidebar = () => {
 
   const { dispatch } = useUserContext();
+  const navigate = useNavigate();
 
   const [isActive, setIsActive] = useState(false);
 
   const toggleSidebar = () => {
     setIsActive(!isActive);
+  };
+
+  const handleNavigation = (e, item) => {
+    e.preventDefault();
+    
+    // Si el elemento tiene un ID para hacer scroll y estamos en la misma página
+    if (item.scrollToId && window.location.pathname === "/admin/dashboard") {
+      // Si ya estamos en la página de dashboard, solo hacemos scroll
+      const element = document.getElementById(item.scrollToId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Navegamos a la nueva página
+      navigate(item.link);
+      
+      // Si el elemento tiene un ID para hacer scroll, configuramos un timeout para hacerlo después de cargar la página
+      if (item.scrollToId) {
+        // Usamos setTimeout para dar tiempo a que la página se cargue
+        setTimeout(() => {
+          const element = document.getElementById(item.scrollToId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 500); // 500ms debería ser suficiente para que la página se cargue
+      }
+    }
+    
+    // Cerramos el sidebar en dispositivos móviles
+    setIsActive(false);
   };
 
   const logoutRequest = async () => {
@@ -84,7 +116,12 @@ const Sidebar = () => {
         <div className={styles.sidebarContent}>
           <div className={styles.sidebarMenu}>
             {menuItems.map((item, index) => (
-              <a key={index} href={item.link} className={styles.sidebarMenuItem}>
+              <a 
+                key={index} 
+                href={item.link} 
+                className={styles.sidebarMenuItem}
+                onClick={(e) => handleNavigation(e, item)}
+              >
                 <i className={item.icon}></i>
                 <span>{item.label}</span>
               </a>

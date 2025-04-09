@@ -17,7 +17,7 @@ import style from "../../styles/coursecard.module.css";
 import styles from "../../styles/general.module.css";
 import { useUserContext } from "../../contexts/UserProvider";
 import { sweetAlert } from "../../utils/config/config";
-import { changeStatusCourses, fetchCourseById } from "../../api/admin/admin";
+import { changeStatusCourses, fetchCourseById, fetchRegisteredStudents } from "../../api/admin/admin";
 
 function CourseDetail() {
   const { id } = useParams();
@@ -32,6 +32,8 @@ function CourseDetail() {
   const [showLessonViewer, setShowLessonViewer] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState({ title: "", body: "", variant: "success" })
+  const [registeredStudents, setRegisteredStudents] = useState({ total: 0, students: [] })
+  const [loadingStudents, setLoadingStudents] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -40,16 +42,49 @@ function CourseDetail() {
       console.log(data.courseDetails);
 
       if (!success) {
-        sweetAlert("error", "Error", error, "", null);
         navigate("/admin/courses");
         return;
       }
 
       setCourse(mapCourse(data.courseDetails));
       setIsLoading(false);
+      
+      // Cargar estudiantes registrados si el curso está en progreso
+      if (data.courseDetails.courseStatus === "IN_PROGRESS") {
+        loadRegisteredStudents(data.courseDetails.courseId);
+      }
     };
     load();
   }, [id, navigate]);
+
+  // Función para cargar estudiantes registrados
+  const loadRegisteredStudents = async (courseId) => {
+    setLoadingStudents(true);
+    
+    const { success, data, error } = await fetchRegisteredStudents(courseId);
+    
+    if (success) {
+      setRegisteredStudents(data);
+    } else {
+      // Si hay error, simplemente inicializar con valores vacíos sin mostrar error
+      setRegisteredStudents({ total: 0, students: [] });
+      console.log("No hay estudiantes registrados o hubo un error:", error);
+    }
+    
+    setLoadingStudents(false);
+  };
+
+  // Cargar estudiantes registrados cuando se abre el modal
+  const handleOpenStudentList = async () => {
+    if (!course) return;
+    
+    setShowStudentList(true);
+    
+    // Solo cargar si aún no se han cargado o si la lista está vacía
+    if (registeredStudents.total === 0 && registeredStudents.students.length === 0) {
+      loadRegisteredStudents(course.id);
+    }
+  };
 
   // Verificar si el curso comienza mañana
   const startsTomorrow = (course) => {
@@ -76,29 +111,6 @@ function CourseDetail() {
 
     return today >= startDate && today <= endDate
   }
-
-  // Generar estudiantes de ejemplo para la demostración
-  const generateMockStudents = () => {
-    if (!course) return []
-
-    const mockStudents = []
-    const numStudents = Math.floor(Math.random() * course.size) + 1
-
-    for (let i = 1; i <= numStudents; i++) {
-      mockStudents.push({
-        id: i,
-        name: `Estudiante ${i}`,
-        email: `estudiante${i}@ejemplo.com`,
-        enrollmentDate: new Date(
-          Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
-        ).toLocaleDateString(),
-      })
-    }
-
-    return mockStudents
-  }
-
-  const mockStudents = generateMockStudents()
 
   const handleViewModuleProgress = (moduleIndex) => {
     if (!course || !course.modules || !course.modules[moduleIndex]) return
@@ -308,9 +320,9 @@ function CourseDetail() {
                     </Badge>
                     <div className="d-flex align-items-center justify-content-center mb-3">
                       <PeopleFill className="me-2" />
-                      <span>{mockStudents.length} estudiantes inscritos</span>
+                      <span>{registeredStudents.total || 0} estudiantes inscritos</span>
                     </div>
-                    <Button variant="primary" onClick={() => setShowStudentList(true)} className="w-100">
+                    <Button variant="primary" onClick={handleOpenStudentList} className="w-100">
                       Ver Estudiantes
                     </Button>
                   </div>
@@ -371,8 +383,9 @@ function CourseDetail() {
           <StudentListModal
             show={showStudentList}
             onHide={() => setShowStudentList(false)}
-            students={mockStudents}
+            students={registeredStudents.students || []}
             course={course}
+            isLoading={loadingStudents}
           />
         )}
 

@@ -1,10 +1,10 @@
 "use client"
 
-import { Modal, Button, Form, Row, Col, Card, InputGroup } from "react-bootstrap"
+import { Modal, Button, Form, Row, Col, Card, InputGroup, Spinner } from "react-bootstrap"
 import { useState } from "react"
 import { Search, PersonFill } from "react-bootstrap-icons"
 
-function StudentListModal({ show, onHide, students = [], course }) {
+function StudentListModal({ show, onHide, students = [], course, isLoading = false }) {
   const [searchTerm, setSearchTerm] = useState("")
 
   // Filtrar estudiantes según el término de búsqueda
@@ -31,19 +31,34 @@ function StudentListModal({ show, onHide, students = [], course }) {
           />
         </InputGroup>
 
-        {filteredStudents.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3">Cargando estudiantes...</p>
+          </div>
+        ) : filteredStudents.length > 0 ? (
           <Row xs={1} md={2} className="g-3">
             {filteredStudents.map((student) => (
-              <Col key={student.id}>
+              <Col key={student.userId}>
                 <Card className="mb-2">
                   <Card.Body>
                     <div className="d-flex align-items-center">
-                      <div className="bg-light rounded-circle p-2 me-3">
-                        <PersonFill size={24} />
-                      </div>
+                      {student.profilePhotoPath ? (
+                        <img 
+                          src={student.profilePhotoPath} 
+                          alt={student.name} 
+                          className="rounded-circle me-3" 
+                          style={{ width: "40px", height: "40px", objectFit: "cover" }} 
+                        />
+                      ) : (
+                        <div className="bg-light rounded-circle p-2 me-3">
+                          <PersonFill size={24} />
+                        </div>
+                      )}
                       <div className="ml-2">
                         <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
                         <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
+                        <small className="text-muted d-block mt-1">Registro: {new Date(student.registerDate).toLocaleDateString()}</small>
                       </div>
                     </div>
                   </Card.Body>
@@ -69,4 +84,3 @@ function StudentListModal({ show, onHide, students = [], course }) {
 }
 
 export default StudentListModal
-

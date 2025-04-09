@@ -1,5 +1,5 @@
 import { headers } from "../../utils/config/config";
-import { admin_path, all, base_api_url, by_id, change_status, course_management } from "../../utils/config/paths";
+import { admin_path, all, base_api_url, by_id, change_status, course_management, registration_management, registered_students } from "../../utils/config/paths";
 
 // Traer todos los cursos
 export const fetchAllCourses = async () => {
@@ -79,4 +79,55 @@ export const changeStatusCourses = async (body) => {
                 error: global_error_message,
             };
         });
+};
+
+// Obtener estudiantes registrados en un curso
+export const fetchRegisteredStudents = async (courseId) => {
+    const url = `${base_api_url}${admin_path}${registration_management}${registered_students}`;
+    const body = JSON.stringify({ courseId });
+    
+    console.log('Fetching registered students with:');
+    console.log('URL:', url);
+    console.log('Body:', body);
+    
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: body
+        });
+        
+        console.log('Response status:', response.status);
+        
+        // Si el status es 404, retornar una lista vacía en lugar de error
+        if (response.status === 404) {
+            console.log('No students found for this course (404)');
+            return { 
+                success: true, 
+                data: { total: 0, students: [] }
+            };
+        }
+        
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+        
+        if (responseData.type !== 'SUCCESS') {
+            return { 
+                success: false, 
+                error: responseData.text || 'Error al obtener los estudiantes registrados' 
+            };
+        }
+        
+        return { 
+            success: true, 
+            data: responseData.result 
+        };
+    } catch (error) {
+        console.error('Error fetching registered students:', error);
+        // En caso de cualquier error, retornar lista vacía en lugar de error
+        return { 
+            success: true, 
+            data: { total: 0, students: [] }
+        };
+    }
 };
