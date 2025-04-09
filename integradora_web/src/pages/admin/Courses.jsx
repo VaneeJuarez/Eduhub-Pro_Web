@@ -115,7 +115,7 @@ function Courses() {
                     src={course.banner_path || "/placeholder.svg"}
                     alt={course.title}
                     className="card-img-top"
-                    style={{ height: "250px", objectFit: "cover" }}
+                    style={{ height: "250px", objectFit: "contain" }}
                   />
                   <Card.Body className="d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-start">

@@ -26,6 +26,14 @@ const Users = () => {
   const [selectedFilter, setSelectedFilter] = useState(null); /* Guarda la opción seleccionada y la actualiza */
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleFilterClick = (option) => {
+    if (selectedFilter === option) {
+      setSelectedFilter(null);
+    } else {
+      setSelectedFilter(option);
+    }
+  };
+
   const filteredUsers = userList.length > 0 ? userList.filter((user) => {
     // Filtro por rol
     if (selectedFilter === "Instructores") {
@@ -148,6 +156,7 @@ const Users = () => {
             "Instructores",
             "Estudiantes",
           ]} /* Define los nombres de los botones de alternancia */
+          onFilterClick={handleFilterClick}
         />
 
         <UserList userList={filteredUsers} />
