@@ -152,21 +152,58 @@ function CourseDetail() {
 
   /* ────────────────────────────────  Actions  ──────────────────────────────── */
   const handleApprove = async () => {
-    const body = { courseId: course.id, courseStatus: "PUBLISHED" };
+    try {
+      // Show loading alert
+      sweetAlert('info', 'Procesando', 'Aprobando curso...', '', null);
+      
+      const body = { courseId: course.id, courseStatus: "PUBLISHED" };
+      console.log('Enviando solicitud para aprobar curso:', body);
 
-    const { success, error } = await changeStatusCourses(body);
-    if (!success) return sweetAlert("error", "Error", error, "", null);
-    sweetAlert("success", "Curso aprobado", "El curso ha sido aprobado exitosamente", "", null);
-    setCourse((prev) => ({ ...prev, status: "PUBLISHED" }));
+      const { success, error } = await changeStatusCourses(body);
+      
+      if (!success) {
+        console.error('Error al aprobar curso:', error);
+        return sweetAlert('error', 'Error', `No se pudo aprobar el curso: ${error}`, '', null);
+      }
+      
+      console.log('Curso aprobado exitosamente');
+      sweetAlert('success', 'Curso aprobado', 'El curso ha sido aprobado exitosamente', '', null);
+      
+      // Actualizar el estado del curso en la interfaz
+      setCourse((prev) => ({ ...prev, status: "PUBLISHED" }));
+    } catch (err) {
+      console.error('Error inesperado:', err);
+      sweetAlert('error', 'Error inesperado', 'Ocurrió un error al procesar la solicitud', '', null);
+    }
   };
 
   const handleReject = async () => {
-    const body = { courseId: course.id, courseStatus: "NOT_APPROVED" };
+    try {
+      // Show loading alert
+      sweetAlert('info', 'Procesando', 'Rechazando curso...', '', null);
+      
+      const body = { courseId: course.id, courseStatus: "NOT_APPROVED" };
+      console.log('Enviando solicitud para rechazar curso:', body);
 
-    const { success, error } = await changeStatusCourses(body);
-    if (!success) return sweetAlert("error", "Error", error, "", null);
-    sweetAlert("danger", "Curso rechazado", "El curso ha sido rechazado y eliminado", "", null);
-    navigate("/admin/courses");
+      const { success, error } = await changeStatusCourses(body);
+      
+      if (!success) {
+        console.error('Error al rechazar curso:', error);
+        return sweetAlert('error', 'Error', `No se pudo rechazar el curso: ${error}`, '', null);
+      }
+      
+      console.log('Curso rechazado exitosamente');
+      sweetAlert('success', 'Curso rechazado', 'El curso ha sido rechazado exitosamente', '', null);
+      
+      // Cerrar el modal y redirigir
+      setShowRejectModal(false);
+      setTimeout(() => {
+        navigate('/admin/courses');
+      }, 1500);
+    } catch (err) {
+      console.error('Error inesperado:', err);
+      sweetAlert('error', 'Error inesperado', 'Ocurrió un error al procesar la solicitud', '', null);
+    }
   };
 
   /* ────────────────────────────────  Render guards  ────────────────────────── */

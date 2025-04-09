@@ -29,6 +29,28 @@ function Courses() {
     navigate(`/admin/courses/detail/${courseId}`)
   }
 
+  // Función para obtener el color y texto del badge según el estado del curso
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "TO_APPROVE":
+        return { bg: "warning", text: "Pendiente de aprobación" };
+      case "NOT_APPROVED":
+        return { bg: "danger", text: "Rechazado" };
+      case "PUBLISHED":
+        return { bg: "success", text: "Publicado" };
+      case "IN_PROGRESS":
+        return { bg: "primary", text: "En progreso" };
+      case "FINALIZED":
+        return { bg: "secondary", text: "Finalizado" };
+      case "IN_EDITION":
+        return { bg: "info", text: "En edición" };
+      case "INACTIVE":
+        return { bg: "dark", text: "Inactivo" };
+      default:
+        return { bg: "light", text: "Desconocido" };
+    }
+  };
+
   useEffect(() => {
     fetchAllCourses().then(({ success, data, error }) => {
       if (!success) {
@@ -131,8 +153,19 @@ function Courses() {
                       {course.description}
                     </Card.Text>
                     <div className="mb-2">
+                      {/* Badge de estado del curso */}
+                      {course.status && (
+                        <Badge 
+                          bg={getStatusBadge(course.status).bg} 
+                          className="ml-1 mr-1 me-2 mb-2"
+                          text="white"
+                        >
+                          {getStatusBadge(course.status).text}
+                        </Badge>
+                      )}
+                      {/* Badges de categorías */}
                       {course.categories?.map((tag, index) => (
-                        <Badge key={index} text="light" className={style.cardTag}>
+                        <Badge key={index} text="light" className={`${style.cardTag} me-1 mb-1`}>
                           {tag}
                         </Badge>
                       ))}
