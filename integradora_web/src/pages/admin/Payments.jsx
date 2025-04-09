@@ -13,7 +13,7 @@ import Sidebar from "../../components/admin/Sidebar";
 import defaultProfile from "../../assets/img/unknow.jpeg";
 
 const Payments = () => {
-    const [selectedFilter, setSelectedFilter] = useState("Pagado");
+    const [selectedFilter, setSelectedFilter] = useState("FINISHED");
 
     useEffect(() => {
         const existingPayments = JSON.parse(localStorage.getItem("payments") || "[]")
@@ -49,9 +49,13 @@ const Payments = () => {
           selectedFilter={selectedFilter} /* Indica que opción del filtro está activa */
           setSelectedFilter={setSelectedFilter}
           toggleOptions={[
+            "FINISHED",
+            "PENDING_PAYMENT",
+          ]} /* Define los valores de los botones de alternancia */
+          toggleLabels={[
             "Pagado",
             "Pendiente",
-          ]} /* Define los nombres de los botones de alternancia */
+          ]} /* Define las etiquetas amigables para mostrar */
         />
 
         <PaymentList selectedFilter={selectedFilter}/>

@@ -2,12 +2,27 @@ import React from "react";
 
 import styles from '../styles/panel.module.css'
 
-const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [], onAddClick, onFilterClick }) => {
+const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter, toggleOptions = [], onAddClick, onFilterClick, toggleLabels }) => {
   const handleFilterClick = (option) => {
     if (onFilterClick) {
       onFilterClick(option);
     } else {
       setSelectedFilter(option);
+    }
+  };
+
+  // Función para obtener la etiqueta amigable para un valor de filtro
+  const getFilterLabel = (option, index) => {
+    // Si se proporcionan etiquetas personalizadas, úsalas
+    if (toggleLabels && toggleLabels.length > index) {
+      return toggleLabels[index];
+    }
+    
+    // Etiquetas predeterminadas para valores comunes
+    switch(option) {
+      case "FINISHED": return "Pagado";
+      case "PENDING_PAYMENT": return "Pendiente";
+      default: return option;
     }
   };
 
@@ -53,7 +68,7 @@ const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTe
               className={`btn btn-outline-primary ${styles.toggle} ${selectedFilter === option ? "active" : ""}`}
               onClick={() => handleFilterClick(option)}
             >
-              {option}
+              {getFilterLabel(option, index)}
             </button>
           ))}
         </div>
