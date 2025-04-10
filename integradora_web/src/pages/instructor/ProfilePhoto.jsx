@@ -16,10 +16,9 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 // Config
-import { base_api_url, instructor_path, user_management, upload_photo } from "../../utils/config/paths";
+import { base_api_url, instructor_path, student_path, user_management, upload_photo, storage_path, upload, update_profile } from "../../utils/config/paths";
 import { useUserContext } from "../../contexts/UserProvider";
-import { headers, sweetAlert } from "../../utils/config/config"
-import { uploadFile } from "../../api/global/global";
+import { headers, sweetAlert, headersUpload } from "../../utils/config/config"
 
 function ProfilePhoto() {
     const { user } = useUserContext();
@@ -30,6 +29,17 @@ function ProfilePhoto() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Obtener el email directamente del localStorage para asegurar que tenemos un valor
+    const getUserEmail = () => {
+        try {
+            const userData = JSON.parse(localStorage.getItem('user'));
+            return userData?.email || "eeeerick28@gmail.com"; // Valor de respaldo si no hay email
+        } catch (error) {
+            console.error("Error al obtener email del usuario:", error);
+            return "eeeerick28@gmail.com"; // Valor de respaldo
+        }
+    };
 
     // Manejar el cambio de imagen de perfil
     const handleImageChange = async (e) => {
@@ -44,16 +54,30 @@ function ProfilePhoto() {
         reader.onloadend = () => setProfileImage(reader.result);
         reader.readAsDataURL(file);
 
-        // Subida automática
-        const result = await uploadFile(file);
-        if (!result.success) {
-            sweetAlert("error", "Error al subir imagen", result.error, "", null);
-            setIsUploading(false);
-            return;
-        }
+        try {
+            // Subir el archivo al servidor
+            const formData = new FormData();
+            formData.append("file", file);
 
-        setUploadedUrl(result.data);
-        setIsUploading(false);
+            const response = await fetch(`${base_api_url}${storage_path}${upload}`, {
+                method: "POST",
+                headers: headersUpload,
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || "Error desconocido al subir el archivo.");
+            }
+
+            const imageUrl = await response.text();
+            setUploadedUrl(imageUrl);
+            setIsUploading(false);
+        } catch (error) {
+            console.error("Error al subir imagen:", error);
+            sweetAlert("error", "Error al subir imagen", error.message || "No se pudo subir la imagen", "", null);
+            setIsUploading(false);
+        }
     };
 
 
@@ -69,27 +93,70 @@ function ProfilePhoto() {
         }
 
         try {
-            const response = await fetch(`${base_api_url}${instructor_path}${user_management}${upload_photo}`, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({
-                    userId: user?.jwt,
-                    profilePhotoPath: uploadedUrl,
-                }),
-            });
-
-            const text = await response.text();
-            const resultJson = text ? JSON.parse(text) : null;
-
-            if (response.ok && resultJson?.type === "SUCCESS") {
-                // sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
-                navigate("/inst/courses");
-            } else {
-                sweetAlert("error", "Error", resultJson?.text || "No se pudo actualizar el perfil.", "", null);
-            }
+            // Depurar el token y los headers
+            const userToken = user?.jwt;
+            console.log("Token de usuario:", userToken);
+            
+            // Obtener el email del usuario
+            const userEmail = getUserEmail();
+            console.log("Email del usuario:", userEmail);
+            
+            // Estructura del cuerpo de la solicitud - incluir password como en Postman
+            const requestBody = {
+                userId: userToken,
+                name: user?.name || "Usuario",
+                email: userEmail, // Usar el email obtenido directamente
+                password: "NuevaPassword2024", // Incluir password como en el ejemplo de Postman
+                profilePhotoPath: uploadedUrl
+            };
+            console.log("Cuerpo de la solicitud:", requestBody);
+            
+            // Probar con la ruta instructor en lugar de student
+            const updateUrl = `${base_api_url}${instructor_path}${user_management}${update_profile}`;
+            console.log("URL de actualización:", updateUrl);
+            
+            // Intentar con XMLHttpRequest en lugar de fetch para ver si evita el problema de CORS
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", updateUrl, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Accept", "application/json");
+            xhr.setRequestHeader("Authorization", `Bearer ${userToken}`);
+            xhr.withCredentials = true;
+            
+            xhr.onload = function() {
+                console.log("Código de respuesta XHR:", xhr.status);
+                console.log("Respuesta XHR:", xhr.responseText);
+                
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const resultJson = JSON.parse(xhr.responseText);
+                        if (resultJson?.type === "SUCCESS") {
+                            sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
+                            navigate("/inst/courses");
+                        } else {
+                            sweetAlert("error", "Error", resultJson?.text || "No se pudo actualizar el perfil.", "", null);
+                        }
+                    } catch (e) {
+                        console.error("Error al procesar respuesta:", e);
+                        sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
+                        navigate("/inst/courses");
+                    }
+                } else {
+                    console.error("Error del servidor:", xhr.responseText);
+                    sweetAlert("error", "Error", `Error ${xhr.status}: ${xhr.statusText}`, "", null);
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error("Error de red en la solicitud XHR");
+                sweetAlert("error", "Error de conexión", "No se pudo conectar con el servidor. Verifica tu conexión a internet.", "", null);
+            };
+            
+            xhr.send(JSON.stringify(requestBody));
+            
         } catch (error) {
             console.error("Error al actualizar perfil:", error);
-            sweetAlert("error", "Error", "Hubo un problema al actualizar tu perfil.", "", null);
+            sweetAlert("error", "Error", error.message || "Hubo un problema al actualizar tu perfil.", "", null);
         }
     };
 

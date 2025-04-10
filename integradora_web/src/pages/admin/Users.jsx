@@ -98,44 +98,41 @@ const Users = () => {
 
   // Función para obtener usuarios de la API
   const fetchAllUsers = async () => {
-    await fetch(`${base_api_url}${admin_path}${user_management}${all}`, {
-      method: "GET",
-      headers: headers,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setUserList(data.result);
-      })
-      .catch((error) => {
-        console.log(error);
-        // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
+    try {
+      const response = await fetch(`${base_api_url}${admin_path}${user_management}${all}`, {
+        method: "GET",
+        headers: headers,
+        credentials: 'include' // Asegura que las cookies se envíen con la solicitud
       });
+      
+      const data = await response.json();
+      console.log('Datos de usuarios cargados:', data);
+      
+      if (data && data.result) {
+        setUserList(data.result);
+      } else {
+        console.error('Respuesta inesperada al cargar usuarios:', data);
+      }
+    } catch (error) {
+      console.error('Error al cargar usuarios:', error);
+      // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
+    }
   };
 
   useEffect(() => {
-    fetchAllUsers();
+    // Asegura que fetchAllUsers se ejecute después de que el componente esté completamente montado
+    const loadUsers = async () => {
+      await fetchAllUsers();
+    };
+    
+    loadUsers();
+    
+    // Eliminar el hash de la URL si existe
+    if (window.location.hash === '#') {
+      const newUrl = window.location.href.replace('#', '');
+      window.history.replaceState({}, document.title, newUrl);
+    }
   }, []);
-
-  // Filtrado en base a selectedFilter y searchTerm
-  /*   const filteredUsers = userList.length > 0 ? userList.filter((user) => {
-      // Filtro por rol
-      if (selectedFilter === "Instructores") {
-        return user.role === "INSTRUCTOR";
-      } else if (selectedFilter === "Estudiantes") {
-        return user.role === "STUDENT";
-      }
-      // Si hubiese más opciones, podrías agregar aquí
-      return true;
-    }).filter((user) => {
-      // Filtro por searchTerm en nombre o email (case-insensitive)
-      if (!searchTerm) return true;
-      const lowerSearch = searchTerm.toLowerCase();
-      return (
-        user.name.toLowerCase().includes(lowerSearch) ||
-        user.email.toLowerCase().includes(lowerSearch)
-      );
-    }) : [];
-   */
 
   return (
     <>

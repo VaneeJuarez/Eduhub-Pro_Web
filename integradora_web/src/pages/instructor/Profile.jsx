@@ -20,6 +20,7 @@ import Footer from "../../components/Footer";
 import { useUserContext } from "../../contexts/UserProvider";
 import { sweetAlert } from "../../utils/config/config";
 import { getInstructorProfile, uploadProfilePhoto, updateInstructorProfile } from "../../api/instructor/intructor";
+import { base_api_url, storage_path, upload } from "../../utils/config/paths";
 
 function Profile() {
   const { user } = useUserContext();
@@ -57,55 +58,90 @@ function Profile() {
     fileInputRef.current.click()
   }
 
-  // Fetchs  
-
   // Manejar el cambio de imagen (uploadFile + setProfileImage)
   const handleProfileImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
+    setSelectedFile(file);
 
-    // Subir archivo al servidor y obtener la URL
-    const uploadResult = await uploadFile(file);
-    if (!uploadResult.success) {
-      sweetAlert("error", "Error al subir imagen", uploadResult.error);
+    // Vista previa inmediata usando FileReader
+    const reader = new FileReader();
+    reader.onloadend = () => setProfileImage(reader.result);
+    reader.readAsDataURL(file);
+
+    try {
+      // Subir el archivo al servidor
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${base_api_url}${storage_path}${upload}`, {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error desconocido al subir el archivo.");
+      }
+
+      const imageUrl = await response.text();
+      console.log("URL de imagen subida:", imageUrl);
+      setProfileImage(imageUrl);
       setIsUploading(false);
-      return;
+      
+      // Mostrar mensaje de éxito
+      showToastMessage("Imagen subida correctamente");
+    } catch (error) {
+      console.error("Error al subir imagen:", error);
+      sweetAlert("error", "Error al subir imagen", error.message || "No se pudo subir la imagen", "", null);
+      setIsUploading(false);
     }
-
-    // Guardar la URL devuelta, para luego enviarla con updateInstructorProfile
-    setProfileImage(uploadResult.data);
-    setIsUploading(false);
-
-    // Opcional: mostrar un Toast de éxito tras subir
-    showToastMessage("Imagen subida correctamente");
   };
 
-  // Vista de edción del pefil
+  // Vista de edición del perfil
   const fetchProfile = async () => {
-    // Llamada a la función de tu instructor.js
-    const result = await getInstructorProfile(user.jwt);
-    if (!result.success) {
-      sweetAlert("error", "Error", result.error);
-      return;
+    try {
+      // Llamada a la función de tu instructor.js
+      const result = await getInstructorProfile(user.jwt);
+      if (!result.success) {
+        sweetAlert("error", "Error", result.error);
+        return;
+      }
+      
+      console.log("Datos del perfil recibidos:", result.data);
+      
+      // El backend retorna algo como { data: { result: { name, email, password, profilePhotoPath } } } 
+      const data = result.data.result;
+      console.log("Datos del instructor:", data);
+
+      // Guardamos la contraseña encriptada en una variable aparte
+      setEncryptedPassword(data.password);
+
+      // Inicializamos formData (sin mostrar la pass encriptada)
+      setFormData({
+        name: data.name || "",
+        email: data.email || "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      // Establecer la imagen de perfil si existe
+      if (data.profilePhotoPath) {
+        console.log("Imagen de perfil encontrada:", data.profilePhotoPath);
+        setProfileImage(data.profilePhotoPath);
+      } else {
+        console.log("No se encontró imagen de perfil, usando imagen predeterminada");
+        setProfileImage(defaultProfile);
+      }
+    } catch (error) {
+      console.error("Error al cargar el perfil:", error);
+      sweetAlert("error", "Error", "No se pudo cargar la información del perfil");
     }
-    // El backend retorna algo como { data: { object: { name, email, password, profilePhotoPath } } } 
-    // Dependiendo de cómo lo manejes, ajusta el acceso:
-    const data = result.data.result;
-
-    // Guardamos la contraseña encriptada en una variable aparte
-    setEncryptedPassword(data.password);
-
-    // Inicializamos formData (sin mostrar la pass encriptada)
-    setFormData({
-      name: data.name || "",
-      email: data.email || "",
-      password: "",
-      confirmPassword: "",
-    });
-
-    setProfileImage(data.profilePhotoPath || defaultProfile);
   };
 
   // Validación de contraseña
@@ -121,55 +157,96 @@ function Profile() {
 
   // 4) Guardar cambios
   const handleUpdateProfile = async () => {
-    const { name, email, password, confirmPassword } = formData;
+    try {
+      const { name, email, password, confirmPassword } = formData;
 
-    if (!name.trim() || !email.trim()) {
-      sweetAlert("warning", "Campos requeridos", "Nombre y correo no pueden estar vacíos.");
-      return;
-    }
-
-    // Validación de contraseña solo si se está intentando cambiar
-    if (password || confirmPassword) {
-      if (password !== confirmPassword) {
-        sweetAlert("error", "Error", "Las contraseñas no coinciden");
+      if (!name.trim() || !email.trim()) {
+        sweetAlert("warning", "Campos requeridos", "Nombre y correo no pueden estar vacíos.");
         return;
       }
 
-      if (!validatePasswordLength(password)) {
-        sweetAlert("warning", "Contraseña inválida", "La contraseña debe tener al menos 8 caracteres");
+      // Validación de contraseña solo si se está intentando cambiar
+      if (password || confirmPassword) {
+        if (password !== confirmPassword) {
+          sweetAlert("error", "Error", "Las contraseñas no coinciden");
+          return;
+        }
+
+        if (!validatePasswordLength(password)) {
+          sweetAlert("warning", "Contraseña inválida", "La contraseña debe tener al menos 8 caracteres");
+          return;
+        }
+
+        if (!validatePasswordFormat(password)) {
+          sweetAlert("warning", "Contraseña inválida", "La contraseña debe contener al menos una letra mayúscula y un número");
+          return;
+        }
+      }
+
+      // Si el usuario introdujo algo en password, validamos
+      let finalPassword = encryptedPassword; // de inicio, usamos la encriptada
+      if (password || confirmPassword) {
+        // Se intenta cambiar
+        // Actualizamos la contraseña final a la nueva
+        finalPassword = password;
+      }
+
+      // Verificar que tenemos una imagen de perfil
+      if (!profileImage) {
+        sweetAlert("warning", "Imagen de perfil", "Es necesario tener una imagen de perfil.");
         return;
       }
 
-      if (!validatePasswordFormat(password)) {
-        sweetAlert("warning", "Contraseña inválida", "La contraseña debe contener al menos una letra mayúscula y un número");
+      console.log("Actualizando perfil con imagen:", profileImage);
+
+      // Estructura final del body, basado en tu UserDto.Modify
+      const body = {
+        userId: user?.jwt,
+        name,
+        email,
+        password: finalPassword, // encriptada si no cambió, o nueva si cambió
+        profilePhotoPath: profileImage,
+      };
+
+      console.log("Datos a enviar:", body);
+
+      // Mostrar indicador de carga
+      setIsUploading(true);
+
+      const result = await updateInstructorProfile(body);
+      
+      // Ocultar indicador de carga
+      setIsUploading(false);
+      
+      if (!result.success) {
+        sweetAlert("error", "Error al actualizar perfil", result.error, "", null);
         return;
       }
+
+      // Limpiar campos de contraseña después de una actualización exitosa
+      setFormData(prevData => ({
+        ...prevData,
+        password: "",
+        confirmPassword: ""
+      }));
+
+      sweetAlert("success", "Perfil actualizado", "Tus datos se han guardado con éxito.", "", null);
+      
+      // Actualizar los datos en el localStorage si es necesario
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      if (currentUser) {
+        currentUser.name = name;
+        currentUser.profilePhotoPath = profileImage;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+      }
+      
+      // Mostrar mensaje de éxito
+      showToastMessage("Perfil actualizado correctamente");
+    } catch (error) {
+      console.error("Error al actualizar perfil:", error);
+      setIsUploading(false);
+      sweetAlert("error", "Error", "Hubo un problema al actualizar tu perfil.", "", null);
     }
-
-    // Si el usuario introdujo algo en password, validamos
-    let finalPassword = encryptedPassword; // de inicio, usamos la encriptada
-    if (password || confirmPassword) {
-      // Se intenta cambiar
-      // Actualizamos la contraseña final a la nueva
-      finalPassword = password;
-    }
-
-    // Estructura final del body, basado en tu UserDto.Modify
-    const body = {
-      userId: user?.jwt,
-      name,
-      email,
-      password: finalPassword, // encriptada si no cambió, o nueva si cambió
-      profilePhotoPath: profileImage,
-    };
-
-    const result = await updateInstructorProfile(body);
-    if (!result.success) {
-      sweetAlert("error", "Error al actualizar perfil", result.error, "", null);
-      return;
-    }
-
-    sweetAlert("success", "Perfil actualizado", "Tus datos se han guardado con éxito.", "", null);
   };
 
   // Al montar, cargar datos del perfil
@@ -220,7 +297,7 @@ function Profile() {
                   <input
                     type="file"
                     ref={fileInputRef}
-                    onChange={handleImageClick}
+                    onChange={handleProfileImageChange}
                     accept="image/*"
                     style={{ display: "none" }}
                   />

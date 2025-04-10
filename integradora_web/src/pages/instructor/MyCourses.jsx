@@ -114,24 +114,58 @@ const MyCourses = () => {
   const fetchAllCourses = async () => {
     try {
       setError(null);
-
+      
+      // Obtener el token del usuario
+      const userToken = user?.jwt;
+      console.log("Token del instructor:", userToken);
+      
+      // Verificar que los headers contengan el token de autorización
+      const requestHeaders = {
+        "Authorization": `Bearer ${userToken}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      };
+      
+      console.log("Headers de la solicitud:", requestHeaders);
+      console.log("URL de la solicitud:", `${base_api_url}${instructor_path}${course_management}${all}`);
+      
+      // Crear el cuerpo de la solicitud con el instructorId
+      const requestBody = {
+        instructorId: userToken
+      };
+      
+      console.log("Cuerpo de la solicitud:", requestBody);
+      
+      // Realizar la solicitud con fetch
       const response = await fetch(
         `${base_api_url}${instructor_path}${course_management}${all}`,
         {
           method: "POST",
-          headers: headers,
-          body: JSON.stringify({
-            instructorId: user?.jwt,
-          }),
+          headers: requestHeaders,
+          body: JSON.stringify(requestBody),
+          credentials: 'include' // Incluir cookies en la solicitud
         }
       );
+      
+      console.log("Código de respuesta:", response.status);
+      console.log("Headers de respuesta:", Object.fromEntries([...response.headers]));
+      
+      // Verificar si la respuesta es exitosa
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error en la respuesta:", errorText);
+        throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
+      }
+      
       const data = await response.json();
+      console.log("Datos recibidos:", data);
 
       if (data.type !== "SUCCESS") {
         throw new Error(data.text || "Error al cargar los cursos");
       }
 
       let loadedCourses = data.result || [];
+      console.log("Cursos cargados:", loadedCourses.length);
 
       // Cargar ratings en paralelo para mejorar el rendimiento
       const coursesWithRatings = await Promise.all(
