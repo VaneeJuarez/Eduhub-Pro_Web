@@ -232,15 +232,17 @@ function ModuleAccordion({
               <div className="module-content">
                 {module.lessons && module.lessons.length > 0 ? (
                   <div className="mb-3">
-                    {module.lessons.map((lesson, lessonIndex) => (
-                      <LessonItem
-                        key={lessonIndex}
-                        lesson={lesson}
-                        icon={getLessonIcon(lesson.type)}
-                        onEdit={() => handleEditLesson(moduleIndex, lessonIndex)}
-                        onDelete={() => handleDeleteLesson(moduleIndex, lessonIndex)}
-                        isPublished={isPublished}
-                      />
+                    {module.lessons
+                      .sort((a, b) => a.sectionId.localeCompare(b.sectionId))
+                      .map((lesson, lessonIndex) => (
+                        <LessonItem
+                          key={lesson.sectionId}
+                          lesson={lesson}
+                          icon={getLessonIcon(lesson.type)}
+                          onEdit={() => handleEditLesson(moduleIndex, lessonIndex)}
+                          onDelete={() => handleDeleteLesson(moduleIndex, lessonIndex)}
+                          isPublished={isPublished}
+                        />
                     ))}
                   </div>
                 ) : (
@@ -332,4 +334,3 @@ function ModuleAccordion({
 }
 
 export default ModuleAccordion
-

@@ -31,12 +31,7 @@ function StudentListModal({ show, onHide, students = [], course, isLoading = fal
           />
         </InputGroup>
 
-        {isLoading ? (
-          <div className="text-center py-5">
-            <Spinner animation="border" variant="primary" />
-            <p className="mt-3">Cargando estudiantes...</p>
-          </div>
-        ) : filteredStudents.length > 0 ? (
+        {filteredStudents.length > 0 ? (
           <Row xs={1} md={2} className="g-3">
             {filteredStudents.map((student) => (
               <Col key={student.userId}>
@@ -44,21 +39,21 @@ function StudentListModal({ show, onHide, students = [], course, isLoading = fal
                   <Card.Body>
                     <div className="d-flex align-items-center">
                       {student.profilePhotoPath ? (
-                        <img 
-                          src={student.profilePhotoPath} 
-                          alt={student.name} 
-                          className="rounded-circle me-3" 
-                          style={{ width: "40px", height: "40px", objectFit: "cover" }} 
+                        <img
+                          src={student.profilePhotoPath}
+                          alt={student.name}
+                          className="rounded-circle me-3"
+                          style={{ width: "40px", height: "40px", objectFit: "cover" }}
                         />
                       ) : (
                         <div className="bg-light rounded-circle p-2 me-3">
-                          <PersonFill size={24} />
+                          <PersonFill size={28} />
                         </div>
                       )}
                       <div className="ml-2">
-                        <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
+                        <Card.Title className="mb-1 fs-5 mb-2" style={{fontSize: "18px"}} >{student.name}</Card.Title>
                         <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
-                        <small className="text-muted d-block mt-1">Registro: {new Date(student.registerDate).toLocaleDateString()}</small>
+                        {/* <small className="text-muted d-block mt-1">Registro: {new Date(student.registerDate).toLocaleDateString()}</small> */}
                       </div>
                     </div>
                   </Card.Body>

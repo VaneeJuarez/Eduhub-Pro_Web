@@ -13,20 +13,20 @@ function ModuleProgressModal({ show, onHide, module, course }) {
   // Filtrar estudiantes según el término de búsqueda y el filtro seleccionado
   const filteredStudents = module.progress
     ? module.progress.filter((student) => {
-        const matchesSearch =
-          student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          student.email.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSearch =
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase())
 
-        if (filter === "Completado") return matchesSearch && student.completed
-        if (filter === "Pendiente") return matchesSearch && !student.completed
-        return matchesSearch
-      })
+      if (filter === "Completado") return matchesSearch && student.completed
+      if (filter === "Pendiente") return matchesSearch && !student.completed
+      return matchesSearch
+    })
     : []
 
   // Calcular estadísticas
   const completedCount = module.progress ? module.progress.filter((student) => student.completed).length : 0
   const totalStudents = module.progress ? module.progress.length : 0
-  const pendingCount = totalStudents - completedCount 
+  const pendingCount = totalStudents - completedCount
   const completionRate = totalStudents > 0 ? Math.round((completedCount / totalStudents) * 100) : 0
   const averageProgress =
     totalStudents > 0
@@ -39,7 +39,7 @@ function ModuleProgressModal({ show, onHide, module, course }) {
         <Modal.Title>Progreso del Módulo: {module.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        
+
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="d-flex align-items-center">
@@ -56,28 +56,38 @@ function ModuleProgressModal({ show, onHide, module, course }) {
             <div className="ms-4 d-flex align-items-center">
               {filter === "Completado" && (
                 <div className="me-3 d-flex align-items-center">
-                <PersonFill size={18} className="me-1 mr-1 text.sucess" />
-                <span className="text-success">{completedCount}</span>
-              </div>
-            )}
+                  <PersonFill size={18} className="me-1 mr-1 text.sucess" />
+                  <span className="text-success">{completedCount}</span>
+                </div>
+              )}
               {filter === "Pendiente" && (
                 <div className="d-flex align-items-center">
-                <PersonFill size={18} className="me-1 mr-1 text.sucess" />
-                <span className="text-secondary">{pendingCount}</span>
-              </div>
-            )}
+                  <PersonFill size={18} className="me-1 mr-1 text.sucess" />
+                  <span className="text-secondary">{pendingCount}</span>
+                </div>
+              )}
             </div>
           </div>
 
           <ButtonGroup>
             <Button
-              variant={filter === "Completado" ? "success" : "outline-success"}
+              variant="light"
+              style={{
+                backgroundColor: filter === "Completado" ? "#65739F" : "transparent",
+                color: filter === "Completado" ? "white" : "#65739F", // color texto
+                borderColor: "#65739F"
+              }}
               onClick={() => setFilter("Completado")}
             >
               Completados
             </Button>
             <Button
-              variant={filter === "Pendiente" ? "secondary" : "outline-secondary"}
+              variant="light"
+              style={{
+                backgroundColor: filter === "Pendiente" ? "#65739F" : "transparent",
+                color: filter === "Pendiente" ? "white" : "#65739F", // color texto
+                borderColor: "#65739F"
+              }}
               onClick={() => setFilter("Pendiente")}
             >
               Pendientes
@@ -88,7 +98,7 @@ function ModuleProgressModal({ show, onHide, module, course }) {
         {filteredStudents.length > 0 ? (
           <div className="student-list">
             {filteredStudents.map((student) => (
-              <Card key={student.id} className={`mb-3 ${student.completed ? "border-success" : "border-secondary"}`}>
+              <Card key={student.id} className={`mb-3 ${student.completed ? "border-gray" : "border-gray"}`}>
                 <Card.Body>
                   <Row>
                     <Col md={6}>
@@ -97,8 +107,8 @@ function ModuleProgressModal({ show, onHide, module, course }) {
                           <PersonFill size={24} />
                         </div>
                         <div className="ml-2">
-                        <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
-                        <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
+                          <Card.Title className="mb-1 fs-5">{student.name}</Card.Title>
+                          <Card.Subtitle className="text-muted">{student.email}</Card.Subtitle>
                         </div>
                       </div>
                     </Col>
@@ -116,7 +126,7 @@ function ModuleProgressModal({ show, onHide, module, course }) {
                           )}
                         </Badge>
 
-                        
+
                       </div>
                     </Col>
                   </Row>

@@ -17,14 +17,12 @@ import { headers, sweetAlert } from "../../utils/config/config";
 import { all, base_api_url, course_management, create, instructor_path, review_management, by_id } from "../../utils/config/paths";
 
 const MyCourses = () => {
-
   const { user } = useUserContext();
-
   const [courses, setCourses] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Cursos");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   const filteredCourses = courses.length > 0 ? courses.filter((course) => {
     const status = course.courseStatus?.toUpperCase();
@@ -52,113 +50,111 @@ const MyCourses = () => {
   }) : [];
 
   const handleSaveCourse = async (course) => {
-    await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({
-        title: course.title,
-        description: course.description,
-        bannerPath: course.bannerPath,
-        startDate: course.startDateISO,
-        endDate: course.endDateISO,
-        price: course.price,
-        size: course.size,
-        instructorId: user.jwt,
-        categoriesId: course.tags
-      }),
-    }).then(response => response.json())
-      .then((result) => {
-        if (result.type !== 'SUCCESS') {
-          if (typeof result === 'object' && !result.text) {
-            const errorMessages = Object.values(result).join("\n");
-            sweetAlert('error', 'Error', errorMessages, '');
-          } else if (result.text) {
-            sweetAlert('error', 'Error', result.text, '');
-          }
-          return;
-        }
-
-        fetchAllCourses();
-        setIsModalOpen(false);
-
-      }).catch((error) => {
-        console.log(error);
-        sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
+    try {
+      const response = await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+          title: course.title,
+          description: course.description,
+          bannerPath: course.bannerPath,
+          startDate: course.startDateISO,
+          endDate: course.endDateISO,
+          price: course.price,
+          size: course.size,
+          instructorId: user.jwt,
+          categoriesId: course.tags
+        }),
       });
-  }
+      const result = await response.json();
 
-    // Obtiene el promedio de reseñas de un curso
-    async function fetchCourseRating(courseId) {
-      try {
-        const response = await fetch(`${base_api_url}${instructor_path}${review_management}${by_id}`, {
+      if (result.type !== 'SUCCESS') {
+        if (typeof result === 'object' && !result.text) {
+          const errorMessages = Object.values(result).join("\n");
+          sweetAlert('error', 'Error', errorMessages, '');
+        } else if (result.text) {
+          sweetAlert('error', 'Error', result.text, '');
+        }
+        return;
+      }
+
+      await fetchAllCourses();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
+    }
+  };
+
+  // Obtiene el promedio de reseñas de un curso
+  const fetchCourseRating = async (courseId) => {
+    try {
+      const response = await fetch(`${base_api_url}${instructor_path}${review_management}${by_id}`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({ courseId: courseId }),
+      });
+      const data = await response.json();
+
+      if (data.type === "SUCCESS") {
+        const reviews = data.result;
+        if (!reviews || reviews.length === 0) return 0;
+        const sum = reviews.reduce((acc, r) => acc + r.score, 0);
+        return sum / reviews.length;
+      }
+
+      return 0;
+    } catch (error) {
+      console.error("Error al obtener reseñas del curso", error);
+      return 0;
+    }
+  };
+
+  // Cargar los cursos del instructor y sus ratings si están finalizados
+  const fetchAllCourses = async () => {
+    try {
+      setError(null);
+
+      const response = await fetch(
+        `${base_api_url}${instructor_path}${course_management}${all}`,
+        {
           method: "POST",
           headers: headers,
-          body: JSON.stringify({ courseId: courseId }), // Ajustar nombre de campo si difiere
-        });
-        const data = await response.json();
-  
-        if (data.type === "SUCCESS") {
-          const reviews = data.result;
-          if (!reviews || reviews.length === 0) return 0; // sin reseñas
-          const sum = reviews.reduce((acc, r) => acc + r.score, 0);
-          return sum / reviews.length;
+          body: JSON.stringify({
+            instructorId: user?.jwt,
+          }),
         }
-  
-        // Si el backend no devolvió SUCCESS, devolvemos 0
-        return 0;
-      } catch (error) {
-        console.error("Error al obtener reseñas del curso", error);
-        return 0;
+      );
+      const data = await response.json();
+
+      if (data.type !== "SUCCESS") {
+        throw new Error(data.text || "Error al cargar los cursos");
       }
+
+      let loadedCourses = data.result || [];
+
+      // Cargar ratings en paralelo para mejorar el rendimiento
+      const coursesWithRatings = await Promise.all(
+        loadedCourses.map(async (course) => ({
+          ...course,
+          rating: course.courseStatus === "FINALIZED" ? await fetchCourseRating(course.courseId) : 0
+        }))
+      );
+
+      setCourses(coursesWithRatings);
+    } catch (error) {
+      console.error("Error al cargar cursos:", error);
+      setError(error.message);
+      sweetAlert('error', "Error", "No pudimos cargar la lista de cursos.", "", null);
     }
-  
-    // Cargar los cursos del instructor y sus ratings si están finalizados
-    const fetchAllCourses = async () => {
-      try {
-        const response = await fetch(
-          `${base_api_url}${instructor_path}${course_management}${all}`,
-          {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify({
-              instructorId: user?.jwt,
-            }),
-          }
-        );
-        const data = await response.json();
-  
-        // asumiendo que data.type === "SUCCESS" cuando todo va bien
-        if (data.type !== "SUCCESS") {
-          console.error("Error al cargar cursos:", data.text || "Desconocido");
-          return;
-        }
-  
-        // su lista de cursos vendrá en data.result
-        let loadedCourses = data.result || [];
-  
-        // para cada curso FINALIZED, calculamos rating
-        for (let c of loadedCourses) {
-          if (c.courseStatus === "FINALIZED") {
-            c.rating = await fetchCourseRating(c.courseId);
-          } else {
-            c.rating = 0;
-          }
-        }
-  
-        setCourses(loadedCourses);
-      } catch (error) {
-        console.error("Error al cargar cursos:", error);
-        // sweetAlert('error', "Error", "No pudimos cargar la lista de cursos...", "", null);
-      }
-    };
-  
-    // Llama a fetchAllCourses apenas carga el componente
-    useEffect(() => {
-      fetchAllCourses();
-      // eslint-disable-next-line
-    }, []);
+  };
 
-
+  useEffect(() => {
+    fetchAllCourses();
+    // Configurar actualización automática cada 30 segundos
+    const interval = setInterval(fetchAllCourses, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -177,8 +173,28 @@ const MyCourses = () => {
           toggleOptions={["Cursos", "En Curso", "Pendientes"]}
           onAddClick={() => setIsModalOpen(true)}
         />
-        <CourseList setCourses={setCourses} courses={filteredCourses} refreshCourses={fetchAllCourses} />
-        <CourseModal show={isModalOpen} onHide={() => setIsModalOpen(false)} onSave={handleSaveCourse} />
+        
+        {error ? (
+          <div className="text-center py-5">
+            <p className="text-danger">{error}</p>
+          </div>
+        ) : filteredCourses.length > 0 ? (
+          <CourseList 
+            setCourses={setCourses} 
+            courses={filteredCourses} 
+            refreshCourses={fetchAllCourses} 
+          />
+        ) : (
+          <div className="text-center py-5">
+            <p className="text-muted">No se encontraron cursos que coincidan con los criterios de búsqueda.</p>
+          </div>
+        )}
+
+        <CourseModal 
+          show={isModalOpen} 
+          onHide={() => setIsModalOpen(false)} 
+          onSave={handleSaveCourse} 
+        />
       </section>
       <Footer />
     </>

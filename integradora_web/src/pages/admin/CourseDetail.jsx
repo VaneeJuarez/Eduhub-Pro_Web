@@ -49,13 +49,26 @@ function CourseDetail() {
       setCourse(mapCourse(data.courseDetails));
       setIsLoading(false);
       
-      // Cargar estudiantes registrados si el curso está en progreso
-      if (data.courseDetails.courseStatus === "IN_PROGRESS") {
+      // Cargar estudiantes registrados si el curso está en progreso o publicado
+      if (data.courseDetails.courseStatus === "IN_PROGRESS" || data.courseDetails.courseStatus === "PUBLISHED") {
         loadRegisteredStudents(data.courseDetails.courseId);
       }
     };
     load();
   }, [id, navigate]);
+
+  // Efecto para actualizar la lista de estudiantes en tiempo real
+  useEffect(() => {
+    if (!course || course.status !== "IN_PROGRESS") return;
+
+    // Actualizar cada 5 segundos
+    const interval = setInterval(() => {
+      loadRegisteredStudents(course.id);
+    }, 5000);
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(interval);
+  }, [course]);
 
   // Función para cargar estudiantes registrados
   const loadRegisteredStudents = async (courseId) => {
@@ -300,14 +313,14 @@ function CourseDetail() {
                 {isPendingApproval && (
                   <div className="text-center py-3">
                     <Button
-                      variant="success"
                       onClick={handleApprove}
                       className="mb-2 w-100"
+                      style={{backgroundColor: "#AA39AD"}}
                     >
                       Aprobar Curso
                     </Button>
                     <Button
-                      variant="danger"
+                      style={{backgroundColor: "#C7C7C7"}}
                       onClick={() => setShowRejectModal(true)}
                       className="w-100"
                     >
@@ -323,7 +336,14 @@ function CourseDetail() {
                       <CheckCircleFill className="me-2" /> Aprobado
                     </Badge>
                     <p className="mb-0 fw-bold">El curso inicia mañana</p>
-                    <small className="text-muted d-block mt-2">Todo está listo para comenzar</small>
+                    <hr></hr>
+                    <div className="d-flex align-items-center justify-content-center mb-3">
+                      <PeopleFill className="me-2 mr-2" />
+                      <span>{registeredStudents.total || 0} estudiantes inscritos</span>
+                    </div>
+                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
+                      Ver Estudiantes
+                    </Button>
                   </div>
                 )}
 
@@ -334,18 +354,14 @@ function CourseDetail() {
                       <CheckCircleFill className="me-2" /> Aprobado
                     </Badge>
                     <p className="mb-0">El curso iniciará pronto</p>
-                    <small className="text-muted d-block mt-2">El curso comenzará el {formatCourseDate(course.startDate)}</small>
-                  </div>
-                )}
-
-                {/* Curso aprobado sin condición especial (fallback) */}
-                {isApproved && /* !startsTomorrow(course) && !isCurrentlyInProgress(course) && !hasEnded(course) && */ (
-                  <div className="text-center py-3">
-                    <Badge bg="info" className="mb-3 py-2 px-3">
-                      <CheckCircleFill className="me-2" /> Aprobado
-                    </Badge>
-                    <p className="mb-0">El curso fue aprobado</p>
-                    <small className="text-muted d-block mt-2">Se ha aprobado el curso</small>
+                    <hr></hr>
+                    <div className="d-flex align-items-center justify-content-center mb-3">
+                      <PeopleFill className="me-2 mr-2" />
+                      <span>{registeredStudents.total || 0} estudiantes inscritos</span>
+                    </div>
+                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
+                      Ver Estudiantes
+                    </Button>
                   </div>
                 )}
 
@@ -359,7 +375,7 @@ function CourseDetail() {
                       <PeopleFill className="me-2" />
                       <span>{registeredStudents.total || 0} estudiantes inscritos</span>
                     </div>
-                    <Button variant="primary" onClick={handleOpenStudentList} className="w-100">
+                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
                       Ver Estudiantes
                     </Button>
                   </div>

@@ -17,13 +17,68 @@ import styles from "../../styles/general.module.css";
 import { sweetAlert } from "../../utils/config/config";
 
 function Courses() {
-
   const { user } = useUserContext();
-
   const [searchTerm, setSearchTerm] = useState("");
-  const [courses, setCourses] = useState([])
-  const [filter, setFilter] = useState("Aprobados")
-  const navigate = useNavigate()
+  const [courses, setCourses] = useState([]);
+  const [filter, setFilter] = useState("Aprobados");
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const fetchCourses = async () => {
+    try {
+      const { success, data, error } = await fetchAllCourses();
+      
+      if (!success) {
+        setError(error);
+        sweetAlert("error", "Error", error);
+        return;
+      }
+
+      const mappedCourses = data.map((course) => ({
+        courseId: course.courseId,
+        title: course.title,
+        description: course.description,
+        banner_path: course.bannerPath,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        price: course.price,
+        size: course.size,
+        status: course.courseStatus,
+        categories: course.categories.map((c) => c.name),
+        instructor: { name: course.instructor?.name || "" },
+        review: course.review,
+        modules: course.modules.map((m) => ({
+          moduleId: m.moduleId,
+          name: m.name,
+          date: m.date,
+          status: m.status,
+          lessons: m.sections.map((s) => ({
+            sectionId: s.sectionId,
+            title: s.name,
+            description: s.description,
+            content: s.contentUrl,
+            type: s.contentType,
+            status: s.status,
+          })),
+        })),
+      }));
+
+      setCourses(mappedCourses);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      sweetAlert("error", "Error", "Error al cargar los cursos");
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+    // Configurar el intervalo de actualización (cada 30 segundos)
+    const interval = setInterval(fetchCourses, 30000);
+    
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(interval);
+  }, []);
 
   const handleViewCourse = (courseId) => {
     navigate(`/admin/courses/detail/${courseId}`)
@@ -50,45 +105,6 @@ function Courses() {
         return { bg: "light", text: "Desconocido" };
     }
   };
-
-  useEffect(() => {
-    fetchAllCourses().then(({ success, data, error }) => {
-      if (!success) {
-        sweetAlertF("error", "Error", error, "", null);
-        return;
-      }
-
-      const mappedCourses = data.map((course) => ({
-        courseId: course.courseId,
-        title: course.title,
-        description: course.description,
-        banner_path: course.bannerPath,
-        startDate: course.startDate,
-        endDate: course.endDate,
-        price: course.price,
-        size: course.size,
-        status: course.courseStatus, // enum original
-        categories: course.categories.map((c) => c.name),
-        instructor: { name: course.instructor?.name || "" },
-        modules: course.modules.map((m) => ({
-          moduleId: m.moduleId,
-          name: m.name,
-          date: m.date,
-          status: m.status,
-          lessons: m.sections.map((s) => ({
-            sectionId: s.sectionId,
-            title: s.name,
-            description: s.description,
-            content: s.contentUrl,
-            type: s.contentType,
-            status: s.status,
-          })),
-        })),
-      }));
-
-      setCourses(mappedCourses);
-    });
-  }, []);
 
   // Filtrar cursos según el filtro seleccionado
   const filteredCourses = courses
@@ -127,7 +143,11 @@ function Courses() {
           ]}
         />
 
-        {filteredCourses.length > 0 ? (
+        {error ? (
+          <div className="text-center py-5">
+            <p className="text-muted">Error al cargar los cursos</p>
+          </div>
+        ) : filteredCourses.length > 0 ? (
           <Row className="g-4 m-4">
             {filteredCourses.map((course, id) => (
               <Col key={id} md={6} lg={3} className="mt-4">
@@ -144,25 +164,18 @@ function Courses() {
                       <Card.Title className={`mb-2 ${style.cardTitle}`}>
                         {course.title}
                       </Card.Title>
-                      {/*  <div className="d-flex align-items-center text-muted">
-                        <Star className="me-2 text-warning" size={14} />
-                        <small>{course.rating}</small>
-                      </div> */}
+                      {course.status === "FINALIZED" && (
+                        <div className="d-flex align-items-center text-muted">
+                          <i className="bi bi-star-fill text-warning me-1"></i>
+                          <small>{course.review}</small>
+                        </div>
+                      )}
                     </div>
                     <Card.Text className={`text-muted mb-2 ${style.cardText}`}>
                       {course.description}
                     </Card.Text>
                     <div className="mb-2">
-                      {/* Badge de estado del curso */}
-                      {course.status && (
-                        <Badge 
-                          bg={getStatusBadge(course.status).bg} 
-                          className="ml-1 mr-1 me-2 mb-2"
-                          text="white"
-                        >
-                          {getStatusBadge(course.status).text}
-                        </Badge>
-                      )}
+                     
                       {/* Badges de categorías */}
                       {course.categories?.map((tag, index) => (
                         <Badge key={index} text="light" className={`${style.cardTag} me-1 mb-1`}>

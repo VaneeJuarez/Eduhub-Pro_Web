@@ -108,6 +108,17 @@ function Profile() {
     setProfileImage(data.profilePhotoPath || defaultProfile);
   };
 
+  // Validación de contraseña
+  const validatePasswordLength = (password) => {
+    return password.length >= 8;
+  };
+
+  const validatePasswordFormat = (password) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    return hasUpperCase && hasNumber;
+  };
+
   // 4) Guardar cambios
   const handleUpdateProfile = async () => {
     const { name, email, password, confirmPassword } = formData;
@@ -117,14 +128,28 @@ function Profile() {
       return;
     }
 
+    // Validación de contraseña solo si se está intentando cambiar
+    if (password || confirmPassword) {
+      if (password !== confirmPassword) {
+        sweetAlert("error", "Error", "Las contraseñas no coinciden");
+        return;
+      }
+
+      if (!validatePasswordLength(password)) {
+        sweetAlert("warning", "Contraseña inválida", "La contraseña debe tener al menos 8 caracteres");
+        return;
+      }
+
+      if (!validatePasswordFormat(password)) {
+        sweetAlert("warning", "Contraseña inválida", "La contraseña debe contener al menos una letra mayúscula y un número");
+        return;
+      }
+    }
+
     // Si el usuario introdujo algo en password, validamos
     let finalPassword = encryptedPassword; // de inicio, usamos la encriptada
     if (password || confirmPassword) {
       // Se intenta cambiar
-      if (password !== confirmPassword) {
-        sweetAlert("warning", "Las contraseñas no coinciden", "Verifica tu nueva contraseña.", "", null);
-        return;
-      }
       // Actualizamos la contraseña final a la nueva
       finalPassword = password;
     }
@@ -216,6 +241,7 @@ function Profile() {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        maxLength={40}
                       />
                     </Form.Group>
                   </Col>
@@ -226,6 +252,7 @@ function Profile() {
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        maxLength={40}
                       />
                     </Form.Group>
                   </Col>
@@ -241,6 +268,7 @@ function Profile() {
                         type="password"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        maxLength={40}
                       />
                     </Form.Group>
                   </Col>
@@ -251,6 +279,7 @@ function Profile() {
                         type="password"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        maxLength={40}
                       />
                     </Form.Group>
                   </Col>

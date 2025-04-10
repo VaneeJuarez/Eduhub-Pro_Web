@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, OverlayTrigger, Row, Tooltip, Spinner } from "react-bootstrap";
+import { Button, Card, Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import defaultProfile from "../../assets/img/unknow.jpeg";
 
 // Styles
@@ -15,12 +15,8 @@ function PaymentList({ selectedFilter }) {
   const [payments, setPayments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const loadPayments = async () => {
-    setLoading(true);
-    setError(null);
     try {
       let response;
       
@@ -44,10 +40,10 @@ function PaymentList({ selectedFilter }) {
           ];
           
           setPayments(combinedData);
-          setLoading(false);
           return;
         } else {
-          throw new Error("Error al cargar los pagos");
+          console.error("Error al cargar los pagos");
+          return;
         }
       }
       
@@ -55,13 +51,10 @@ function PaymentList({ selectedFilter }) {
       if (response && response.success) {
         setPayments(response.data || []);
       } else {
-        throw new Error(response?.error || "Error al cargar los pagos");
+        console.error(response?.error || "Error al cargar los pagos");
       }
     } catch (err) {
       console.error("Error loading payments:", err);
-      setError("Error al cargar los pagos. Por favor intenta de nuevo.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -81,28 +74,6 @@ function PaymentList({ selectedFilter }) {
 
   console.log("Current payments:", payments);
   console.log("Selected filter:", selectedFilter);
-
-  if (loading) {
-    return (
-      <div className="text-center py-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </Spinner>
-        <p className="mt-2">Cargando pagos...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-5">
-        <p className="text-danger">{error}</p>
-        <Button variant="primary" onClick={loadPayments}>
-          Reintentar
-        </Button>
-      </div>
-    );
-  }
 
   if (!payments || payments.length === 0) {
     return (

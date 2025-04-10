@@ -39,6 +39,8 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
         const newUser = {
             ...initialData,
             ...formData,
+            // Si estamos editando y la contraseña está vacía, no la incluimos
+            ...(initialData.userId && !formData.password && { password: undefined }),
             status: initialData.status || "Activo",
             profilePicture: initialData.profilePicture || defaultProfile
         }
@@ -90,9 +92,9 @@ const UserModal = ({ show, onHide, onSave, initialData = {} }) => {
                             type="password"
                             name="password"
                             maxLength={30}
-                            
                             onChange={handleChange}
-                            required
+                            required={!initialData.userId} // Solo requerido para nuevos usuarios
+                            
                         />
                     </Form.Group>
                     <Form.Group controlId="formRole">
