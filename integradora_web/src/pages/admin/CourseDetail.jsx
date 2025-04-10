@@ -48,7 +48,7 @@ function CourseDetail() {
 
       setCourse(mapCourse(data.courseDetails));
       setIsLoading(false);
-      
+
       // Cargar estudiantes registrados si el curso está en progreso o publicado
       if (data.courseDetails.courseStatus === "IN_PROGRESS" || data.courseDetails.courseStatus === "PUBLISHED") {
         loadRegisteredStudents(data.courseDetails.courseId);
@@ -73,9 +73,9 @@ function CourseDetail() {
   // Función para cargar estudiantes registrados
   const loadRegisteredStudents = async (courseId) => {
     setLoadingStudents(true);
-    
+
     const { success, data, error } = await fetchRegisteredStudents(courseId);
-    
+
     if (success) {
       setRegisteredStudents(data);
     } else {
@@ -83,16 +83,16 @@ function CourseDetail() {
       setRegisteredStudents({ total: 0, students: [] });
       console.log("No hay estudiantes registrados o hubo un error:", error);
     }
-    
+
     setLoadingStudents(false);
   };
 
   // Cargar estudiantes registrados cuando se abre el modal
   const handleOpenStudentList = async () => {
     if (!course) return;
-    
+
     setShowStudentList(true);
-    
+
     // Solo cargar si aún no se han cargado o si la lista está vacía
     if (registeredStudents.total === 0 && registeredStudents.students.length === 0) {
       loadRegisteredStudents(course.id);
@@ -168,20 +168,20 @@ function CourseDetail() {
     try {
       // Show loading alert
       sweetAlert('info', 'Procesando', 'Aprobando curso...', '', null);
-      
+
       const body = { courseId: course.id, courseStatus: "PUBLISHED" };
       console.log('Enviando solicitud para aprobar curso:', body);
 
       const { success, error } = await changeStatusCourses(body);
-      
+
       if (!success) {
         console.error('Error al aprobar curso:', error);
         return sweetAlert('error', 'Error', `No se pudo aprobar el curso: ${error}`, '', null);
       }
-      
+
       console.log('Curso aprobado exitosamente');
       sweetAlert('success', 'Curso aprobado', 'El curso ha sido aprobado exitosamente', '', null);
-      
+
       // Actualizar el estado del curso en la interfaz
       setCourse((prev) => ({ ...prev, status: "PUBLISHED" }));
     } catch (err) {
@@ -194,20 +194,20 @@ function CourseDetail() {
     try {
       // Show loading alert
       sweetAlert('info', 'Procesando', 'Rechazando curso...', '', null);
-      
+
       const body = { courseId: course.id, courseStatus: "NOT_APPROVED" };
       console.log('Enviando solicitud para rechazar curso:', body);
 
       const { success, error } = await changeStatusCourses(body);
-      
+
       if (!success) {
         console.error('Error al rechazar curso:', error);
         return sweetAlert('error', 'Error', `No se pudo rechazar el curso: ${error}`, '', null);
       }
-      
+
       console.log('Curso rechazado exitosamente');
       sweetAlert('success', 'Curso rechazado', 'El curso ha sido rechazado exitosamente', '', null);
-      
+
       // Cerrar el modal y redirigir
       setShowRejectModal(false);
       setTimeout(() => {
@@ -267,7 +267,7 @@ function CourseDetail() {
                         src={course.image || "/palceholder.svg"}
                         alt={course.title}
                         className="img-fluid rounded mb-3 mb-md-0 w-100"
-                        style={{ objectFit: "cover", maxHeight: "280px" }}
+                        style={{ objectFit: "contain", maxHeight: "280px" }}
                       />
                     )}
                   </div>
@@ -315,12 +315,12 @@ function CourseDetail() {
                     <Button
                       onClick={handleApprove}
                       className="mb-2 w-100"
-                      style={{backgroundColor: "#AA39AD"}}
+                      style={{ backgroundColor: "#AA39AD" }}
                     >
                       Aprobar Curso
                     </Button>
                     <Button
-                      style={{backgroundColor: "#C7C7C7"}}
+                      style={{ backgroundColor: "#C7C7C7" }}
                       onClick={() => setShowRejectModal(true)}
                       className="w-100"
                     >
@@ -341,7 +341,7 @@ function CourseDetail() {
                       <PeopleFill className="me-2 mr-2" />
                       <span>{registeredStudents.total || 0} estudiantes inscritos</span>
                     </div>
-                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
+                    <Button style={{ backgroundColor: "#AA39AD" }} onClick={handleOpenStudentList} className="w-100">
                       Ver Estudiantes
                     </Button>
                   </div>
@@ -359,7 +359,7 @@ function CourseDetail() {
                       <PeopleFill className="me-2 mr-2" />
                       <span>{registeredStudents.total || 0} estudiantes inscritos</span>
                     </div>
-                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
+                    <Button style={{ backgroundColor: "#AA39AD" }} onClick={handleOpenStudentList} className="w-100">
                       Ver Estudiantes
                     </Button>
                   </div>
@@ -375,7 +375,7 @@ function CourseDetail() {
                       <PeopleFill className="me-2" />
                       <span>{registeredStudents.total || 0} estudiantes inscritos</span>
                     </div>
-                    <Button style={{backgroundColor: "#AA39AD"}} onClick={handleOpenStudentList} className="w-100">
+                    <Button style={{ backgroundColor: "#AA39AD" }} onClick={handleOpenStudentList} className="w-100">
                       Ver Estudiantes
                     </Button>
                   </div>
@@ -432,7 +432,7 @@ function CourseDetail() {
         </Modal>
 
         {/* Modal para ver la lista de estudiantes */}
-        {isInProgress && (
+        {(isInProgress || isApproved) && (
           <StudentListModal
             show={showStudentList}
             onHide={() => setShowStudentList(false)}
@@ -441,6 +441,7 @@ function CourseDetail() {
             isLoading={loadingStudents}
           />
         )}
+
 
         {/* Modal para ver el contenido de la lección */}
         {selectedLesson && (

@@ -73,7 +73,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   useEffect(() => {
     if (!show) {
-      // ✅ Limpiar campos al cerrar el modal
+      // Limpiar campos al cerrar el modal
       setFormData({
         title: "",
         description: "",
@@ -95,20 +95,23 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   }, [show]);
 
   useEffect(() => {
-    if (show && initialData?.courseId) {
-      setFormData({
-        title: initialData.title || "",
-        description: initialData.description || "",
-        bannerPath: initialData.bannerPath || "",
-        price: initialData.price || 0.0,
-        size: initialData.size || 1,
-        startDate: initialData.startDate || "",
-        endDate: initialData.endDate || "",
-        startDateISO: initialData.startDate,
-        endDateISO: initialData.endDate,
-        tags: initialData.categories?.map(cat => cat.categoryId) || [], // fix
-      });
-      setImagePreview(initialData.bannerPath || "");
+    if (show) {
+      fetchAllCategories();
+      if (initialData?.courseId) {
+        setFormData({
+          title: initialData.title || "",
+          description: initialData.description || "",
+          bannerPath: initialData.bannerPath || "",
+          price: initialData.price || 0.0,
+          size: initialData.size || 1,
+          startDate: initialData.startDate || "",
+          endDate: initialData.endDate || "",
+          startDateISO: initialData.startDate,
+          endDateISO: initialData.endDate,
+          tags: initialData.tags || []
+        });
+        setImagePreview(initialData.bannerPath || "");
+      }
     }
   }, [show, initialData]);
 
@@ -119,8 +122,6 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       startDateISO: prev.startDate,
       endDateISO: prev.endDate,
     }));
-
-    fetchAllCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -301,6 +302,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       <Modal.Header closeButton>
         <Modal.Title className={styles.ModalTitle}>
           {initialData.courseId ? "Editar Curso" : "Agregar Nuevo Curso"}
+
+
         </Modal.Title>
       </Modal.Header>
       <Form className={styles.Form} onSubmit={handleSubmit}>

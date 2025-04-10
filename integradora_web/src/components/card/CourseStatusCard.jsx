@@ -166,7 +166,9 @@ function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) 
                 <CheckCircleFill className="me-2" /> Aprobado
               </Badge>
               <p className="mb-0 fw-bold">El curso inicia mañana</p>
-              <small className="text-muted d-block mt-2">Prepárate para comenzar</small>
+              <Button variant="outline-primary" onClick={() => setShowStudentList(true)} className="w-100">
+                Ver Estudiantes
+              </Button>
             </div>
           )}
 
@@ -177,8 +179,10 @@ function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) 
                 <CheckCircleFill className="me-2" /> Aprobado
               </Badge>
               <p className="mb-0">El curso iniciará pronto</p>
-              <small className="text-muted d-block mt-2">El curso comenzará el {course.startDate}</small>
-            </div>
+              <Button variant="outline-primary" onClick={() => setShowStudentList(true)} className="w-100">
+                Ver Estudiantes
+              </Button>            
+              </div>
           )}
 
           {/* Curso en curso */}

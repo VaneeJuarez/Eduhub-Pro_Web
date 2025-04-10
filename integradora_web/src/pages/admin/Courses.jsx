@@ -30,7 +30,6 @@ function Courses() {
       
       if (!success) {
         setError(error);
-        sweetAlert("error", "Error", error);
         return;
       }
 
@@ -66,15 +65,15 @@ function Courses() {
       setCourses(mappedCourses);
       setError(null);
     } catch (err) {
-      setError(err.message);
-      sweetAlert("error", "Error", "Error al cargar los cursos");
+      setError("Error al cargar los cursos");
+      console.error("Error fetching courses:", err);
     }
   };
 
   useEffect(() => {
     fetchCourses();
-    // Configurar el intervalo de actualización (cada 30 segundos)
-    const interval = setInterval(fetchCourses, 30000);
+    // Configurar el intervalo de actualización (cada 5 minutos)
+    const interval = setInterval(fetchCourses, 300000);
     
     // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(interval);
@@ -215,15 +214,15 @@ function Courses() {
             ))}
           </Row>
         ) : (
-          <div className="text-center py-5">
+          <div className="text-center py-5" style={{position: "relative", zIndex: "90"}}>
             {filter === "all" ? (
               <p className="text-muted">
                 No hay cursos disponibles en el sistema.
               </p>
-            ) : filter === "pending" ? (
+            ) : filter === "TO_APPROVE" ? (
               <p className="text-muted">No hay cursos pendientes de aprobación.</p>
             ) : (
-              <p className="mb-0">No hay cursos aprobados.</p>
+              <p className="mb-0">No hay cursos registrados.</p>
             )}
           </div>
         )}

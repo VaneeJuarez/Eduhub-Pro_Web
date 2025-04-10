@@ -387,7 +387,7 @@ function CourseDetailPage() {
                         src={course.image || "/palceholder.svg"}
                         alt={course.title}
                         className="img-fluid rounded mb-3 mb-md-0 w-100"
-                        style={{ objectFit: "cover", maxHeight: "280px" }}
+                        style={{ objectFit: "contain", maxHeight: "280px" }}
                       />
                     )}
                   </div>

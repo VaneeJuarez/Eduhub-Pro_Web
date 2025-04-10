@@ -101,7 +101,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Título de la Lección</Form.Label>
-            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required maxLength={20} />
+            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required maxLength={40} />
           </Form.Group>
 
           <Form.Group className="mb-3">
@@ -159,7 +159,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              maxLength={50}
+              maxLength={120}
             />
           </Form.Group>
         </Modal.Body>

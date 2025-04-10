@@ -60,7 +60,7 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Título del Módulo</Form.Label>
-            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required maxLength={20} />
+            <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required maxLength={40} />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
