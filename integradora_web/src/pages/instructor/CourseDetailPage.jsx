@@ -209,7 +209,7 @@ function CourseDetailPage() {
     const body = {
       moduleId: currentModule?.moduleId, // Solo para edición
       name: module.title,
-      date: module.order || new Date().toISOString().split("T")[0],
+      date: module.order || new Date()/* .toISOString().split("T")[0] */ ,
       courseId: id,
     }
 

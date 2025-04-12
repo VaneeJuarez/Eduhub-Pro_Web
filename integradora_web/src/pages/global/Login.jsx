@@ -64,8 +64,8 @@ const Login = () => {
             headers: unlogin,
             body: JSON.stringify(
                 {
-                    email: email,
-                    password: password
+                    email: email.trim(),
+                    password: password.trim()
                 }
             )
         }).then(response => response.json())
@@ -104,8 +104,8 @@ const Login = () => {
             headers: unlogin,
             body: JSON.stringify(
                 {
-                    email: email,
-                    password: password
+                    email: email.trim(),
+                    password: password.trim()
                 }
             )
         }).then(response => response.json())
@@ -147,8 +147,8 @@ const Login = () => {
             body: JSON.stringify(
                 {
                     name: name,
-                    email: email,
-                    password: password,
+                    email: email.trim(),
+                    password: password.trim(),
                     role: role
                 }
             )

@@ -233,7 +233,7 @@ function ModuleAccordion({
                 {module.lessons && module.lessons.length > 0 ? (
                   <div className="mb-3">
                     {module.lessons
-                      .sort((a, b) => a.sectionId.localeCompare(b.sectionId))
+                      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                       .map((lesson, lessonIndex) => (
                         <LessonItem
                           key={lesson.sectionId}
