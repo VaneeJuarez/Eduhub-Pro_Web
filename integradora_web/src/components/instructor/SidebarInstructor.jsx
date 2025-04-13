@@ -27,17 +27,17 @@ const SidebarInstructor = () => {
   const logoutRequest = async () => {
     const user = JSON.parse(localStorage.getItem('user'));
 
-    if (!user || !user.jwt) {
+/*     if (!user || !user.jwt) {
       sweetAlert('error', 'Error', 'No se encontró información del usuario', '', null);
       return;
     }
-
+ */
     await fetch(`${base_api_url}${auth_path}${logout}`, {
       method: 'DELETE',
       headers: headers,
       body: JSON.stringify(
         {
-          userId: user.jwt
+          userId: user?.jwt
         }
       ),
       credentials: 'include'

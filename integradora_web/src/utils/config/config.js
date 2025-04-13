@@ -3,10 +3,30 @@ import Swal from "sweetalert2";
 
 // NO MOVER =>
 // Encabezados comunes para todas las peticiones con autenticación
-export const headers = {
+export const getHeaders = async (jwt) => {
+  return {
+    "Authorization": "Bearer " + jwt,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  }
+};
+
+/* export const headers = {
   "Authorization": "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt,
   "Content-Type": "application/json",
   "Accept": "application/json"
+}; */
+
+export const headers = {
+  get Authorization() {
+    return "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt;
+  },
+  get "Content-Type"() {
+    return "application/json";
+  },
+  get Accept() {
+    return "application/json";
+  }
 };
 
 // Encabezados comunes para todas las peticiones sin autenticación

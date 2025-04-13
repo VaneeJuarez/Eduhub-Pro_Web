@@ -33,9 +33,10 @@ export const fetchAllCourses = async () => {
 
 // Curso por id
 export const fetchCourseById = async (courseId) => {
+    const h = await headers;
     return await fetch(`${base_api_url}${admin_path}${course_management}${by_id}`, {
         method: "POST",
-        headers: headers,
+        headers: h,
         body: JSON.stringify({ courseId })
     }).then((response) => response.json())
         .then((response) => {
@@ -85,48 +86,48 @@ export const changeStatusCourses = async (body) => {
 export const fetchRegisteredStudents = async (courseId) => {
     const url = `${base_api_url}${admin_path}${registration_management}${registered_students}`;
     const body = JSON.stringify({ courseId });
-    
+
     console.log('Fetching registered students with:');
     console.log('URL:', url);
     console.log('Body:', body);
-    
+
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: headers,
             body: body
         });
-        
+
         console.log('Response status:', response.status);
-        
+
         // Si el status es 404, retornar una lista vacía en lugar de error
         if (response.status === 404) {
             console.log('No students found for this course (404)');
-            return { 
-                success: true, 
+            return {
+                success: true,
                 data: { total: 0, students: [] }
             };
         }
-        
+
         const responseData = await response.json();
         console.log('Response data:', responseData);
-        
+
         if (responseData.type !== 'SUCCESS') {
-            return { 
-                success: false, 
-                error: responseData.text || 'Error al obtener los estudiantes registrados' 
+            return {
+                success: false,
+                error: responseData.text || 'Error al obtener los estudiantes registrados'
             };
         }
-        
-        return { 
-            success: true, 
-            data: responseData.result 
+
+        return {
+            success: true,
+            data: responseData.result
         };
     } catch (error) {
         console.error('Error fetching registered students:', error);
         // En caso de cualquier error, retornar lista vacía en lugar de error
-        return { 
-            success: true, 
+        return {
+            success: true,
             data: { total: 0, students: [] }
         };
     }

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import styles from "../../styles/modal.module.css";
-import { headers, headersUpload, sweetAlert } from "../../utils/config/config";
+import { getHeaders, headersUpload, sweetAlert } from "../../utils/config/config";
+import { useUserContext } from "../../contexts/UserProvider";
 import { all, base_api_url, category_management, instructor_path, storage_path, upload } from "../../utils/config/paths";
-import { parseDisplayDate } from "../../utils/dateUtils";
 import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
 
 /* const categoryOptions = [
@@ -17,6 +17,9 @@ import CheckboxMultiSelect from "../courses/CheckboxMultiSelect";
 ]; */
 
 const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
+
+  const { user } = useUserContext(); // Obtener el usuario actual desde el contexto
+
   const [formData, setFormData] = useState({
     title: initialData.title || "",
     description: initialData.description || "",
@@ -96,7 +99,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
 
   useEffect(() => {
     if (show) {
-      fetchAllCategories();
+      //fetchAllCategories();
       if (initialData?.courseId) {
         setFormData({
           title: initialData.title || "",
@@ -122,6 +125,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
       startDateISO: prev.startDate,
       endDateISO: prev.endDate,
     }));
+    fetchAllCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -283,7 +287,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
   const fetchAllCategories = async () => {
     await fetch(`${base_api_url}${instructor_path}${category_management}${all}`, {
       method: "GET",
-      headers: headers,
+      headers: await getHeaders(user?.jwt),
     })
       .then(response => response.json())
       .then(response => {
