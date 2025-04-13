@@ -35,8 +35,13 @@ export const unlogin = {
   "Accept": "application/json"
 };
 
-export const headersUpload = {
+/* export const headersUpload = {
   "Authorization": "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt,
+}; */
+export const headersUpload = {
+  get Authorization() {
+    return "Bearer " + JSON.parse(localStorage.getItem('user'))?.jwt;
+  },
 };
 
 // Alertas
