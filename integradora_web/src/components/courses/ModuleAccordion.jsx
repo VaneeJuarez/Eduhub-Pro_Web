@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Accordion, Button, Modal } from "react-bootstrap"
-import { Plus, FiletypePdf, Image, PlayBtn, BarChartFill } from "react-bootstrap-icons"
+import { Accordion, Button, Modal, Badge } from "react-bootstrap"
+import { Plus, FiletypePdf, Image, PlayBtn, BarChartFill} from "react-bootstrap-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons"
 import ModuleProgressModal from "../modals/ModuleProgressModal"
@@ -37,6 +37,21 @@ function ModuleAccordion({
   const [showDeleteLessonDialog, setShowDeleteLessonDialog] = useState(false)
   const [showProgressModal, setShowProgressModal] = useState(false)
   const [selectedModuleForProgress, setSelectedModuleForProgress] = useState(null)
+
+    // Función para calcular la duración total de un módulo
+    const calculateModuleDuration = (module) => {
+      if (!module.lessons || module.lessons.length === 0) return 0
+      return module.lessons.reduce((total, lesson) => total + (lesson.duration || 0), 0)
+    }
+  
+    // Función para formatear la duración
+    const formatDuration = (minutes) => {
+      if (minutes < 60) return `${minutes} min`
+      const hours = Math.floor(minutes / 60)
+      const mins = minutes % 60
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
+    }
+  
 
   const handleAddLesson = (moduleIndex, e) => {
     e.stopPropagation() // Evitar que el evento se propague al acordeón
@@ -192,7 +207,14 @@ function ModuleAccordion({
           <Accordion.Item key={moduleIndex} eventKey={moduleIndex.toString()}>
             <Accordion.Header>
               <div className="d-flex justify-content-between align-items-center w-100 pe-4">
+                <div>
                 <span>{module.title}</span>
+                  {module.lessons && module.lessons.length > 0 && (
+                    <Badge bg="light" text="dark" className="ml-3">
+                      {formatDuration(calculateModuleDuration(module))}
+                    </Badge>
+                  )}
+                </div>
                 <div className="d-flex" onClick={(e) => e.stopPropagation()}>
                   {!isPublished && (
                     <>

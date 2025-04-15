@@ -14,6 +14,8 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     type: initialData?.type || "video",
     content: initialData?.content || "",
     description: initialData?.description || "",
+    duration: initialData?.duration || 0, // Duración en minutos
+    pdfPages: initialData?.pdfPages || 1, // Número de páginas para PDFs
   })
 
   const [isUploading, setIsUploading] = useState(false);
@@ -28,6 +30,8 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
         type: initialData?.type || "video",
         content: initialData?.content || "",
         description: initialData?.description || "",
+        duration: initialData?.duration || 0,
+        pdfPages: initialData?.pdfPages || 1,
       });
       setContentPreview(initialData?.content || "");
     }
@@ -38,15 +42,43 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  // Función para calcular la duración del video
+  const handleVideoLoad = (e) => {
+    if (formData.type === "video") {
+      const videoDuration = Math.ceil(e.target.duration / 60) // Convertir a minutos redondeando
+      setFormData((prev) => ({ ...prev, duration: videoDuration }))
+    }
+  }
+
   const handleTypeChange = (e) => {
     // Resetear el archivo y la vista previa cuando cambia el tipo
     setContentFile(null)
     setContentPreview("")
+
+    const newType = e.target.value
+    let defaultDuration = 0
+
+    // Establecer duraciones predeterminadas según el tipo
+    if (newType === "image") {
+      defaultDuration = 5 // 5 minutos para imágenes
+    } else if (newType === "pdf") {
+      // Para PDFs, la duración se calculará basada en el número de páginas
+      defaultDuration = formData.pdfPages * 5 // 5 minutos por página
+    }
+
     setFormData((prev) => ({
       ...prev,
-      type: e.target.value,
+      type: newType,
       content: "",
+      duration: defaultDuration,
     }))
+  }
+
+  // Manejador para cambios en el número de páginas del PDF
+  const handlePdfPagesChange = (e) => {
+    const pages = Number.parseInt(e.target.value) || 1
+    const duration = pages * 5 // 5 minutos por página
+    setFormData((prev) => ({ ...prev, pdfPages: pages, duration: duration }))
   }
 
   const handleContentFileChange = async (e) => {
@@ -65,7 +97,18 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     const contentUrl = result.data;
     setContentFile(file);
     setContentPreview(contentUrl);
-    setFormData((prev) => ({ ...prev, content: contentUrl }));
+
+    // Establecer duración predeterminada
+    if (formData.type === "image") {
+      setFormData((prev) => ({ ...prev, content: contentUrl, duration: 5 }))
+    } else if (formData.type === "pdf") {
+      setFormData((prev) => ({ ...prev, content: contentUrl }))
+    } else {
+      // Para videos, la duración se calculará cuando se cargue el video
+      setFormData((prev) => ({ ...prev, content: contentUrl }))
+    }
+
+    // setFormData((prev) => ({ ...prev, content: contentUrl }));
 
     setIsUploading(false);
   };
@@ -76,6 +119,12 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
       ...formData,
       content: contentPreview, // Usar la URL del contenido
     })
+  }
+
+  // Agregar el campo de duración manual para permitir ajustes 
+  const handleDurationChange = (e) => {
+    const duration = Number.parseInt(e.target.value) || 0
+    setFormData((prev) => ({ ...prev, duration }))
   }
 
   // Determinar el tipo de archivo aceptado según el tipo de lección
@@ -140,6 +189,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
                   controls
                   style={{ maxHeight: "150px", maxWidth: "100%" }}
                   className="border rounded"
+                  onLoadedMetadata={handleVideoLoad}
                 />
               </div>
             )}
@@ -148,6 +198,28 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
                 <p className="text-success">PDF cargado correctamente</p>
               </div>
             )}
+          </Form.Group>
+
+          {formData.type === "pdf" && (
+            <Form.Group className="mb-3">
+              <Form.Label>Número de páginas del PDF</Form.Label>
+              <Form.Control type="number" min="1" value={formData.pdfPages} onChange={handlePdfPagesChange} required />
+              <Form.Text className="text-muted">
+                La duración se calculará automáticamente (5 minutos por página).
+              </Form.Text>
+            </Form.Group>
+          )}
+
+          <Form.Group className="mb-3">
+            <Form.Label>Duración (minutos)</Form.Label>
+            <Form.Control type="number" min="1" value={formData.duration} onChange={handleDurationChange} required />
+            <Form.Text className="text-muted">
+              {formData.type === "video"
+                ? "La duración se calcula automáticamente al cargar el video, pero puede ajustarla."
+                : formData.type === "pdf"
+                  ? "Calculada en base al número de páginas, pero puede ajustarla."
+                  : "Duración predeterminada para imágenes: 5 minutos, pero puede ajustarla."}
+            </Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3">
@@ -184,4 +256,6 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
 }
 
 export default LessonModal
+
+
 

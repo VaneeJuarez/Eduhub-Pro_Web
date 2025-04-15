@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button, FormText } from "react-bootstrap"
+import { Button, FormText, Badge } from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
@@ -13,6 +13,15 @@ import LessonViewer from "./LessonViewer"
 
 function LessonItem({ lesson, icon, onEdit, onDelete, isPublished = false }) {
     const [showViewer, setShowViewer] = useState(false)
+
+    // Función para formatear la duración
+  const formatDuration = (minutes) => {
+    if (!minutes && minutes !== 0) return ""
+    if (minutes < 60) return `${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
+  }
   
     return (
       <>
@@ -21,6 +30,9 @@ function LessonItem({ lesson, icon, onEdit, onDelete, isPublished = false }) {
             <div className="d-flex align-items-center">
               {icon}
               <span className="fw-medium">{lesson.title}</span>
+              {lesson.duration !== undefined && (
+              <span className="ms-2 badge bg-light text-dark">{formatDuration(lesson.duration)}</span>
+            )}
             </div>
             {lesson.description && <p className="text-muted small mt-1 ms-4 mb-0">{lesson.description}</p>}
           </div>

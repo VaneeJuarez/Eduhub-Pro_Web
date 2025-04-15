@@ -35,6 +35,26 @@ function CourseDetail() {
   const [registeredStudents, setRegisteredStudents] = useState({ total: 0, students: [] })
   const [loadingStudents, setLoadingStudents] = useState(false)
 
+    // Agregar función para calcular la duración total del curso
+    const calculateTotalCourseDuration = () => {
+      if (!course || !course.modules) return 0
+  
+      return course.modules.reduce((total, module) => {
+        if (!module.lessons) return total
+        const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
+        return total + moduleDuration
+      }, 0)
+    }
+  
+    // Función para formatear la duración
+    const formatDuration = (minutes) => {
+      if (!minutes) return "0 minutos"
+      if (minutes < 60) return `${minutes} minutos`
+      const hours = Math.floor(minutes / 60)
+      const mins = minutes % 60
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours} horas`
+    }
+
   useEffect(() => {
     const load = async () => {
       const { success, data, error } = await fetchCourseById(id);
@@ -285,19 +305,21 @@ function CourseDetail() {
                         </Badge>
                       ))}
                     </div>
-                    <div className="mb-2">
-                      <i
-                        className={`bi bi-calendar me-2 ${style.cardIcons}`}
-                      ></i>
+                    <div className="mb-1">
+                      <i className={`bi bi-calendar me-2 ${style.cardIcons}`}></i>
                       {formatCourseDate(course.startDate)} - {formatCourseDate(course.endDate)}
                     </div>
-                    <div className="mb-2">
+                    <div className="mb-1">
                       <i className={`bi bi-person me-2 ${style.cardIcons}`}></i>
                       Creado por: {course.instructor}
                     </div>
-                    <div className="mb-2">
+                    <div className="mb-1">
                       <i className={`bi bi-people me-2 ${style.cardIcons}`}></i>
                       Límite de estudiantes: {course.size}
+                    </div>
+                    <div className="mb-1">
+                      <i className={`bi bi-clock me-2 ${style.cardIcons}`}></i>
+                      {formatDuration(calculateTotalCourseDuration())}
                     </div>
                     <div className="h5 mt-3">${course.price.toFixed(2)} mx</div>
                   </div>
