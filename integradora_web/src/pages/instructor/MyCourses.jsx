@@ -50,6 +50,8 @@ const MyCourses = () => {
   }) : [];
 
   const handleSaveCourse = async (course) => {
+    console.log(course.tags);
+
     try {
       const response = await fetch(`${base_api_url}${instructor_path}${course_management}${create}`, {
         method: "POST",
@@ -81,7 +83,6 @@ const MyCourses = () => {
       await fetchAllCourses();
       setIsModalOpen(false);
     } catch (error) {
-      console.error(error);
       sweetAlert('error', "Error", "No pudimos crear el curso. Inténtalo nuevamente.", "", null);
     }
   };
@@ -105,7 +106,6 @@ const MyCourses = () => {
 
       return 0;
     } catch (error) {
-      console.error("Error al obtener reseñas del curso", error);
       return 0;
     }
   };
@@ -114,28 +114,22 @@ const MyCourses = () => {
   const fetchAllCourses = async () => {
     try {
       setError(null);
-      
+
       // Obtener el token del usuario
       const userToken = user?.jwt;
-      console.log("Token del instructor:", userToken);
-      
+
       // Verificar que los headers contengan el token de autorización
       const requestHeaders = {
         "Authorization": `Bearer ${userToken}`,
         "Content-Type": "application/json",
         "Accept": "application/json"
       };
-      
-      console.log("Headers de la solicitud:", requestHeaders);
-      console.log("URL de la solicitud:", `${base_api_url}${instructor_path}${course_management}${all}`);
-      
+
       // Crear el cuerpo de la solicitud con el instructorId
       const requestBody = {
         instructorId: userToken
       };
-      
-      console.log("Cuerpo de la solicitud:", requestBody);
-      
+
       // Realizar la solicitud con fetch
       const response = await fetch(
         `${base_api_url}${instructor_path}${course_management}${all}`,
@@ -146,26 +140,20 @@ const MyCourses = () => {
           credentials: 'include' // Incluir cookies en la solicitud
         }
       );
-      
-      console.log("Código de respuesta:", response.status);
-      console.log("Headers de respuesta:", Object.fromEntries([...response.headers]));
-      
+
       // Verificar si la respuesta es exitosa
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Error en la respuesta:", errorText);
         throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
       }
-      
+
       const data = await response.json();
-      console.log("Datos recibidos:", data);
 
       if (data.type !== "SUCCESS") {
         throw new Error(data.text || "Error al cargar los cursos");
       }
 
       let loadedCourses = data.result || [];
-      console.log("Cursos cargados:", loadedCourses.length);
 
       // Cargar ratings en paralelo para mejorar el rendimiento
       const coursesWithRatings = await Promise.all(
@@ -177,7 +165,6 @@ const MyCourses = () => {
 
       setCourses(coursesWithRatings);
     } catch (error) {
-      console.error("Error al cargar cursos:", error);
       setError(error.message);
       sweetAlert('error', "Error", "No pudimos cargar la lista de cursos.", "", null);
     }
@@ -207,16 +194,16 @@ const MyCourses = () => {
           toggleOptions={["Cursos", "En Curso", "Pendientes"]}
           onAddClick={() => setIsModalOpen(true)}
         />
-        
+
         {error ? (
           <div className="text-center py-5">
             <p className="text-danger">{error}</p>
           </div>
         ) : filteredCourses.length > 0 ? (
-          <CourseList 
-            setCourses={setCourses} 
-            courses={filteredCourses} 
-            refreshCourses={fetchAllCourses} 
+          <CourseList
+            setCourses={setCourses}
+            courses={filteredCourses}
+            refreshCourses={fetchAllCourses}
           />
         ) : (
           <div className="text-center py-5">
@@ -224,10 +211,10 @@ const MyCourses = () => {
           </div>
         )}
 
-        <CourseModal 
-          show={isModalOpen} 
-          onHide={() => setIsModalOpen(false)} 
-          onSave={handleSaveCourse} 
+        <CourseModal
+          show={isModalOpen}
+          onHide={() => setIsModalOpen(false)}
+          onSave={handleSaveCourse}
         />
       </section>
       <Footer />

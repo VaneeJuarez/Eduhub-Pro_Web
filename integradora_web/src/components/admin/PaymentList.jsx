@@ -23,10 +23,8 @@ function PaymentList({ selectedFilter }) {
       // Cargar los pagos según el filtro seleccionado
       if (selectedFilter === "FINISHED") {
         response = await fetchFinishedPayments();
-        console.log("Finished payments response:", response);
       } else if (selectedFilter === "PENDING_PAYMENT") {
         response = await fetchPendingPayments();
-        console.log("Pending payments response:", response);
       } else {
         // Si no hay filtro específico, cargar todos los pagos
         const pendingResponse = await fetchPendingPayments();
@@ -42,7 +40,6 @@ function PaymentList({ selectedFilter }) {
           setPayments(combinedData);
           return;
         } else {
-          console.error("Error al cargar los pagos");
           return;
         }
       }
@@ -51,10 +48,8 @@ function PaymentList({ selectedFilter }) {
       if (response && response.success) {
         setPayments(response.data || []);
       } else {
-        console.error(response?.error || "Error al cargar los pagos");
       }
     } catch (err) {
-      console.error("Error loading payments:", err);
     }
   };
 
@@ -71,10 +66,7 @@ function PaymentList({ selectedFilter }) {
     window.addEventListener("payment_updated", handlePaymentUpdate);
     return () => window.removeEventListener("payment_updated", handlePaymentUpdate);
   }, []);
-
-  console.log("Current payments:", payments);
-  console.log("Selected filter:", selectedFilter);
-
+  
   if (!payments || payments.length === 0) {
     return (
       <div className="text-center py-5">

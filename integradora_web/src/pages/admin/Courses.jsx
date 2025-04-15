@@ -66,7 +66,6 @@ function Courses() {
       setError(null);
     } catch (err) {
       setError("Error al cargar los cursos");
-      console.error("Error fetching courses:", err);
     }
   };
 

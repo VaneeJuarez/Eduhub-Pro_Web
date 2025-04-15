@@ -29,7 +29,6 @@ const BankAccounts = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const handleSaveAccount = async (account) => {
-    console.log(account);
     
     await fetch(`${base_api_url}${admin_path}${account_management}${save}`, {
       method: "POST",
@@ -58,7 +57,6 @@ const BankAccounts = () => {
         setResponse(true);
 
       }).catch((error) => {
-        console.log(error);
         
         sweetAlert('error', "Error", "No pudimos crear la cuenta. Inténtalo nuevamente.", "", null);
       });
@@ -75,7 +73,6 @@ const BankAccounts = () => {
       setAccountList(data.result);
     })
     .catch((error) => {
-      console.log(error);
     });
   };
 

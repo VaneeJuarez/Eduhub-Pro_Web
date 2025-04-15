@@ -59,8 +59,6 @@ function CourseDetail() {
     const load = async () => {
       const { success, data, error } = await fetchCourseById(id);
 
-      console.log(data.courseDetails);
-
       if (!success) {
         navigate("/admin/courses");
         return;
@@ -101,7 +99,6 @@ function CourseDetail() {
     } else {
       // Si hay error, simplemente inicializar con valores vacíos sin mostrar error
       setRegisteredStudents({ total: 0, students: [] });
-      console.log("No hay estudiantes registrados o hubo un error:", error);
     }
 
     setLoadingStudents(false);
@@ -190,22 +187,18 @@ function CourseDetail() {
       sweetAlert('info', 'Procesando', 'Aprobando curso...', '', null);
 
       const body = { courseId: course.id, courseStatus: "PUBLISHED" };
-      console.log('Enviando solicitud para aprobar curso:', body);
 
       const { success, error } = await changeStatusCourses(body);
 
       if (!success) {
-        console.error('Error al aprobar curso:', error);
         return sweetAlert('error', 'Error', `No se pudo aprobar el curso: ${error}`, '', null);
       }
 
-      console.log('Curso aprobado exitosamente');
       sweetAlert('success', 'Curso aprobado', 'El curso ha sido aprobado exitosamente', '', null);
 
       // Actualizar el estado del curso en la interfaz
       setCourse((prev) => ({ ...prev, status: "PUBLISHED" }));
     } catch (err) {
-      console.error('Error inesperado:', err);
       sweetAlert('error', 'Error inesperado', 'Ocurrió un error al procesar la solicitud', '', null);
     }
   };
@@ -216,16 +209,13 @@ function CourseDetail() {
       sweetAlert('info', 'Procesando', 'Rechazando curso...', '', null);
 
       const body = { courseId: course.id, courseStatus: "NOT_APPROVED" };
-      console.log('Enviando solicitud para rechazar curso:', body);
 
       const { success, error } = await changeStatusCourses(body);
 
       if (!success) {
-        console.error('Error al rechazar curso:', error);
         return sweetAlert('error', 'Error', `No se pudo rechazar el curso: ${error}`, '', null);
       }
 
-      console.log('Curso rechazado exitosamente');
       sweetAlert('success', 'Curso rechazado', 'El curso ha sido rechazado exitosamente', '', null);
 
       // Cerrar el modal y redirigir
@@ -234,7 +224,6 @@ function CourseDetail() {
         navigate('/admin/courses');
       }, 1500);
     } catch (err) {
-      console.error('Error inesperado:', err);
       sweetAlert('error', 'Error inesperado', 'Ocurrió un error al procesar la solicitud', '', null);
     }
   };

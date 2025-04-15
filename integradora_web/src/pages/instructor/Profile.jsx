@@ -90,14 +90,12 @@ function Profile() {
       }
 
       const imageUrl = await response.text();
-      console.log("URL de imagen subida:", imageUrl);
       setProfileImage(imageUrl);
       setIsUploading(false);
       
       // Mostrar mensaje de éxito
       showToastMessage("Imagen subida correctamente");
     } catch (error) {
-      console.error("Error al subir imagen:", error);
       sweetAlert("error", "Error al subir imagen", error.message || "No se pudo subir la imagen", "", null);
       setIsUploading(false);
     }
@@ -113,11 +111,9 @@ function Profile() {
         return;
       }
       
-      console.log("Datos del perfil recibidos:", result.data);
       
       // El backend retorna algo como { data: { result: { name, email, password, profilePhotoPath } } } 
       const data = result.data.result;
-      console.log("Datos del instructor:", data);
 
       // Guardamos la contraseña encriptada en una variable aparte
       setEncryptedPassword(data.password);
@@ -132,14 +128,11 @@ function Profile() {
 
       // Establecer la imagen de perfil si existe
       if (data.profilePhotoPath) {
-        console.log("Imagen de perfil encontrada:", data.profilePhotoPath);
         setProfileImage(data.profilePhotoPath);
       } else {
-        console.log("No se encontró imagen de perfil, usando imagen predeterminada");
         setProfileImage(defaultProfile);
       }
     } catch (error) {
-      console.error("Error al cargar el perfil:", error);
       sweetAlert("error", "Error", "No se pudo cargar la información del perfil");
     }
   };
@@ -197,8 +190,6 @@ function Profile() {
         return;
       }
 
-      console.log("Actualizando perfil con imagen:", profileImage);
-
       // Estructura final del body, basado en tu UserDto.Modify
       const body = {
         userId: user?.jwt,
@@ -207,8 +198,6 @@ function Profile() {
         password: finalPassword, // encriptada si no cambió, o nueva si cambió
         profilePhotoPath: profileImage,
       };
-
-      console.log("Datos a enviar:", body);
 
       // Mostrar indicador de carga
       setIsUploading(true);
@@ -243,7 +232,6 @@ function Profile() {
       // Mostrar mensaje de éxito
       showToastMessage("Perfil actualizado correctamente");
     } catch (error) {
-      console.error("Error al actualizar perfil:", error);
       setIsUploading(false);
       sweetAlert("error", "Error", "Hubo un problema al actualizar tu perfil.", "", null);
     }

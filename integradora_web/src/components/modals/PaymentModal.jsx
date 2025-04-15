@@ -26,12 +26,9 @@ const PaymentModal = ({ show, onHide, payment }) => {
   const paymentUrl = payment?.paymentUrl || "";
   const paymentId = payment?.paymentId || "";
 
-  console.log("Payment in modal:", payment);
-
   const handleApprove = async () => {
     setIsLoading(true)
     try {
-      console.log("Approving payment:", paymentId);
       const result = await changePaymentStatus(paymentId, "FINISHED")
       if (result.success) {
         setToastVariant("success")
@@ -48,7 +45,6 @@ const PaymentModal = ({ show, onHide, payment }) => {
         setShowToast(true)
       }
     } catch (error) {
-      console.error("Error approving payment:", error)
       setToastVariant("danger")
       setToastMessage("Error al aprobar el pago")
       setShowToast(true)
@@ -60,7 +56,6 @@ const PaymentModal = ({ show, onHide, payment }) => {
   const handleReject = async () => {
     setIsLoading(true)
     try {
-      console.log("Rejecting payment:", paymentId);
       const result = await changePaymentStatus(paymentId, "FAILED")
       if (result.success) {
         setToastVariant("success")
@@ -77,7 +72,6 @@ const PaymentModal = ({ show, onHide, payment }) => {
         setShowToast(true)
       }
     } catch (error) {
-      console.error("Error rejecting payment:", error)
       setToastVariant("danger")
       setToastMessage("Error al rechazar el pago")
       setShowToast(true)

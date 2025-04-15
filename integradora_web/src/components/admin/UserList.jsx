@@ -78,7 +78,6 @@ function UserList({ userList }) {
         })
             .then((response) => response.json())
             .catch((error) => {
-                console.log(error);
                 sweetAlert('error', 'Error', 'No pudimos eliminar el instructor. Inténtalo nuevamente.', '', null);
                 return { type: "ERROR" }; // ⬅️ asegura que siempre retorne algo
             });
@@ -97,7 +96,6 @@ function UserList({ userList }) {
         })
             .then((response) => response.json())
             .catch((error) => {
-                console.log(error);
                 sweetAlert('error', 'Error', 'No pudimos eliminar el estudiante. Inténtalo nuevamente.', '', null);
                 return { type: "ERROR", text: "Error al eliminar el estudiante." };
             });
@@ -138,7 +136,6 @@ function UserList({ userList }) {
             setUserToEdit(null);
         })
         .catch((error) => {
-            console.log(error);
             sweetAlert("error", "Error", "No pudimos editar el usuario. Inténtalo nuevamente.");
           });
     }

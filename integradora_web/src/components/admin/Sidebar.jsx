@@ -91,7 +91,6 @@ const Sidebar = () => {
         dispatch({ type: USER_ACTIONS.LOGOUT });
         // sweetAlert('success', 'Éxito', response.text, '', null);
       }).catch((error) => {
-        console.log(error);
         dispatch({ type: USER_ACTIONS.LOGOUT });
         // sweetAlert('error', 'Error', 'Hubo un error al cerrar la sesión, por favor revisa tu conexión a internet o inténtalo más tarde', '', null);
       });

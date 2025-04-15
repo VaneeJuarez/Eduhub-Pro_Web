@@ -8,8 +8,6 @@ export const fetchAllCourses = async () => {
         headers: headers
     }).then((response) => response.json())
         .then((response) => {
-            console.log(response);
-
             if (response.type !== "SUCCESS") {
                 if (typeof response === "object" && !response.text) {
                     const errorMessages = Object.values(response).join("\n");
@@ -26,7 +24,6 @@ export const fetchAllCourses = async () => {
             return { success: true, data: response.result };
         })
         .catch((error) => {
-            console.error("Error fetchAllCourses:", error);
             return { success: false, error: error?.message || global_error_message };
         });
 };
@@ -40,8 +37,6 @@ export const fetchCourseById = async (courseId) => {
         body: JSON.stringify({ courseId })
     }).then((response) => response.json())
         .then((response) => {
-            console.log(response);
-
             if (!response.type === "SUCCESS" && !response.result.courseDetails) {
                 return { success: false, error: response.text || global_error_message };
             }
@@ -49,7 +44,6 @@ export const fetchCourseById = async (courseId) => {
             return { success: true, data: response.result };
         })
         .catch((error) => {
-            console.error("Error al obtener el curso:", error);
             return { success: false, error: global_error_message };
         });
 };
@@ -63,8 +57,6 @@ export const changeStatusCourses = async (body) => {
     })
         .then((res) => res.json())
         .then((result) => {
-            console.log(result);
-
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -74,7 +66,6 @@ export const changeStatusCourses = async (body) => {
             return { success: true };
         })
         .catch((error) => {
-            console.error(error);
             return {
                 success: false,
                 error: global_error_message,
@@ -86,11 +77,6 @@ export const changeStatusCourses = async (body) => {
 export const fetchRegisteredStudents = async (courseId) => {
     const url = `${base_api_url}${admin_path}${registration_management}${registered_students}`;
     const body = JSON.stringify({ courseId });
-
-    console.log('Fetching registered students with:');
-    console.log('URL:', url);
-    console.log('Body:', body);
-
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -98,11 +84,8 @@ export const fetchRegisteredStudents = async (courseId) => {
             body: body
         });
 
-        console.log('Response status:', response.status);
-
         // Si el status es 404, retornar una lista vacía en lugar de error
         if (response.status === 404) {
-            console.log('No students found for this course (404)');
             return {
                 success: true,
                 data: { total: 0, students: [] }
@@ -110,8 +93,6 @@ export const fetchRegisteredStudents = async (courseId) => {
         }
 
         const responseData = await response.json();
-        console.log('Response data:', responseData);
-
         if (responseData.type !== 'SUCCESS') {
             return {
                 success: false,
@@ -124,7 +105,6 @@ export const fetchRegisteredStudents = async (courseId) => {
             data: responseData.result
         };
     } catch (error) {
-        console.error('Error fetching registered students:', error);
         // En caso de cualquier error, retornar lista vacía en lugar de error
         return {
             success: true,

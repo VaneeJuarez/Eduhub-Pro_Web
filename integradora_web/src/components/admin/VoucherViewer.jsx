@@ -5,9 +5,7 @@ const VoucherViewer = ({ show, onHide, voucher }) => {
     const [loading, setLoading] = useState(true)
 
     const extension = voucher.split(".").pop().toLowerCase()
-
-    console.log(voucher);
-    
+ 
     const renderContent = () => {
         if (extension === "pdf") {
             return (

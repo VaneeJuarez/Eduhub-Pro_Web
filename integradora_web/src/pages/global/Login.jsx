@@ -93,7 +93,6 @@ const Login = () => {
                 }
 
             }).catch((error) => {
-                console.log(error);
                 sweetAlert('error', 'Error', 'Hubo un error al iniciar sesión, por favor revisa tus creenciales o inténtalo de nuevo más tarde', '', null);
             });
     }
@@ -135,7 +134,6 @@ const Login = () => {
                 }
 
             }).catch((error) => {
-                console.log(error);
                 sweetAlert('error', 'Error', 'Hubo un error al iniciar sesión, por favor revisa tus creenciales o inténtalo de nuevo más tarde.', '', null);
             });
     }
@@ -174,7 +172,6 @@ const Login = () => {
                 }, 4000); 
                 */
             }).catch((error) => {
-                console.log(error);
                 sweetAlert('error', 'Error', 'No pudimos hacer el registro, vuelve a intentarlo.', '', null);
             });
     }

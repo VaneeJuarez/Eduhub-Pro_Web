@@ -30,7 +30,7 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
     endDateISO: initialData.endDate || "",
     price: initialData.price || 0.0,
     size: initialData.size || 1,
-    tags: initialData.tags || [],
+    tags: (initialData.categories || []).map(cat => cat.categoryId)
   });
 
   // verificar al cargar una imagen
@@ -111,7 +111,8 @@ const CourseModal = ({ show, onHide, onSave, initialData = {} }) => {
           endDate: initialData.endDate || "",
           startDateISO: initialData.startDate,
           endDateISO: initialData.endDate,
-          tags: initialData.tags || []
+          tags: (initialData.categories || []).map(cat => cat.categoryId)
+
         });
         setImagePreview(initialData.bannerPath || "");
       }
