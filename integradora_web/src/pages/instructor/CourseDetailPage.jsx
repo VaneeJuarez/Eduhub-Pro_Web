@@ -85,6 +85,7 @@ function CourseDetailPage() {
         endDate: courseData.endDate,
         price: courseData.price,
         size: courseData.size,
+        duration: courseData.duration,
         status: courseData.courseStatus,
         modules:
           courseData.modules?.map((mod) => ({
@@ -92,6 +93,7 @@ function CourseDetailPage() {
             title: mod.name,
             order: mod.date,
             description: mod?.description,
+            duration: mod.duration,
             lessons:
               mod.sections?.map((lesson) => ({
                 sectionId: lesson.sectionId,
@@ -99,6 +101,7 @@ function CourseDetailPage() {
                 description: lesson.description,
                 content: lesson.contentUrl,
                 type: lesson.contentType,
+                duration: lesson.duration,
               })) || [],
           })) || [],
         tags: courseData.categories,
@@ -280,17 +283,17 @@ function CourseDetailPage() {
     return course.status === "IN_EDITION"
   }
 
-    // Agregar función para calcular la duración total del curso
-    const calculateTotalCourseDuration = () => {
-      if (!course || !course.modules) return 0
-      return course.modules.reduce((total, module) => {
-        if (!module.lessons) return total
-        const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
-        return total + moduleDuration
-      }, 0)
-    }
+  // Agregar función para calcular la duración total del curso
+  const calculateTotalCourseDuration = () => {
+    if (!course || !course.modules) return 0
+    return course.modules.reduce((total, module) => {
+      if (!module.lessons) return total
+      const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
+      return total + moduleDuration
+    }, 0)
+  }
 
-      // Función para formatear la duración
+  // Función para formatear la duración
   const formatDuration = (minutes) => {
     if (!minutes) return "0 minutos"
     if (minutes < 60) return `${minutes} minutos`
@@ -322,6 +325,7 @@ function CourseDetailPage() {
         endDate: courseData.endDate,
         price: courseData.price,
         size: courseData.size,
+        duration: courseData.duration,
         status: courseData.courseStatus,
         modules:
           courseData.modules?.map((mod) => ({
@@ -329,6 +333,7 @@ function CourseDetailPage() {
             title: mod.name,
             order: mod.date,
             description: mod?.description,
+            duration: mod.duration,
             lessons:
               mod.sections?.map((lesson) => ({
                 sectionId: lesson.sectionId,
@@ -336,6 +341,7 @@ function CourseDetailPage() {
                 description: lesson.description,
                 content: lesson.contentUrl,
                 type: lesson.contentType,
+                duration: lesson.duration,
               })) || [],
           })) || [],
         tags: courseData.categories,

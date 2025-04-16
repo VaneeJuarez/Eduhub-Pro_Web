@@ -103,6 +103,7 @@ function ModuleAccordion({
       description: lesson.description,
       contentUrl: lesson.content,
       contentType: lesson.type,
+      duration: lesson.duration,
       moduleId: module.moduleId,
     }
 

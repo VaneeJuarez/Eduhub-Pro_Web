@@ -35,25 +35,25 @@ function CourseDetail() {
   const [registeredStudents, setRegisteredStudents] = useState({ total: 0, students: [] })
   const [loadingStudents, setLoadingStudents] = useState(false)
 
-    // Agregar función para calcular la duración total del curso
-    const calculateTotalCourseDuration = () => {
-      if (!course || !course.modules) return 0
-  
-      return course.modules.reduce((total, module) => {
-        if (!module.lessons) return total
-        const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
-        return total + moduleDuration
-      }, 0)
-    }
-  
-    // Función para formatear la duración
-    const formatDuration = (minutes) => {
-      if (!minutes) return "0 minutos"
-      if (minutes < 60) return `${minutes} minutos`
-      const hours = Math.floor(minutes / 60)
-      const mins = minutes % 60
-      return mins > 0 ? `${hours}h ${mins}m` : `${hours} horas`
-    }
+  // Agregar función para calcular la duración total del curso
+  const calculateTotalCourseDuration = () => {
+    if (!course || !course.modules) return 0
+
+    return course.modules.reduce((total, module) => {
+      if (!module.lessons) return total
+      const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
+      return total + moduleDuration
+    }, 0)
+  }
+
+  // Función para formatear la duración
+  const formatDuration = (minutes) => {
+    if (!minutes) return "0 minutos"
+    if (minutes < 60) return `${minutes} minutos`
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours} horas`
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -162,11 +162,13 @@ function CourseDetail() {
     endDate: c.endDate,
     price: c.price,
     size: c.size,
+    duration: c.duration,
     status: c.courseStatus, // enum real
     modules: c.modules.map((m) => ({
       moduleId: m.moduleId,
       title: m.name,
       order: m.date,
+      duration: m.duration,
       status: m.status,
       lessons: m.sections.map((s) => ({
         sectionId: s.sectionId,
@@ -174,6 +176,7 @@ function CourseDetail() {
         description: s.description,
         content: s.contentUrl,
         type: s.contentType,
+        duration: s.duration,
       })),
     })),
     tags: c.categories,

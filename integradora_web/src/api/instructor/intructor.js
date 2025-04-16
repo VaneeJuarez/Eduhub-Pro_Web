@@ -107,6 +107,7 @@ export const createSection = async (body) => {
 
 // Editar sección
 export const updateSection = async (body) => {
+    console.log(body);
 
     return await fetch(`${base_api_url}${instructor_path}${section_management}${update}`, {
         method: "PUT",

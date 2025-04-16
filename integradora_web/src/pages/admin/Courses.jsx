@@ -42,6 +42,7 @@ function Courses() {
         endDate: course.endDate,
         price: course.price,
         size: course.size,
+        duration: course.duration,
         status: course.courseStatus,
         categories: course.categories.map((c) => c.name),
         instructor: { name: course.instructor?.name || "" },
@@ -50,6 +51,7 @@ function Courses() {
           moduleId: m.moduleId,
           name: m.name,
           date: m.date,
+          duration: m.duration,
           status: m.status,
           lessons: m.sections.map((s) => ({
             sectionId: s.sectionId,
@@ -57,6 +59,7 @@ function Courses() {
             description: s.description,
             content: s.contentUrl,
             type: s.contentType,
+            duration: s.duration,
             status: s.status,
           })),
         })),
