@@ -36,7 +36,7 @@ const VoucherViewer = ({ show, onHide, voucher }) => {
         <Modal 
             show={show} 
             onHide={onHide} 
-            size="xl" 
+            size="lg" 
             centered
             dialogClassName="voucher-modal"
             style={{ zIndex: 2000 }} // Mayor z-index que el modal principal

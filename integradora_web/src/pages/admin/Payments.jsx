@@ -16,6 +16,7 @@ import { useUserContext } from "../../contexts/UserProvider";
 const Payments = () => {
   const { user } = useUserContext();
   const [selectedFilter, setSelectedFilter] = useState("FINISHED");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const existingPayments = JSON.parse(localStorage.getItem("payments") || "[]")
@@ -58,9 +59,11 @@ const Payments = () => {
             "Pagado",
             "Pendiente",
           ]} /* Define las etiquetas amigables para mostrar */
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
         />
 
-        <PaymentList selectedFilter={selectedFilter} />
+        <PaymentList selectedFilter={selectedFilter} searchTerm={searchTerm} />
       </section>
       <Footer />
     </>

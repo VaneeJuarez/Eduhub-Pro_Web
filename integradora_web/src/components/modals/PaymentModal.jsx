@@ -123,7 +123,7 @@ const PaymentModal = ({ show, onHide, payment }) => {
               <p>${price.toFixed(2)} MXM</p>
               <strong>Estado:</strong>
               <p>{formatStatus(status)}</p>
-              {paymentUrl && status !== "FINISHED" ? (
+              {paymentUrl && status !== "PENDING_PAYMENT" ? (
                 <div className="mt-3">
                   <Button variant="outline-primary" onClick={() => setShowVoucher(true)}>
                     <FontAwesomeIcon icon={faPaperclip}></FontAwesomeIcon> Ver Voucher
@@ -138,7 +138,7 @@ const PaymentModal = ({ show, onHide, payment }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-end">
-          {status === "PENDING_PAYMENT" && (
+          {status === "FINISHED" && (
             <div>
               <Button 
                 variant="success" 

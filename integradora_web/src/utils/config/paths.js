@@ -1,6 +1,6 @@
 
 // paths.js
-const IP = "192.168.1.77";
+const IP = "192.168.1.78";
 // 1. Base API URL
 export const base_api_url = `http://${IP}:8080/eduhubpro/`;
 

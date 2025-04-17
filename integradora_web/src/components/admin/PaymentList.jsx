@@ -11,7 +11,7 @@ import PaymentModal from "../modals/PaymentModal";
 // API
 import { fetchPendingPayments, fetchFinishedPayments } from "../../api/admin/payment";
 
-function PaymentList({ selectedFilter }) {
+function PaymentList({ selectedFilter, searchTerm }) {
   const [payments, setPayments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -23,10 +23,8 @@ function PaymentList({ selectedFilter }) {
       // Cargar los pagos según el filtro seleccionado
       if (selectedFilter === "FINISHED") {
         response = await fetchFinishedPayments();
-        console.log("Finished payments response:", response);
       } else if (selectedFilter === "PENDING_PAYMENT") {
         response = await fetchPendingPayments();
-        console.log("Pending payments response:", response);
       } else {
         // Si no hay filtro específico, cargar todos los pagos
         const pendingResponse = await fetchPendingPayments();
@@ -72,16 +70,25 @@ function PaymentList({ selectedFilter }) {
     return () => window.removeEventListener("payment_updated", handlePaymentUpdate);
   }, []);
 
-  console.log("Current payments:", payments);
-  console.log("Selected filter:", selectedFilter);
+  const filteredPayments = payments.filter((payment) => {
+    const student = payment.registration?.student?.name?.toLowerCase() || "";
+    const course = payment.registration?.course?.title?.toLowerCase() || "";
+    return (
+      student.includes(searchTerm.toLowerCase()) ||
+      course.includes(searchTerm.toLowerCase())
+    );
+  });
 
-  if (!payments || payments.length === 0) {
+  // console.log("Current payments:", payments);
+  // console.log("Selected filter:", selectedFilter);
+
+  if (!filteredPayments || filteredPayments.length === 0) {
     return (
       <div className="text-center py-5">
         <p className="text-muted">
           No hay pagos {selectedFilter === "PENDING_PAYMENT" ? "pendientes" : 
-                       selectedFilter === "FINISHED" ? "aprobados" : 
-                       "registrados"}
+                       selectedFilter === "FINISHED" ? "por aprobar" : 
+                       "pendientes"}
         </p>
       </div>
     );
