@@ -24,7 +24,6 @@ export const uploadFile = (file) => {
             }));
         })
         .catch((error) => {
-            console.error("Error en la subida de contenido:", error);
             return {
                 success: false,
                 error: "No se pudo subir el archivo al servidor.",
@@ -46,7 +45,6 @@ export const sendRecoveryCode = async (email) => {
             return { success: true };
         })
         .catch(error => {
-            console.error("Error al enviar el código:", error);
             return { success: false, error: global_error_message };
         });
 };
@@ -71,7 +69,6 @@ export const restorePassword = async (email, newPassword, recoveryCode) => {
             return { success: true };
         })
         .catch(error => {
-            console.error("Error al restaurar contraseña:", error);
             return { success: false, error: global_error_message };
         });
 };

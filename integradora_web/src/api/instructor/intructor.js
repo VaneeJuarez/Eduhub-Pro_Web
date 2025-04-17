@@ -17,7 +17,6 @@ export const saveModule = async (body) => {
             return { success: true, data: response };
         })
         .catch((error) => {
-            console.log(error);
             return { success: false, error: error.text || global_error_message };
         });
 };
@@ -36,7 +35,6 @@ export const updateModule = async (body) => {
             return { success: true, data: response };
         })
         .catch((error) => {
-            console.log(error);
             return { success: false, error: error.text || global_error_message };
         });
 };
@@ -60,7 +58,6 @@ export const deleteModule = (moduleId) => {
             return { success: true, data: response, };
         })
         .catch((error) => {
-            console.error("Error al eliminar el módulo:", error);
             return { success: false, error: global_error_message, };
         });
 };
@@ -80,7 +77,6 @@ export const fetchCourseById = async (courseId) => {
             return { success: true, data: response.result };
         })
         .catch((error) => {
-            console.error("Error al obtener el curso:", error);
             return { success: false, error: global_error_message };
         });
 };
@@ -93,8 +89,6 @@ export const createSection = async (body) => {
         body: JSON.stringify(body),
     }).then((res) => res.json())
         .then((result) => {
-            console.log(result);
-
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -104,7 +98,6 @@ export const createSection = async (body) => {
             return { success: true, data: result };
         })
         .catch((error) => {
-            console.error(error);
             return {
                 success: false,
                 error: global_error_message,
@@ -114,6 +107,7 @@ export const createSection = async (body) => {
 
 // Editar sección
 export const updateSection = async (body) => {
+    console.log(body);
 
     return await fetch(`${base_api_url}${instructor_path}${section_management}${update}`, {
         method: "PUT",
@@ -121,7 +115,6 @@ export const updateSection = async (body) => {
         body: JSON.stringify(body),
     }).then((res) => res.json())
         .then((result) => {
-            console.log(result);
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -131,7 +124,6 @@ export const updateSection = async (body) => {
             return { success: true, data: result };
         })
         .catch((error) => {
-            console.error(error);
             return {
                 success: false,
                 error: global_error_message,
@@ -148,8 +140,6 @@ export const deleteSection = async (sectionId) => {
     })
         .then((res) => res.json())
         .then((result) => {
-            console.log(result);
-
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -159,7 +149,6 @@ export const deleteSection = async (sectionId) => {
             return { success: true };
         })
         .catch((error) => {
-            console.error(error);
             return {
                 success: false,
                 error: global_error_message,
@@ -176,8 +165,6 @@ export const changeStatusCourses = async (courseId) => {
     })
         .then((res) => res.json())
         .then((result) => {
-            console.log(result);
-
             if (result.type !== "SUCCESS") {
                 return {
                     success: false,
@@ -187,7 +174,6 @@ export const changeStatusCourses = async (courseId) => {
             return { success: true };
         })
         .catch((error) => {
-            console.error(error);
             return {
                 success: false,
                 error: global_error_message,
@@ -222,8 +208,6 @@ export const sendSupportMessage = async (fullName, email, comment) => {
         email,
         description: comment
     });
-    console.log(`${base_api_url}${instructor_path}${user_management}${support}?${params.toString()}`);
-
     return await fetch(`${base_api_url}${instructor_path}${user_management}${support}?${params.toString()}`, {
         method: "POST",
         headers: headers
@@ -247,7 +231,6 @@ export const sendSupportMessage = async (fullName, email, comment) => {
             return { success: true, data: response, };
         })
         .catch((error) => {
-            console.log(error);
             return { success: false, error: error?.text || global_error_message, };
         });
 };
@@ -271,7 +254,6 @@ export const getInstructorProfile = async (userId) => {
             return { success: true, data: response };
         })
         .catch((error) => {
-            console.error("Error al obtener perfil:", error);
             return { success: false, error: global_error_message };
         });
 };
@@ -293,7 +275,6 @@ export const updateInstructorProfile = async (body) => {
             return { success: true, data: response };
         })
         .catch((error) => {
-            console.error("Error al actualizar perfil:", error);
             return { success: false, error: global_error_message };
         });
 };

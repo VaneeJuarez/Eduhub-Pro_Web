@@ -59,7 +59,6 @@ function CourseDetailPage() {
     })
       .then((response) => response.json())
       .catch((error) => {
-        console.log(error)
         sweetAlert("error", "Error", "No se pudo eliminar el curso.", "", null)
       })
   }
@@ -77,10 +76,6 @@ function CourseDetailPage() {
       const courseData = result.data.courseDetails
       const studentsCount = result.data.students
 
-      console.log("effect uno")
-
-      console.log(result.data)
-
       const mappedCourse = {
         id: courseData.courseId,
         title: courseData.title,
@@ -90,6 +85,7 @@ function CourseDetailPage() {
         endDate: courseData.endDate,
         price: courseData.price,
         size: courseData.size,
+        duration: courseData.duration,
         status: courseData.courseStatus,
         modules:
           courseData.modules?.map((mod) => ({
@@ -97,6 +93,7 @@ function CourseDetailPage() {
             title: mod.name,
             order: mod.date,
             description: mod?.description,
+            duration: mod.duration,
             lessons:
               mod.sections?.map((lesson) => ({
                 sectionId: lesson.sectionId,
@@ -104,6 +101,7 @@ function CourseDetailPage() {
                 description: lesson.description,
                 content: lesson.contentUrl,
                 type: lesson.contentType,
+                duration: lesson.duration,
               })) || [],
           })) || [],
         tags: courseData.categories,
@@ -116,9 +114,6 @@ function CourseDetailPage() {
         const today = normalizeDate(new Date())
 
         if (today > courseStartDate) {
-          console.log("hoy", today, "inicio", courseStartDate)
-          console.log("eliminando curso por la fecha")
-
           await changeStatusCourse(mappedCourse.id)
           sweetAlert(
             "warning",
@@ -147,11 +142,8 @@ function CourseDetailPage() {
         const data = await response.json()
         if (data.type === "SUCCESS") {
           setRegisteredStudents(data.data)
-        } else {
-          console.log(data.message)
         }
       } catch (error) {
-        console.error(error)
       }
     }
 
@@ -204,8 +196,6 @@ function CourseDetailPage() {
 
     const isEditing = !!currentModule
 
-    console.log(currentModule)
-
     const date = new Date();
     const localIsoString = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString(); // Ajuste local
 
@@ -217,8 +207,6 @@ function CourseDetailPage() {
     }
 
     const result = isEditing ? await updateModule(body) : await saveModule(body)
-
-    console.log(result)
 
     if (!result.success) {
       sweetAlert("error", "Error", result.error, "", null)
@@ -241,8 +229,6 @@ function CourseDetailPage() {
   }
 
   const handleDeleteModule = async (moduleId) => {
-    console.log(moduleId)
-
     const result = await deleteModule(moduleId)
 
     if (!result.success) {
@@ -297,17 +283,17 @@ function CourseDetailPage() {
     return course.status === "IN_EDITION"
   }
 
-    // Agregar función para calcular la duración total del curso
-    const calculateTotalCourseDuration = () => {
-      if (!course || !course.modules) return 0
-      return course.modules.reduce((total, module) => {
-        if (!module.lessons) return total
-        const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
-        return total + moduleDuration
-      }, 0)
-    }
+  // Agregar función para calcular la duración total del curso
+  const calculateTotalCourseDuration = () => {
+    if (!course || !course.modules) return 0
+    return course.modules.reduce((total, module) => {
+      if (!module.lessons) return total
+      const moduleDuration = module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0)
+      return total + moduleDuration
+    }, 0)
+  }
 
-      // Función para formatear la duración
+  // Función para formatear la duración
   const formatDuration = (minutes) => {
     if (!minutes) return "0 minutos"
     if (minutes < 60) return `${minutes} minutos`
@@ -330,10 +316,6 @@ function CourseDetailPage() {
 
       const courseData = result.data.courseDetails
 
-      console.log("effect de recargar")
-
-      console.log(courseData)
-
       const mappedCourse = {
         id: courseData.courseId,
         title: courseData.title,
@@ -343,6 +325,7 @@ function CourseDetailPage() {
         endDate: courseData.endDate,
         price: courseData.price,
         size: courseData.size,
+        duration: courseData.duration,
         status: courseData.courseStatus,
         modules:
           courseData.modules?.map((mod) => ({
@@ -350,6 +333,7 @@ function CourseDetailPage() {
             title: mod.name,
             order: mod.date,
             description: mod?.description,
+            duration: mod.duration,
             lessons:
               mod.sections?.map((lesson) => ({
                 sectionId: lesson.sectionId,
@@ -357,6 +341,7 @@ function CourseDetailPage() {
                 description: lesson.description,
                 content: lesson.contentUrl,
                 type: lesson.contentType,
+                duration: lesson.duration,
               })) || [],
           })) || [],
         tags: courseData.categories,

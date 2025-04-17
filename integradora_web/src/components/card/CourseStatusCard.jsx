@@ -40,8 +40,7 @@ function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) 
   // Verificar si el curso comienza mañana
   const startsTomorrow = () => {
     if (!course) return false
-    console.log("hola " + new Date(course.startDate));
-    
+ 
     return isTomorrow(course.startDate);
   }
 

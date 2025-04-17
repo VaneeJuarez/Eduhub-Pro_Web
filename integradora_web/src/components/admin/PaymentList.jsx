@@ -40,7 +40,6 @@ function PaymentList({ selectedFilter, searchTerm }) {
           setPayments(combinedData);
           return;
         } else {
-          console.error("Error al cargar los pagos");
           return;
         }
       }
@@ -49,10 +48,8 @@ function PaymentList({ selectedFilter, searchTerm }) {
       if (response && response.success) {
         setPayments(response.data || []);
       } else {
-        console.error(response?.error || "Error al cargar los pagos");
       }
     } catch (err) {
-      console.error("Error loading payments:", err);
     }
   };
 

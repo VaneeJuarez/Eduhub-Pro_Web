@@ -30,10 +30,12 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
         type: initialData?.type || "video",
         content: initialData?.content || "",
         description: initialData?.description || "",
-        duration: initialData?.duration || 0,
+        duration: initialData?.duration,
         pdfPages: initialData?.pdfPages || 1,
       });
       setContentPreview(initialData?.content || "");
+      console.log("Duración:", formData);
+      console.log("Initial data:", initialData);
     }
   }, [show]);
 

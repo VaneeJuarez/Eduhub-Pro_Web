@@ -96,22 +96,18 @@ function ModuleAccordion({
 
     const module = modules[currentModuleIndex]
     const isEditing = currentLessonIndex !== null
-    console.log("lesson del metodo")
 
-    console.log(lesson)
     const sectionBody = {
       sectionId: lesson.sectionId,
       name: lesson.title,
       description: lesson.description,
       contentUrl: lesson.content,
       contentType: lesson.type,
+      duration: lesson.duration,
       moduleId: module.moduleId,
     }
 
     if (isEditing) {
-      console.log("Current lesson:")
-
-      console.log(module.lessons[currentLessonIndex])
 
       sectionBody.sectionId = module.lessons[currentLessonIndex].sectionId
       const result = await updateSection(sectionBody)
@@ -136,7 +132,6 @@ function ModuleAccordion({
   }
 
   const confirmDeleteModule = (moduleId) => {
-    console.log(moduleId)
 
     setModuleToDelete(moduleId)
     setIsDeleteDialogOpen(true)

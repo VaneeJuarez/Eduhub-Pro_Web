@@ -32,11 +32,8 @@ const AnalyticsCourses = () => {
         .then((data) => {
             if (data.type === "SUCCESS") {
                 setReviews(data.result);
-            } else {
-                console.error("Error al obtener reseñas:", data?.text || "Mensaje no disponible");
             }
         })
-        .catch((error) => console.error("Error al hacer fetch de reseñas", error));
     }, []);
 
     // Calcular promedios y determinar mejor / peor

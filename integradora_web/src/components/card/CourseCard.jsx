@@ -3,9 +3,6 @@ import { Link } from "react-router-dom"
 //Styles
 import styles from '../styles/coursecard.module.css'
 
-// Components
-import { EditDeleteButtons } from "./card/ActionButtons"
-
 const CourseCard = ({ course, showActions = false }) => {
   return (
     <div className={`card h-100 shadow-sm d-flex flex-column ${styles.cardCourse}`} style={{zIndex: "90"}}>
@@ -43,13 +40,6 @@ const CourseCard = ({ course, showActions = false }) => {
             <div className={`fw-bold ${styles.cardPrice}`}>${course.price.toFixed(2)} mx</div>
             <div className="d-flex mt-2">
               {/* 🔹 Mostrar los botones solo si `showActions` es true */}
-            {showActions && (
-              <EditDeleteButtons
-                onDelete={() => console.log("Eliminar curso con ID:", course.courseId)}
-                onEdit={() => console.log("Editar curso:", course)}
-                modalId={`editCourseModal-${course.courseId}`}
-              />
-            )}
             </div>
             <Link to={`/course/${course.courseId}`} className={`btn btn-primary ${styles.cardButton} `}>Ver Curso</Link>
 

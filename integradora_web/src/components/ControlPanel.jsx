@@ -33,7 +33,6 @@ const ControlPanel = ({ showAddButton, modalId, showSearch, showToggle, searchTe
         <div className={`col-12 col-sm-auto ps-3 ${styles.button}`}>
           <button className={`btn btn-primary ${styles.buttonAdd}`}
           onClick={() => {
-            console.log(`Abriendo modal con id: ${modalId}`)
             if (onAddClick) onAddClick();
           }}
           >

@@ -16,9 +16,6 @@ export const fetchPendingPayments = async () => {
     })
     .then((response) => response.json())
     .then((response) => {
-        console.log("Pending payments response:", response);
-        console.log("Pending payments data structure:", JSON.stringify(response));
-
         if (response.type !== "SUCCESS") {
             return { 
                 success: false, 
@@ -29,7 +26,6 @@ export const fetchPendingPayments = async () => {
         return { success: true, data: response.result };
     })
     .catch((error) => {
-        console.error("Error fetching pending payments:", error);
         return { 
             success: false, 
             error: error?.message || global_error_message 
@@ -45,9 +41,6 @@ export const fetchFinishedPayments = async () => {
     })
     .then((response) => response.json())
     .then((response) => {
-        console.log("Finished payments response:", response);
-        console.log("Finished payments data structure:", JSON.stringify(response));
-
         if (response.type !== "SUCCESS") {
             return { 
                 success: false, 
@@ -58,7 +51,6 @@ export const fetchFinishedPayments = async () => {
         return { success: true, data: response.result };
     })
     .catch((error) => {
-        console.error("Error fetching finished payments:", error);
         return { 
             success: false, 
             error: error?.message || global_error_message 
@@ -78,9 +70,6 @@ export const changePaymentStatus = async (paymentId, status) => {
     })
     .then((response) => response.json())
     .then((response) => {
-        console.log("Change payment status response:", response);
-        console.log("Change payment status data structure:", JSON.stringify(response));
-
         if (response.type !== "SUCCESS") {
             return { 
                 success: false, 
@@ -91,7 +80,6 @@ export const changePaymentStatus = async (paymentId, status) => {
         return { success: true, message: response.text };
     })
     .catch((error) => {
-        console.error("Error changing payment status:", error);
         return { 
             success: false, 
             error: error?.message || global_error_message 

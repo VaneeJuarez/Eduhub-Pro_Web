@@ -74,6 +74,8 @@ function CourseList({ courses, setCourses, refreshCourses }) {
       return
     }
 
+    console.log("curso a editare", course);
+
     setCourseToEdit(course);
     setIsEditModalOpen(true);
   };
@@ -131,17 +133,14 @@ function CourseList({ courses, setCourses, refreshCourses }) {
     try {
       // Obtener el token del usuario
       const userToken = JSON.parse(localStorage.getItem('user'))?.jwt;
-      console.log("Token para editar curso:", userToken);
-      
+   
       // Crear headers con el token
       const requestHeaders = {
         "Authorization": `Bearer ${userToken}`,
         "Content-Type": "application/json",
         "Accept": "application/json"
       };
-      
-      console.log("Headers para editar curso:", requestHeaders);
-      
+
       // Crear el cuerpo de la solicitud
       const requestBody = {
         courseId: course.courseId,
@@ -154,28 +153,20 @@ function CourseList({ courses, setCourses, refreshCourses }) {
         size: course.size,
         categoriesId: course.tags
       };
-      
-      console.log("Cuerpo para editar curso:", requestBody);
-      console.log("URL para editar curso:", `${base_api_url}${instructor_path}${course_management}${update}`);
-      
+
       const response = await fetch(`${base_api_url}${instructor_path}${course_management}${update}`, {
         method: "PUT",
         headers: requestHeaders,
         body: JSON.stringify(requestBody),
         credentials: 'include' // Incluir cookies en la solicitud
       });
-      
-      console.log("Código de respuesta al editar curso:", response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Error al editar curso:", errorText);
         throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
       }
-      
+
       const result = await response.json();
-      console.log("Respuesta al editar curso:", result);
-      
       if (result.type !== 'SUCCESS') {
         if (typeof result === 'object' && !result.text) {
           const errorMessages = Object.values(result).join("\n");
@@ -189,7 +180,6 @@ function CourseList({ courses, setCourses, refreshCourses }) {
       refreshCourses();
       setIsEditModalOpen(false);
     } catch (error) {
-      console.error("Error al editar curso:", error);
       sweetAlert('error', "Error", "No pudimos editar el curso. Inténtalo nuevamente.", "", null);
     }
   }
@@ -198,51 +188,41 @@ function CourseList({ courses, setCourses, refreshCourses }) {
     try {
       // Obtener el token del usuario
       const userToken = JSON.parse(localStorage.getItem('user'))?.jwt;
-      console.log("Token para cambiar estado del curso:", userToken);
-      
+
       // Crear headers con el token
       const requestHeaders = {
         "Authorization": `Bearer ${userToken}`,
         "Content-Type": "application/json",
         "Accept": "application/json"
       };
-      
-      console.log("Headers para cambiar estado del curso:", requestHeaders);
-      
+
       // Crear el cuerpo de la solicitud
       const requestBody = {
         courseId: courseId,
         courseStatus: "INACTIVE"
       };
-      
-      console.log("Cuerpo para cambiar estado del curso:", requestBody);
-      console.log("URL para cambiar estado del curso:", `${base_api_url}${instructor_path}${course_management}${change_status}`);
-      
+
       return fetch(`${base_api_url}${instructor_path}${course_management}${change_status}`, {
         method: "PUT",
         headers: requestHeaders,
         body: JSON.stringify(requestBody),
         credentials: 'include' // Incluir cookies en la solicitud
       })
-      .then((response) => {
-        console.log("Código de respuesta al cambiar estado del curso:", response.status);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
-        return response.json();
-      })
-      .then((response) => {
-        console.log("Respuesta al cambiar estado del curso:", response);
-        refreshCourses();
-      })
-      .catch((error) => {
-        console.error("Error al cambiar estado del curso:", error);
-        sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
-      });
+        .then((response) => {
+
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
+
+          return response.json();
+        })
+        .then((response) => {
+          refreshCourses();
+        })
+        .catch((error) => {
+          sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
+        });
     } catch (error) {
-      console.error("Error al preparar solicitud para cambiar estado del curso:", error);
       sweetAlert('error', 'Error', 'No se pudo eliminar el curso.', '', null);
     }
   };

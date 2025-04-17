@@ -95,7 +95,6 @@ function BankAccountList({ accountList, refreshAccounts }) {
         })
             .then((response) => response.json())
             .catch((error) => {
-                console.log(error);
                 return { type: "ERROR", text: "Error al eliminar la cuenta bancaria." };
             });
     };
@@ -105,8 +104,6 @@ function BankAccountList({ accountList, refreshAccounts }) {
         const updatedAccounts = accounts.map((account) =>
             account.accountId === updatedAccount.accountId ? { ...updatedAccount, accountId: account.accountId } : account,
         );
-
-        console.log(updatedAccount);
 
         editAccount(updatedAccount);
 
@@ -143,7 +140,6 @@ function BankAccountList({ accountList, refreshAccounts }) {
               refreshAccounts();
               setIsEditModalOpen(false);
         }).catch((error) => {
-            console.log(error);
             sweetAlert('error', "Error", "No pudimos editar la cuenta. Intentálo nuevamente.", "", null);
         });
     }

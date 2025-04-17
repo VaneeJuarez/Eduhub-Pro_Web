@@ -57,7 +57,6 @@ const DashboardAdmin = () => {
 
         //sweetAlert('success', 'Éxito', response.text, '', null);
       }).catch((error) => {
-        console.log(error);
         // sweetAlert('error', 'Error', 'Hubo un error al cargar las analíticas del sistema, por favor revisa tu conexión a internet o inténtalo más tarde', '', null);
       });
   }

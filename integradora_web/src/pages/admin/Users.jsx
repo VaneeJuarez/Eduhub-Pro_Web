@@ -89,7 +89,6 @@ const Users = () => {
           setPassword("");
           setRole(""); */
       }).catch((error) => {
-        console.log(error);
         sweetAlert('error', "Error", "No pudimos crear el usuario. Inténtalo nuevamente.", "", null);
       });
 
@@ -106,15 +105,12 @@ const Users = () => {
       });
       
       const data = await response.json();
-      console.log('Datos de usuarios cargados:', data);
       
       if (data && data.result) {
         setUserList(data.result);
       } else {
-        console.error('Respuesta inesperada al cargar usuarios:', data);
       }
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
       // sweetAlert('error', "Error", "No pudimos cargar la lista de usuarios. Inténtalo nuevamente.", "", null);
     }
   };
