@@ -31,7 +31,7 @@ function LessonItem({ lesson, icon, onEdit, onDelete, isPublished = false }) {
               {icon}
               <span className="fw-medium">{lesson.title}</span>
               {lesson.duration !== undefined && (
-              <span className="ms-2 badge bg-light text-dark">{formatDuration(lesson.duration)}</span>
+              <span className="ms-2 ml-2 badge bg-light text-dark">{formatDuration(lesson.duration)}</span>
             )}
             </div>
             {lesson.description && <p className="text-muted small mt-1 ms-4 mb-0">{lesson.description}</p>}

@@ -20,7 +20,7 @@ function Courses() {
   const { user } = useUserContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [courses, setCourses] = useState([]);
-  const [filter, setFilter] = useState("Aprobados");
+  const [filter, setFilter] = useState("Pendientes");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
