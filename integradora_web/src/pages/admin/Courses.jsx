@@ -74,8 +74,8 @@ function Courses() {
 
   useEffect(() => {
     fetchCourses();
-    // Configurar el intervalo de actualización (cada 5 minutos)
-    const interval = setInterval(fetchCourses, 300000);
+    // Configurar el intervalo de actualización (cada 30 segundos)
+    const interval = setInterval(fetchCourses, 30000);
     
     // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(interval);

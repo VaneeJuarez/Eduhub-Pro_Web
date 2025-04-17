@@ -1,16 +1,20 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Modal } from "react-bootstrap"
 
 const VoucherViewer = ({ show, onHide, voucher }) => {
     const [loading, setLoading] = useState(true)
 
-    const extension = voucher.split(".").pop().toLowerCase()
- 
+    console.log('[VoucherViewer] voucher:', voucher)
+
+    const extension = new URL(voucher).pathname.split(".").pop().toLowerCase();
+
+    // const extension = voucher.split(".").pop().toLowerCase()
+
     const renderContent = () => {
         if (extension === "pdf") {
             return (
                 <iframe
-                src={`https://docs.google.com/gview?url=${voucher}&embedded=true`}
+                    src={`https://docs.google.com/gview?url=${voucher}&embedded=true`}
                     className="w-100"
                     style={{ height: "80vh" }}
                     onLoad={() => setLoading(false)}
@@ -31,10 +35,10 @@ const VoucherViewer = ({ show, onHide, voucher }) => {
     }
 
     return (
-        <Modal 
-            show={show} 
-            onHide={onHide} 
-            size="xl" 
+        <Modal
+            show={show}
+            onHide={onHide}
+            size="xl"
             centered
             dialogClassName="voucher-modal"
             style={{ zIndex: 2000 }} // Mayor z-index que el modal principal
@@ -44,7 +48,7 @@ const VoucherViewer = ({ show, onHide, voucher }) => {
                 <Modal.Title>Voucher del Pago</Modal.Title>
             </Modal.Header>
             <Modal.Body className="text-center p-0">
-                {renderContent()}
+                {!loading && renderContent()}
             </Modal.Body>
             <style jsx>{`
                 :global(.voucher-modal) {
