@@ -1,9 +1,10 @@
 import { headers } from "../../utils/config/config";
-import { 
-    admin_path, 
-    base_api_url, 
+import {
+    admin_path,
+    base_api_url,
+    change_status,
     payment_management,
-    change_status
+    registration_management
 } from "../../utils/config/paths";
 
 const global_error_message = "Ha ocurrido un error. Por favor intenta de nuevo más tarde.";
@@ -14,23 +15,23 @@ export const fetchPendingPayments = async () => {
         method: "GET",
         headers: headers
     })
-    .then((response) => response.json())
-    .then((response) => {
-        if (response.type !== "SUCCESS") {
-            return { 
-                success: false, 
-                error: response.text || global_error_message 
-            };
-        }
+        .then((response) => response.json())
+        .then((response) => {
+            if (response.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: response.text || global_error_message
+                };
+            }
 
-        return { success: true, data: response.result };
-    })
-    .catch((error) => {
-        return { 
-            success: false, 
-            error: error?.message || global_error_message 
-        };
-    });
+            return { success: true, data: response.result };
+        })
+        .catch((error) => {
+            return {
+                success: false,
+                error: error?.message || global_error_message
+            };
+        });
 };
 
 // Obtener todos los pagos aprobados
@@ -39,50 +40,50 @@ export const fetchFinishedPayments = async () => {
         method: "GET",
         headers: headers
     })
-    .then((response) => response.json())
-    .then((response) => {
-        if (response.type !== "SUCCESS") {
-            return { 
-                success: false, 
-                error: response.text || global_error_message 
-            };
-        }
+        .then((response) => response.json())
+        .then((response) => {
+            if (response.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: response.text || global_error_message
+                };
+            }
 
-        return { success: true, data: response.result };
-    })
-    .catch((error) => {
-        return { 
-            success: false, 
-            error: error?.message || global_error_message 
-        };
-    });
+            return { success: true, data: response.result };
+        })
+        .catch((error) => {
+            return {
+                success: false,
+                error: error?.message || global_error_message
+            };
+        });
 };
 
 // Cambiar el estado del pago (aprobar/rechazar)
-export const changePaymentStatus = async (paymentId, status) => {
-    return await fetch(`${base_api_url}${admin_path}${payment_management}${change_status}`, {
+export const changePaymentStatus = async (registrationId, registrationStatus) => {
+    return await fetch(`${base_api_url}${admin_path}${registration_management}${change_status}`, {
         method: "PUT",
         headers: headers,
         body: JSON.stringify({
-            paymentId,
-            status
+            registrationId,
+            registrationStatus
         })
     })
-    .then((response) => response.json())
-    .then((response) => {
-        if (response.type !== "SUCCESS") {
-            return { 
-                success: false, 
-                error: response.text || global_error_message 
-            };
-        }
+        .then((response) => response.json())
+        .then((response) => {
+            if (response.type !== "SUCCESS") {
+                return {
+                    success: false,
+                    error: response.text || global_error_message
+                };
+            }
 
-        return { success: true, message: response.text };
-    })
-    .catch((error) => {
-        return { 
-            success: false, 
-            error: error?.message || global_error_message 
-        };
-    });
+            return { success: true, message: response.text };
+        })
+        .catch((error) => {
+            return {
+                success: false,
+                error: error?.message || global_error_message
+            };
+        });
 };

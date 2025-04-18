@@ -1,6 +1,8 @@
 import { headersUpload, unlogin } from "../../utils/config/config";
 import { auth_path, base_api_url, request_reset, reset, storage_path, upload } from "../../utils/config/paths";
 
+const global_error_message = "Ha ocurrido un error. Por favor intenta de nuevo más tarde.";
+
 // Subir contenido multimedia (video, imagen o pdf)
 export const uploadFile = (file) => {
     const formDataUpload = new FormData();

@@ -24,12 +24,13 @@ const PaymentModal = ({ show, onHide, payment }) => {
   const price = payment?.registration?.course?.price || 0;
   const status = payment?.status || "PENDING_PAYMENT";
   const paymentUrl = payment?.paymentUrl || "";
-  const paymentId = payment?.paymentId || "";
+  const paymentId = payment?.registration?.registrationId || "";
+  const registrationStatus = payment?.registration?.registrationStatus || "";
 
   const handleApprove = async () => {
     setIsLoading(true)
     try {
-      const result = await changePaymentStatus(paymentId, "FINISHED")
+      const result = await changePaymentStatus(paymentId, "REGISTERED")
       if (result.success) {
         setToastVariant("success")
         setToastMessage("El pago ha sido aprobado correctamente")
@@ -56,7 +57,7 @@ const PaymentModal = ({ show, onHide, payment }) => {
   const handleReject = async () => {
     setIsLoading(true)
     try {
-      const result = await changePaymentStatus(paymentId, "FAILED")
+      const result = await changePaymentStatus(paymentId, "CANCELED")
       if (result.success) {
         setToastVariant("success")
         setToastMessage("El pago ha sido rechazado correctamente")
@@ -82,10 +83,10 @@ const PaymentModal = ({ show, onHide, payment }) => {
 
   // Helper function to format status for display
   const formatStatus = (status) => {
-    switch(status) {
-      case "PENDING_PAYMENT": return "Pendiente";
-      case "FINISHED": return "Aprobado";
-      case "FAILED": return "Rechazado";
+    switch (status) {
+      case "PENDING_PAYMENT": return "Pendiente de pago";
+      case "FINISHED": return "Pagado";
+      case "FAILED": return "Pago Fallido";
       default: return status;
     }
   };
@@ -132,18 +133,18 @@ const PaymentModal = ({ show, onHide, payment }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-end">
-          {status === "FINISHED" && (
+          {status === "FINISHED" && registrationStatus === "PENDING" && paymentUrl && (
             <div>
-              <Button 
-                variant="success" 
-                className="me-2 mr-2" 
+              <Button
+                variant="success"
+                className="me-2 mr-2"
                 onClick={handleApprove}
                 disabled={isLoading}
               >
                 {isLoading ? <Spinner size="sm" animation="border" /> : "Aprobar"}
               </Button>
-              <Button 
-                variant="danger" 
+              <Button
+                variant="danger"
                 onClick={handleReject}
                 disabled={isLoading}
               >

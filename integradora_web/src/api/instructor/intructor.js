@@ -1,7 +1,7 @@
-import { headers, sweetAlert } from "../../utils/config/config";
-import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, profile, section_management, storage_path, support, update, update_profile, upload, upload_photo, user_management } from "../../utils/config/paths";
+import { headers } from "../../utils/config/config";
+import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, profile, section_management, storage_path, support, update, update_profile, upload, user_management } from "../../utils/config/paths";
 
-const global_error_message = "Ocurrió un error inesperado al intentar realizar la acción.";
+const global_error_message = "Ha ocurrido un error. Por favor intenta de nuevo más tarde.";
 
 // Guardar un módulo
 export const saveModule = async (body) => {

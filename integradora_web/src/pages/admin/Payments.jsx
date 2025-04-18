@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 // Styles 
 import styles from "../../styles/general.module.css";
@@ -10,7 +10,6 @@ import Header from "../../components/Header";
 import PaymentList from "../../components/admin/PaymentList";
 import Sidebar from "../../components/admin/Sidebar";
 
-import defaultProfile from "../../assets/img/unknow.jpeg";
 import { useUserContext } from "../../contexts/UserProvider";
 
 const Payments = () => {

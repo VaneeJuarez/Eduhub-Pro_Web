@@ -19,7 +19,7 @@ function PaymentList({ selectedFilter, searchTerm }) {
   const loadPayments = async () => {
     try {
       let response;
-      
+
       // Cargar los pagos según el filtro seleccionado
       if (selectedFilter === "FINISHED") {
         response = await fetchFinishedPayments();
@@ -29,21 +29,21 @@ function PaymentList({ selectedFilter, searchTerm }) {
         // Si no hay filtro específico, cargar todos los pagos
         const pendingResponse = await fetchPendingPayments();
         const finishedResponse = await fetchFinishedPayments();
-        
+
         if (pendingResponse.success && finishedResponse.success) {
           // Combinar los resultados
           const combinedData = [
             ...(pendingResponse.data || []),
             ...(finishedResponse.data || [])
           ];
-          
+
           setPayments(combinedData);
           return;
         } else {
           return;
         }
       }
-      
+
       // Procesar la respuesta para el caso de un solo tipo de pagos
       if (response && response.success) {
         setPayments(response.data || []);
@@ -76,16 +76,16 @@ function PaymentList({ selectedFilter, searchTerm }) {
     );
   });
 
-  // console.log("Current payments:", payments);
-  // console.log("Selected filter:", selectedFilter);
+  console.log("Current payments:", payments);
+  console.log("Selected filter:", selectedFilter);
 
   if (!filteredPayments || filteredPayments.length === 0) {
     return (
       <div className="text-center py-5">
         <p className="text-muted">
-          No hay pagos {selectedFilter === "PENDING_PAYMENT" ? "pendientes" : 
-                       selectedFilter === "FINISHED" ? "por aprobar" : 
-                       "pendientes"}
+          No hay pagos {selectedFilter === "PENDING_PAYMENT" ? "pendientes" :
+            selectedFilter === "FINISHED" ? "por aprobar" :
+              "pendientes"}
         </p>
       </div>
     );
@@ -100,7 +100,7 @@ function PaymentList({ selectedFilter, searchTerm }) {
           const courseName = payment.registration?.course?.title || "Curso";
           const coursePrice = payment.registration?.course?.price || 0;
           const profilePhoto = payment.registration?.student?.profilePhotoPath || defaultProfile;
-          
+
           return (
             <Col md={3} key={payment.paymentId} className="mb-3">
               <Card className={styles.Card}>
@@ -108,41 +108,41 @@ function PaymentList({ selectedFilter, searchTerm }) {
                   <Row className="align-items-center mb-0">
                     <Col xs="auto">
                       <div>
-                        <img 
-                        src={profilePhoto}
-                        alt="User"
-                        className={styles.Img}
+                        <img
+                          src={profilePhoto}
+                          alt="User"
+                          className={styles.Img}
                         />
                       </div>
                     </Col>
-                    <Col style={{minWidth: 0}}>
+                    <Col style={{ minWidth: 0 }}>
                       <OverlayTrigger placement="top"
-                      overlay={<Tooltip id={`tooltip.studentName-${studentName}`}>
-                        {studentName}
-                      </Tooltip>}>
+                        overlay={<Tooltip id={`tooltip.studentName-${studentName}`}>
+                          {studentName}
+                        </Tooltip>}>
                         <h6 className={styles.cardTitle}>{studentName}</h6>
                       </OverlayTrigger>
                       <OverlayTrigger placement="top"
-                      overlay={<Tooltip id={`tooltip.courseName-${courseName}`}>
-                        {courseName}
-                      </Tooltip>}>
-                       <p className={`text-muted mb-0 ${styles.Description}`}>{courseName}</p>
-                    </OverlayTrigger>
-                    <p className={`fw-bold ${styles.Price}`}>${coursePrice.toFixed(2)} MXM</p>
+                        overlay={<Tooltip id={`tooltip.courseName-${courseName}`}>
+                          {courseName}
+                        </Tooltip>}>
+                        <p className={`text-muted mb-0 ${styles.Description}`}>{courseName}</p>
+                      </OverlayTrigger>
+                      <p className={`fw-bold ${styles.Price}`}>${coursePrice.toFixed(2)} MXM</p>
                     </Col>
                   </Row>
                   <Row className="mt-0">
                     <Col xs={12} className="d-flex justify-content-end gap-3 mt-2">
-                    <Button
-                    size="sm" 
-                    className={styles.PayButton}
-                    onClick={() => {
-                      setSelectedPayment(payment)
-                      setShowModal(true)
-                    }}
-                  >
-                    Ver detalles
-                  </Button>
+                      <Button
+                        size="sm"
+                        className={styles.PayButton}
+                        onClick={() => {
+                          setSelectedPayment(payment)
+                          setShowModal(true)
+                        }}
+                      >
+                        Ver detalles
+                      </Button>
                     </Col>
                   </Row>
                 </Card.Body>
