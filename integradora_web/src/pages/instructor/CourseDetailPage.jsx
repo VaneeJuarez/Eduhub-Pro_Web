@@ -140,8 +140,11 @@ function CourseDetailPage() {
           body: JSON.stringify(body),
         })
         const data = await response.json()
+
+        console.log("Estudiantes registrados: ", data);
+
         if (data.type === "SUCCESS") {
-          setRegisteredStudents(data.data)
+          setRegisteredStudents(data.result)
         }
       } catch (error) {
       }

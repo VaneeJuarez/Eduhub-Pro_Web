@@ -13,6 +13,9 @@ import styles from "../../styles/coursecard.module.css";
 import { registered_students } from "../../utils/config/paths";
 
 function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) {
+
+  console.log("registeredStudents card", registeredStudents);
+
   const [showStudentList, setShowStudentList] = useState(false);
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState("")
@@ -40,7 +43,7 @@ function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) 
   // Verificar si el curso comienza mañana
   const startsTomorrow = () => {
     if (!course) return false
- 
+
     return isTomorrow(course.startDate);
   }
 
@@ -180,8 +183,8 @@ function CourseStatusCard({ course, onPublishCourse, registeredStudents = [] }) 
               <p className="mb-0">El curso iniciará pronto</p>
               <Button variant="outline-primary" onClick={() => setShowStudentList(true)} className="w-100">
                 Ver Estudiantes
-              </Button>            
-              </div>
+              </Button>
+            </div>
           )}
 
           {/* Curso en curso */}
