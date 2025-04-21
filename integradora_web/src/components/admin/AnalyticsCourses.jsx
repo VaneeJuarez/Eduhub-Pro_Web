@@ -120,8 +120,8 @@ const AnalyticsCourses = () => {
                 </div>
                 <div className="mt-auto d-flex justify-content-between align-items-center">
                     <div className={`fw-bold ${style.cardPrice}`}>${course.price.toFixed(2)} mx</div>
-                    <Link to={`/admin/courses/${course.courseId}`} className={`btn btn-primary ${style.cardButton} `}>Ver Curso</Link>
-                    
+                    {/* <Link to={`/admin/courses/${course.courseId}`} className={`btn btn-primary ${style.cardButton} `}>Ver Curso</Link>
+                     */}
                 </div>
             </Card.Body>
         </Card>
