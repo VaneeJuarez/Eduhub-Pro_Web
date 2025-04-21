@@ -158,40 +158,6 @@ function ModuleAccordion({
     }
   }
 
-  const handleViewProgress = (moduleIndex) => {
-    // Generar datos de progreso para este módulo específico
-    const moduleProgress = generateModuleProgress(moduleIndex)
-
-    setSelectedModuleForProgress({
-      ...modules[moduleIndex],
-      index: moduleIndex,
-      progress: moduleProgress,
-    })
-    setShowProgressModal(true)
-  }
-
-  // Generar datos de progreso simulados para un módulo
-  const generateModuleProgress = (moduleIndex) => {
-    if (!course || !modules[moduleIndex]) return []
-
-    const mockStudents = []
-    // Usar el límite de estudiantes del curso o un valor predeterminado
-    const numStudents = Math.floor(Math.random() * (course.size || 20)) + 5 // Al menos 5 estudiantes
-
-    for (let i = 1; i <= numStudents; i++) {
-      const completed = Math.random() > 0.3 // 70% de probabilidad de completar
-      mockStudents.push({
-        id: i,
-        name: `Estudiante ${i}`,
-        email: `estudiante${i}@ejemplo.com`,
-        completed,
-        progress: completed ? 100 : Math.floor(Math.random() * 80), // Progreso aleatorio para los que no han completado
-      })
-    }
-
-    return mockStudents
-  }
-
   // Verificar si el curso esta en estado "En Curso"
   const isCourseInProgress = course && course.status === "IN_PROGRESS"
 
@@ -236,7 +202,7 @@ function ModuleAccordion({
                       variant="link"
                       size="sm"
                       className="p-0 ms-3 mr-3 text-primary"
-                      onClick={() => handleViewProgress(moduleIndex)}
+                      onClick={() => onViewProgress(moduleIndex)}
                       title="Ver progreso de estudiantes"
                     >
                       <BarChartFill />

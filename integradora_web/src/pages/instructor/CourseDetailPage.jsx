@@ -25,6 +25,7 @@ import {
   changeStatusCourses,
   deleteModule,
   fetchCourseById,
+  fetchStudentProgress,
   saveModule,
   updateModule,
 } from "../../api/instructor/intructor"
@@ -244,19 +245,31 @@ function CourseDetailPage() {
   }
 
   // Función para manejar la visualización del progreso de un módulo
-  const handleViewModuleProgress = (moduleIndex) => {
-    if (!course || !course.modules || !course.modules[moduleIndex]) return
+  const handleViewModuleProgress = async (moduleIndex) => {
+    const module = course.modules[moduleIndex];
 
-    // Generar datos de progreso simulados para este módulo
-    const moduleProgress = generateModuleProgress(moduleIndex)
+    const result = await fetchStudentProgress(module.moduleId, course.id);
+
+    if (!result.success) {
+      sweetAlert("error", "Error", result.error, "", null);
+      return;
+    }
+
+    const { taken = [], pending = [] } = result.data
+
+    const progressList = [
+      ...taken.map((u) => ({ ...u, completed: true })),
+      ...pending.map((u) => ({ ...u, completed: false })),
+    ]
 
     setSelectedModule({
-      ...course.modules[moduleIndex],
-      progress: moduleProgress,
+      ...module,
+      progress: progressList
     })
 
-    setShowModuleProgress(true)
-  }
+    setShowModuleProgress(true);
+  };
+
 
   // Generar datos de progreso simulados para un módulo
   const generateModuleProgress = (moduleIndex) => {

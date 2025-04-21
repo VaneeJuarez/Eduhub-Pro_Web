@@ -1,5 +1,5 @@
 import { headers } from "../../utils/config/config";
-import { base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, profile, section_management, storage_path, support, update, update_profile, upload, user_management } from "../../utils/config/paths";
+import { all, attendance_management, base_api_url, by_id, change_status, course_management, create, instructor_path, module_management, profile, section_management, storage_path, support, update, update_profile, upload, user_management } from "../../utils/config/paths";
 
 const global_error_message = "Ha ocurrido un error. Por favor intenta de nuevo más tarde.";
 
@@ -276,5 +276,41 @@ export const updateInstructorProfile = async (body) => {
         })
         .catch((error) => {
             return { success: false, error: global_error_message };
+        });
+};
+
+export const fetchStudentProgress = async (moduleId, courseId) => {
+    console.log("\nPETICION ", moduleId, courseId);
+
+    return await fetch(`${base_api_url}${instructor_path}${attendance_management}${all}`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(
+            {
+                moduleId: moduleId,
+                courseId: courseId
+            }
+        )
+    }).then((response) => response.json())
+        .then((response) => {
+            console.log(response);
+
+            if (response.type !== "SUCCESS") {
+                if (typeof response === "object" && !response.text) {
+                    const errorMessages = Object.values(response).join("\n");
+                    return { success: false, error: errorMessages };
+                }
+
+                if (response.text) {
+                    return { success: false, error: response.text };
+                }
+
+                return { success: false, error: global_error_message };
+            }
+
+            return { success: true, data: response.result };
+        })
+        .catch((error) => {
+            return { success: false, error: error?.message || global_error_message };
         });
 };
