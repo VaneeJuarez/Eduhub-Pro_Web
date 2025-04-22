@@ -84,67 +84,42 @@ function ProfilePhoto() {
         fileInputRef.current.click()
     }
 
-    const handleCompleteProfile = async () => {
+    const handleCompleteProfile = () => {
         if (!uploadedUrl) {
             sweetAlert("warning", "Falta imagen", "Primero selecciona una imagen válida.", "", null);
             return;
         }
 
-        try {
-            // Depurar el token y los headers
-            const userToken = user?.jwt;
-            // Obtener el email del usuario
-            const userEmail = getUserEmail();
+        const userToken = user?.jwt;
 
-            // Estructura del cuerpo de la solicitud - incluir password como en Postman
-            const requestBody = {
-                userId: userToken,
-                name: user?.name || "Usuario",
-                email: userEmail, // Usar el email obtenido directamente
-                password: "NuevaPassword2024", // Incluir password como en el ejemplo de Postman
-                profilePhotoPath: uploadedUrl
-            };
+        const requestBody = {
+            userId: userToken,
+            profilePhotoPath: uploadedUrl
+        };
 
-            // Probar con la ruta instructor en lugar de student
-            const updateUrl = `${base_api_url}${instructor_path}${user_management}${update_profile}`;
+        const updateUrl = `${base_api_url}${instructor_path}${user_management}${upload_photo}`;
 
-            // Intentar con XMLHttpRequest en lugar de fetch para ver si evita el problema de CORS
-            const xhr = new XMLHttpRequest();
-            xhr.open("PUT", updateUrl, true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.setRequestHeader("Accept", "application/json");
-            xhr.setRequestHeader("Authorization", `Bearer ${userToken}`);
-            xhr.withCredentials = true;
-
-            xhr.onload = function () {
-
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        const resultJson = JSON.parse(xhr.responseText);
-                        if (resultJson?.type === "SUCCESS") {
-                            sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
-                            navigate("/inst/courses");
-                        } else {
-                            sweetAlert("error", "Error", resultJson?.text || "No se pudo actualizar el perfil.", "", null);
-                        }
-                    } catch (e) {
-                        sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
-                        navigate("/inst/courses");
-                    }
+        fetch(updateUrl, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(requestBody),
+        })
+            .then(res => res.json())
+            .then(result => {
+                console.log(result);
+                
+                if (result?.type === "SUCCESS") {
+                    sweetAlert("success", "¡Perfil actualizado!", "Tu foto de perfil ha sido guardada.", "", null);
+                    navigate("/inst/courses");
                 } else {
-                    sweetAlert("error", "Error", `Error ${xhr.status}: ${xhr.statusText}`, "", null);
+                    sweetAlert("error", "Error", result?.text || "No se pudo actualizar el perfil.", "", null);
                 }
-            };
-
-            xhr.onerror = function () {
-                sweetAlert("error", "Error de conexión", "No se pudo conectar con el servidor. Verifica tu conexión a internet.", "", null);
-            };
-
-            xhr.send(JSON.stringify(requestBody));
-
-        } catch (error) {
-            sweetAlert("error", "Error", error.message || "Hubo un problema al actualizar tu perfil.", "", null);
-        }
+            })
+            .catch(err => {
+                console.log(err);
+                
+                sweetAlert("error", "Error", "Hubo un problema al actualizar tu perfil.", "", null);
+            });
     };
 
 

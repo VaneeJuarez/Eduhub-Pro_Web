@@ -166,7 +166,7 @@ const MyCourses = () => {
       setCourses(coursesWithRatings);
     } catch (error) {
       setError(error.message);
-      sweetAlert('error', "Error", "No pudimos cargar la lista de cursos.", "", null);
+      // sweetAlert('error', "Error", "No pudimos cargar la lista de cursos.", "", null);
     }
   };
 

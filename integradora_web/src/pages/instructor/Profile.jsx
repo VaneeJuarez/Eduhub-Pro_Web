@@ -85,8 +85,9 @@ function Profile() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Error desconocido al subir el archivo.");
+        console.log("Error al subir la imagen:", response);
+       /*  const errorText = await response.text(); */
+        throw new Error("Error desconocido al subir el archivo.");
       }
 
       const imageUrl = await response.text();
@@ -96,7 +97,7 @@ function Profile() {
       // Mostrar mensaje de éxito
       showToastMessage("Imagen subida correctamente");
     } catch (error) {
-      sweetAlert("error", "Error al subir imagen", error.message || "No se pudo subir la imagen", "", null);
+      sweetAlert("error","Error", "Error al subir imagen", "", null);
       setIsUploading(false);
     }
   };
@@ -107,7 +108,7 @@ function Profile() {
       // Llamada a la función de tu instructor.js
       const result = await getInstructorProfile(user.jwt);
       if (!result.success) {
-        sweetAlert("error", "Error", result.error);
+        sweetAlert("error", "Error", result.error, "", null);
         return;
       }
       
