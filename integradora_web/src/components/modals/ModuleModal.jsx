@@ -11,6 +11,7 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
     title: initialData?.title || "",
     lessons: initialData?.lessons || [],
   })
+  const [isSaving, setIsSaving] = useState(false)
 
    // Resetear el formulario cuando se abre el modal para un nuevo módulo
    useEffect(() => {
@@ -32,22 +33,26 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-
-    // Si estamos editando un módulo existente, preservar las lecciones
-    if (initialData) {
-      onSave({
-        ...formData,
-        title: formData.title,
-        lessons: initialData.lessons || [],
-      })
-    } else {
-      onSave({
-        ...formData,
-        title: formData.title,
-        lessons: [],
-      })
+    setIsSaving(true)
+    try {
+      // Si estamos editando un módulo existente, preservar las lecciones
+      if (initialData) {
+        await onSave({
+          ...formData,
+          title: formData.title,
+          lessons: initialData.lessons || [],
+        })
+      } else {
+        await onSave({
+          ...formData,
+          title: formData.title,
+          lessons: [],
+        })
+      }
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -67,8 +72,8 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
           <Button variant="secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="primary" type="submit">
-            Guardar
+          <Button variant="primary" type="submit" disabled={isSaving}>
+            {isSaving ? "Guardando..." : "Guardar"}
           </Button>
         </Modal.Footer>
       </Form>
@@ -77,4 +82,3 @@ function ModuleModal({ show, onHide, onSave, initialData = null }) {
 }
 
 export default ModuleModal
-

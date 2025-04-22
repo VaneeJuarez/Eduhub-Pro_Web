@@ -23,7 +23,7 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
   const [contentPreview, setContentPreview] = useState(initialData?.content || "")
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [initialDuration, setInitialDuration] = useState(null);
-
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (show) {
@@ -123,12 +123,14 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
     setIsUploading(false);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSave({
-      ...formData,
-      content: contentPreview, // Usar la URL del contenido
-    })
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await onSave(formData);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   // Agregar el campo de duración manual para permitir ajustes 
@@ -240,12 +242,14 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
           <Button variant="secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="primary" type="submit" disabled={isUploading || !formData.content}>
+          <Button variant="primary" type="submit" disabled={isUploading || !formData.content || isSaving}>
             {isUploading ? (
               <>
                 Subiendo
                 <Spinner animation="border" size="sm" className="me-2" />
               </>
+            ) : isSaving ? (
+              "Guardando..."
             ) : (
               "Guardar"
             )}
@@ -257,6 +261,3 @@ function LessonModal({ show, onHide, onSave, initialData = {} }) {
 }
 
 export default LessonModal
-
-
-
