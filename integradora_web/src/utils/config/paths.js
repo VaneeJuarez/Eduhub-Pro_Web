@@ -2,7 +2,7 @@
 // paths.js
 const IP = "localhost";
 // 1. Base API URL
-export const base_api_url = `http://${IP}:8080/eduhubpro/`;
+export const base_api_url = `https://sp3cg7c6yc.execute-api.us-east-1.amazonaws.com/eduhubpro/`;
 
 // 2. Role
 export const admin_path = "admin/";
